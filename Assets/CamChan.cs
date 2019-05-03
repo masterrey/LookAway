@@ -5,7 +5,8 @@ using UnityEngine;
 public class CamChan : MonoBehaviour
 {
     public GameObject player;
-    public float height, heightlook, distance;
+    public float height, heightlook, distance, tolerance;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -16,10 +17,18 @@ public class CamChan : MonoBehaviour
     void LateUpdate()
     {
         transform.LookAt(player.transform.position+Vector3.up*heightlook);
-        transform.position = Vector3.Lerp
-            (transform.position, player.transform.position+
-            Vector3.up* height +
-            player.transform.forward *distance
-            , Time.smoothDeltaTime);
+        //posicao ideal
+        Vector3 dir =  Vector3.up * height + player.transform.forward * distance;
+
+        Vector3 postogo = player.transform.position +
+            Vector3.up * height +player.transform.forward * distance;
+        
+        RaycastHit hit;
+        if(Physics.Raycast(player.transform.position + Vector3.up * heightlook, dir, out hit,10))
+        {
+            postogo = hit.point- dir.normalized*tolerance;
+        }
+        
+        transform.position = Vector3.Lerp(transform.position, postogo, Time.smoothDeltaTime);
     }
 }
