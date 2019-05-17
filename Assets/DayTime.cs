@@ -10,10 +10,21 @@ public class DayTime : MonoBehaviour
     Light sunlight;
     float intensity;
     public Gradient ambient;
+    public delegate void SunEvent();
+    public SunEvent DawnCall;
+    public SunEvent DuskCall;
+    public static DayTime instance;
+    bool day = false;
+    private void Awake()
+    {
+        instance = this;
+    }
     // Start is called before the first frame update
     void Start()
     {
         sunlight = GetComponent<Light>();
+        DawnCall += Afternon;
+        DuskCall += Morning;
     }
     //86400
     // Update is called once per frame
@@ -29,5 +40,24 @@ public class DayTime : MonoBehaviour
         RenderSettings.ambientLight = ambient.Evaluate(intensity);
 
         RenderSettings.fogDensity = 0.001f * intensity;
+        if (intensity > 0.4f&& !day)
+        {
+            DuskCall();
+            day = true;
+        }
+        if (intensity < 0.4f&& day)
+        {
+            DawnCall();
+            day = false;
+        }
+
+    }
+    void Morning()
+    {
+        print("Good day");
+    }
+    void Afternon()
+    {
+        print("Good night");
     }
 }

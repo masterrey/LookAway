@@ -45,6 +45,14 @@ ModelImporter:
     4300010: Tree3Small
     4300012: Tree4Large
     4300014: Tree4Small
+    6400000: Tree1Large
+    6400002: Tree1Small
+    6400004: Tree2Large
+    6400006: Tree2Small
+    6400008: Tree3Large
+    6400010: Tree3Small
+    6400012: Tree4Large
+    6400014: Tree4Small
   externalObjects: {}
   materials:
     importMaterials: 0
@@ -78,7 +86,7 @@ ModelImporter:
     lODScreenPercentages: []
     globalScale: 0.01
     meshCompression: 0
-    addColliders: 0
+    addColliders: 1
     useSRGBMaterialColor: 1
     importVisibility: 0
     importBlendShapes: 1
@@ -102,8 +110,8 @@ ModelImporter:
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0
-    tangentImportMode: 4
-    normalCalculationMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 1
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
     blendShapeNormalImportMode: 1
     normalSmoothingSource: 0
