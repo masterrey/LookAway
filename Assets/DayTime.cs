@@ -13,6 +13,7 @@ public class DayTime : MonoBehaviour
     public delegate void SunEvent();
     public SunEvent DawnCall;
     public SunEvent DuskCall;
+
     public static DayTime instance;
     bool day = false;
     private void Awake()
