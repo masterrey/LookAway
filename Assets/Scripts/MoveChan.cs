@@ -10,6 +10,7 @@ public class MoveChan : MonoBehaviour
     public GameObject currentCamera;
     public float jumpspeed = 8;
     public float gravity = 20;
+    float yresult;
     // Start is called before the first frame update
     void Start()
     {
@@ -19,20 +20,18 @@ public class MoveChan : MonoBehaviour
     void FixedUpdate()
     {
 
-        movaxis = new Vector3(Input.GetAxis("Horizontal")*0.3f, movaxis.y, Input.GetAxis("Vertical"));
-       
+        movaxis = new Vector3(Input.GetAxis("Horizontal")*0.3f, 0, Input.GetAxis("Vertical"));
 
-        charctrl.Move(transform.TransformVector(movaxis)*0.1f);
+        Vector3 relativedirection = currentCamera.transform.TransformVector(movaxis).normalized;
+        relativedirection = new Vector3(relativedirection.x, yresult, relativedirection.z);
+        Vector3 relativeDirectionWOy = relativedirection;
+        relativeDirectionWOy = new Vector3(relativedirection.x, 0, relativedirection.z);
+        charctrl.Move(relativedirection * 0.1f);
 
         anim.SetFloat("Speed", charctrl.velocity.magnitude);
-        
-
-        Vector3 dirtogo = new Vector3(currentCamera.transform.forward.x, 0
-            , currentCamera.transform.forward.z);
-
-        Quaternion rottogo = Quaternion.LookRotation( (movaxis.magnitude*dirtogo*2 + transform.forward));
-
-        transform.rotation = Quaternion.Lerp(transform.rotation,rottogo,Time.fixedDeltaTime*3);
+ 
+        Quaternion rottogo = Quaternion.LookRotation(relativeDirectionWOy*2 + transform.forward);
+        transform.rotation = Quaternion.Lerp(transform.rotation,rottogo,Time.fixedDeltaTime*50);
 
         if (Input.GetButtonDown("Fire1"))
         {
@@ -42,9 +41,15 @@ public class MoveChan : MonoBehaviour
         if (charctrl.isGrounded && Input.GetButton("Jump"))
         {
             anim.SetTrigger("Jump");
-            movaxis.y = jumpspeed;
+            yresult = jumpspeed;
 
         }
-        movaxis.y -= gravity * Time.fixedDeltaTime;
+        yresult -= gravity * Time.fixedDeltaTime;
+
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down,out hit, 100))
+        {
+            anim.SetFloat("JumpHeight", hit.distance);
+        }
     }
 }
