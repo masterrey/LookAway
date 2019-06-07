@@ -8,6 +8,8 @@ public class MoveChan : MonoBehaviour
     public Animator anim;
     Vector3 movaxis, turnaxis;
     public GameObject currentCamera;
+    public float jumpspeed = 8;
+    public float gravity = 20;
     // Start is called before the first frame update
     void Start()
     {
@@ -17,10 +19,10 @@ public class MoveChan : MonoBehaviour
     void FixedUpdate()
     {
 
-        movaxis = new Vector3(Input.GetAxis("Horizontal")*0.3f, 0, Input.GetAxis("Vertical"));
+        movaxis = new Vector3(Input.GetAxis("Horizontal")*0.3f, movaxis.y, Input.GetAxis("Vertical"));
        
 
-        charctrl.SimpleMove(transform.TransformVector(movaxis)*3);
+        charctrl.Move(transform.TransformVector(movaxis)*0.1f);
 
         anim.SetFloat("Speed", charctrl.velocity.magnitude);
         
@@ -37,5 +39,12 @@ public class MoveChan : MonoBehaviour
             anim.SetTrigger("PunchA");
         }
 
+        if (charctrl.isGrounded && Input.GetButton("Jump"))
+        {
+            anim.SetTrigger("Jump");
+            movaxis.y = jumpspeed;
+
+        }
+        movaxis.y -= gravity * Time.fixedDeltaTime;
     }
 }
