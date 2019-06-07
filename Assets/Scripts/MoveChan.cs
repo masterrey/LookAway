@@ -11,6 +11,7 @@ public class MoveChan : MonoBehaviour
     public float jumpspeed = 8;
     public float gravity = 20;
     float yresult;
+    public GameObject wing;
     // Start is called before the first frame update
     void Start()
     {
@@ -22,17 +23,38 @@ public class MoveChan : MonoBehaviour
 
         movaxis = new Vector3(Input.GetAxis("Horizontal")*0.3f, 0, Input.GetAxis("Vertical"));
 
-        Vector3 relativedirection = currentCamera.transform.TransformVector(movaxis).normalized;
+        if (wing.activeSelf)
+        {
+           
+            yresult -= gravity / 20 * Time.fixedDeltaTime;
+            movaxis += Vector3.forward * 3 ;
+        }
+        else
+        {
+            yresult -= gravity * Time.fixedDeltaTime;
+
+        }
+
+        Vector3 relativedirection = currentCamera.transform.TransformVector(movaxis);
         relativedirection = new Vector3(relativedirection.x, yresult, relativedirection.z);
+
         Vector3 relativeDirectionWOy = relativedirection;
         relativeDirectionWOy = new Vector3(relativedirection.x, 0, relativedirection.z);
-        charctrl.Move(relativedirection * 0.1f);
+
+       
 
         anim.SetFloat("Speed", charctrl.velocity.magnitude);
- 
-        Quaternion rottogo = Quaternion.LookRotation(relativeDirectionWOy*2 + transform.forward);
-        transform.rotation = Quaternion.Lerp(transform.rotation,rottogo,Time.fixedDeltaTime*50);
-
+        if (wing.activeSelf)
+        {
+            Vector3 movfly = new Vector3(movaxis.x, yresult, movaxis.z);
+            charctrl.Move(transform.TransformVector(movfly) * 0.1f);
+        }
+        else
+        {
+            charctrl.Move(relativedirection * 0.1f);
+            Quaternion rottogo = Quaternion.LookRotation(relativeDirectionWOy * 2 + transform.forward);
+            transform.rotation = Quaternion.Lerp(transform.rotation, rottogo, Time.fixedDeltaTime * 50);
+        }
         if (Input.GetButtonDown("Fire1"))
         {
             anim.SetTrigger("PunchA");
@@ -44,12 +66,33 @@ public class MoveChan : MonoBehaviour
             yresult = jumpspeed;
 
         }
-        yresult -= gravity * Time.fixedDeltaTime;
+
+        if (charctrl.isGrounded)
+        {
+            wing.SetActive(false);
+        }
+        
+
+
 
         RaycastHit hit;
         if (Physics.Raycast(transform.position, Vector3.down,out hit, 100))
         {
             anim.SetFloat("JumpHeight", hit.distance);
+            if(hit.distance>0.2f && Input.GetButtonDown("Jump")&& !wing.activeSelf)
+            {
+                wing.SetActive(true);
+                return;
+            }
+            if (hit.distance > 0.2f && Input.GetButtonDown("Jump") && wing.activeSelf)
+            {
+                wing.SetActive(false);
+            }
+
         }
+
+        
+
+
     }
 }
