@@ -12,6 +12,7 @@ public class MoveChan : MonoBehaviour
     public float gravity = 20;
     float yresult;
     public GameObject wing;
+    public Transform rightHandObj, leftHandObj;
     // Start is called before the first frame update
     void Start()
     {
@@ -26,8 +27,8 @@ public class MoveChan : MonoBehaviour
         if (wing.activeSelf)
         {
            
-            yresult -= gravity / 20 * Time.fixedDeltaTime;
-            movaxis += Vector3.forward * 3 ;
+            yresult = -Time.fixedDeltaTime*10;
+            movaxis = Vector3.forward * 3 ;
         }
         else
         {
@@ -48,6 +49,9 @@ public class MoveChan : MonoBehaviour
         {
             Vector3 movfly = new Vector3(movaxis.x, yresult, movaxis.z);
             charctrl.Move(transform.TransformVector(movfly) * 0.1f);
+
+
+          
         }
         else
         {
@@ -70,6 +74,7 @@ public class MoveChan : MonoBehaviour
         if (charctrl.isGrounded)
         {
             wing.SetActive(false);
+            
         }
         
 
@@ -82,6 +87,7 @@ public class MoveChan : MonoBehaviour
             if(hit.distance>0.2f && Input.GetButtonDown("Jump")&& !wing.activeSelf)
             {
                 wing.SetActive(true);
+                yresult = .1f;
                 return;
             }
             if (hit.distance > 0.2f && Input.GetButtonDown("Jump") && wing.activeSelf)
@@ -92,7 +98,39 @@ public class MoveChan : MonoBehaviour
         }
 
         
+       
+
+    }
 
 
+    //a callback for calculating IK
+    void OnAnimatorIK()
+    {
+        if (wing.activeSelf)
+        {
+            
+
+
+            if (rightHandObj != null)
+            {
+                anim.SetIKPositionWeight(AvatarIKGoal.RightHand, 1);
+                anim.SetIKRotationWeight(AvatarIKGoal.RightHand, 1);
+                anim.SetIKPosition(AvatarIKGoal.RightHand, rightHandObj.position);
+                anim.SetIKRotation(AvatarIKGoal.RightHand, rightHandObj.rotation);
+
+
+                anim.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1);
+                anim.SetIKRotationWeight(AvatarIKGoal.LeftHand, 1);
+                anim.SetIKPosition(AvatarIKGoal.LeftHand, leftHandObj.position);
+                anim.SetIKRotation(AvatarIKGoal.LeftHand, leftHandObj.rotation);
+
+
+            }
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        wing.SetActive(false);
     }
 }
