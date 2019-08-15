@@ -13,10 +13,15 @@ public class MoveChan : MonoBehaviour
     float yresult;
     public GameObject wing;
     public Transform rightHandObj, leftHandObj;
+    bool jumpbtn = false;
     // Start is called before the first frame update
     void Start()
     {
         currentCamera = Camera.main.gameObject;
+    }
+    private void Update()
+    {
+        jumpbtn = Input.GetButton("Jump");
     }
 
     void FixedUpdate()
@@ -64,7 +69,7 @@ public class MoveChan : MonoBehaviour
             anim.SetTrigger("PunchA");
         }
 
-        if (charctrl.isGrounded && Input.GetButton("Jump"))
+        if (charctrl.isGrounded && jumpbtn)
         {
             anim.SetTrigger("Jump");
             yresult = jumpspeed;
@@ -81,16 +86,16 @@ public class MoveChan : MonoBehaviour
 
 
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.down,out hit, 100))
+        if (Physics.Raycast(transform.position, Vector3.down,out hit, 1000))
         {
             anim.SetFloat("JumpHeight", hit.distance);
-            if(hit.distance>0.2f && Input.GetButtonDown("Jump")&& !wing.activeSelf)
+            if(hit.distance>0.2f && jumpbtn && !wing.activeSelf)
             {
                 wing.SetActive(true);
                 yresult = .1f;
                 return;
             }
-            if (hit.distance > 0.2f && Input.GetButtonDown("Jump") && wing.activeSelf)
+            if (hit.distance > 0.2f && jumpbtn && wing.activeSelf)
             {
                 wing.SetActive(false);
             }
