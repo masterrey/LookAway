@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MoveChan : MonoBehaviour
 {
@@ -20,7 +21,18 @@ public class MoveChan : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        charctrl.enabled = false;
+        if (SceneManager.GetActiveScene().name.Equals("Land"))
+        {
+            if (PlayerPrefs.HasKey("OldPlayerPosition"))
+            {
+                print("movendo "+ PlayerPrefsX.GetVector3("OldPlayerPosition"));
+                transform.position = PlayerPrefsX.GetVector3("OldPlayerPosition");
+               // Debug.Break();
+            }
+        }
         currentCamera = Camera.main.gameObject;
+        charctrl.enabled = true;
     }
     private void Update()
     {
@@ -33,14 +45,11 @@ public class MoveChan : MonoBehaviour
     void FixedUpdate()
     {
 
-        movaxis = new Vector3(Input.GetAxis("Horizontal")*0.3f, 0, Input.GetAxis("Vertical"));
+        movaxis = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
 
         if (wing.activeSelf)
         {
-           
             yresult = -1;
-            
-
         }
         else
         {
@@ -54,8 +63,7 @@ public class MoveChan : MonoBehaviour
         Vector3 relativeDirectionWOy = relativedirection;
         relativeDirectionWOy = new Vector3(relativedirection.x, 0, relativedirection.z);
 
-       
-
+        
         anim.SetFloat("Speed", charctrl.velocity.magnitude);
         if (wing.activeSelf)
         {
@@ -70,7 +78,7 @@ public class MoveChan : MonoBehaviour
 
             transform.Rotate(movfly);
 
-            wing.transform.localRotation = Quaternion.Euler(0, 0, angz*100);
+            wing.transform.localRotation = Quaternion.Euler(0, 0, angz*50);
 
 
             flyvelocity -= angx*0.01f;
@@ -79,6 +87,7 @@ public class MoveChan : MonoBehaviour
         }
         else
         {
+            
             charctrl.Move(relativedirection * 0.1f);
             Quaternion rottogo = Quaternion.LookRotation(relativeDirectionWOy * 2 + transform.forward);
             transform.rotation = Quaternion.Lerp(transform.rotation, rottogo, Time.fixedDeltaTime * 50);
@@ -105,10 +114,10 @@ public class MoveChan : MonoBehaviour
 
 
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.down,out hit, 1000))
+        if (Physics.Raycast(transform.position-(transform.forward*0.1f)+transform.up*0.3f, Vector3.down,out hit, 1000))
         {
             anim.SetFloat("JumpHeight", hit.distance);
-            if(hit.distance>0.2f && jumpbtn && !wing.activeSelf)
+            if(hit.distance>0.5f && jumpbtn && !wing.activeSelf)
             {
                 wing.SetActive(true);
                 yresult = .1f;
@@ -116,7 +125,7 @@ public class MoveChan : MonoBehaviour
                 jumpbtn = false;
                 return;
             }
-            if (hit.distance > 0.2f && jumpbtn && wing.activeSelf)
+            if (hit.distance > 0.5f && jumpbtn && wing.activeSelf)
             {
                 wing.SetActive(false);
                 jumpbtn = false;
