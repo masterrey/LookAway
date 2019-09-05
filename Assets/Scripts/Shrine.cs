@@ -9,7 +9,7 @@ public class Shrine : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+       
     }
 
     // Update is called once per frame
@@ -22,6 +22,7 @@ public class Shrine : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player"))
         {
+            PlayerPrefsX.SetVector3("OldPlayerPosition", other.transform.position - other.transform.forward * 2);
             SceneManager.LoadScene(ShrineName);
         }
     }
