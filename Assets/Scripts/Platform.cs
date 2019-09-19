@@ -31,12 +31,7 @@ public class Platform : MonoBehaviour
       
         if (col.CompareTag("Player"))
         {
-            if (rdb)
-            {
-                col.gameObject.GetComponent<CharacterController>().enabled = false;
-                rdb.isKinematic = false;
-
-            }
+           
             col.transform.parent = transform;
         }
     }
