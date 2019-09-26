@@ -19,6 +19,8 @@ public class MoveChanPhisical : MonoBehaviour
     bool jumpbtn = false;
     bool jumpbtndown = false;
     bool jumpbtnrelease = false;
+    GameObject closeThing;
+    float weight;
     // Start is called before the first frame update
     void Start()
     {
@@ -150,6 +152,7 @@ public class MoveChanPhisical : MonoBehaviour
 
             if (rightHandObj != null)
             {
+               
                 anim.SetIKPositionWeight(AvatarIKGoal.RightHand, 1);
                 anim.SetIKRotationWeight(AvatarIKGoal.RightHand, 1);
                 anim.SetIKPosition(AvatarIKGoal.RightHand, rightHandObj.position);
@@ -162,10 +165,51 @@ public class MoveChanPhisical : MonoBehaviour
 
             }
         }
+
+        if (closeThing)
+        {
+            //calcula a direcao do ponto de toque para a personagem
+            Vector3 handDirection = closeThing.transform.position - transform.position;
+            //verifica se o objeto ta na frente do personagem >0
+            float lookto = Vector3.Dot(handDirection.normalized, transform.forward);
+            //calcula e interpola o peso pela formula (l*3)/distancia^3
+            weight=Mathf.Lerp(weight,(lookto*3 / (Mathf.Pow(handDirection.magnitude,3))),Time.fixedDeltaTime*2);
+           
+            anim.SetIKPositionWeight(AvatarIKGoal.RightHand, weight);
+            anim.SetIKRotationWeight(AvatarIKGoal.RightHand, weight);
+            anim.SetIKPosition(AvatarIKGoal.RightHand, closeThing.transform.position + transform.right * 0.1f);
+            anim.SetIKRotation(AvatarIKGoal.RightHand, Quaternion.identity);
+
+            anim.SetIKPositionWeight(AvatarIKGoal.LeftHand, weight);
+            anim.SetIKRotationWeight(AvatarIKGoal.LeftHand, weight);
+            anim.SetIKPosition(AvatarIKGoal.LeftHand, closeThing.transform.position- transform.right*0.1f);
+            anim.SetIKRotation(AvatarIKGoal.LeftHand, Quaternion.identity);
+
+            if (weight <= 0)
+            {
+                Destroy(closeThing);
+            }
+           
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
         wing.SetActive(false);
+        if (collision.transform.position.y > transform.position.y + .05f) {
+            if(!closeThing)
+            closeThing = new GameObject("Handpos");
+
+            weight = 0;
+            closeThing.transform.parent = collision.gameObject.transform;
+            closeThing.transform.position= collision.GetContact(0).point;
+
+        }
+
+    }
+    private void OnCollisionExit(Collision collision)
+    {
+
+
     }
 }
