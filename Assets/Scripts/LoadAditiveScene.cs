@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 public class LoadAditiveScene : MonoBehaviour
 {
     public string SceneName;
+    AsyncOperation asyncOperation;
     // Start is called before the first frame update
     void Start()
     {
@@ -14,14 +15,23 @@ public class LoadAditiveScene : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(asyncOperation != null)
+        {
+          
+           LoadIcon.instance.LoadIconRun(asyncOperation.progress+0.1f);
+            if (asyncOperation.isDone)
+            {
+                LoadIcon.instance.LoadIconRun(0);
+                asyncOperation = null;
+            }
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            SceneManager.LoadSceneAsync(SceneName, LoadSceneMode.Additive);
+            asyncOperation= SceneManager.LoadSceneAsync(SceneName, LoadSceneMode.Additive);
         }
     }
 
