@@ -43,6 +43,7 @@ public class LoadAditiveScene : MonoBehaviour
         {
             SceneManager.UnloadSceneAsync(SceneName);
             sceneloaded=false;
+            
         }
     }
 }
