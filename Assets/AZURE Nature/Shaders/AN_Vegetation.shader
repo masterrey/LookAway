@@ -36,6 +36,7 @@ Shader "Raygeas/AZURE Vegetation"
 
 	SubShader
 	{
+
 		Tags{ "RenderType" = "Grass"  "Queue" = "Geometry+0" }
 		Cull Off
 		CGINCLUDE

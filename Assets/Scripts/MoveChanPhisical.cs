@@ -92,8 +92,8 @@ public class MoveChanPhisical : MonoBehaviour
         }
         else
         {
-            rdb.velocity = relativeDirectionWOy*5 + new Vector3(0,rdb.velocity.y,0);
-            //rdb.AddForce(relativeDirectionWOy * 1000);
+            //rdb.velocity = relativeDirectionWOy*5 + new Vector3(0,rdb.velocity.y,0);
+            rdb.AddForce(relativeDirectionWOy *10000/(rdb.velocity.magnitude+1));
             Quaternion rottogo = Quaternion.LookRotation(relativeDirectionWOy * 2 + transform.forward);
             transform.rotation = Quaternion.Lerp(transform.rotation, rottogo, Time.fixedDeltaTime * 50);
         }
