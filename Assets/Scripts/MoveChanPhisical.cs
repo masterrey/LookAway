@@ -88,7 +88,7 @@ public class MoveChanPhisical : MonoBehaviour
              flyvelocity -= angx*0.01f;
              flyvelocity = Mathf.Lerp(flyvelocity, 3, Time.fixedDeltaTime);
              flyvelocity = Mathf.Clamp(flyvelocity,0,5);
-             
+            
         }
         else
         {
@@ -96,13 +96,22 @@ public class MoveChanPhisical : MonoBehaviour
             rdb.AddForce(relativeDirectionWOy *10000/(rdb.velocity.magnitude+1));
             Quaternion rottogo = Quaternion.LookRotation(relativeDirectionWOy * 2 + transform.forward);
             transform.rotation = Quaternion.Lerp(transform.rotation, rottogo, Time.fixedDeltaTime * 50);
+            
         }
         if (Input.GetButtonDown("Fire1"))
         {
             anim.SetTrigger("PunchA");
+           
         }
 
-      
+        if (Input.GetButton("Fire1"))
+        {
+           
+            if (wing.activeSelf)
+            {
+                rdb.AddRelativeForce(Vector3.forward * 10000);
+            }
+        }
 
         RaycastHit hit;
         if (Physics.Raycast(transform.position-(transform.forward*0.1f)+transform.up*0.3f, Vector3.down,out hit, 1000))
@@ -111,7 +120,19 @@ public class MoveChanPhisical : MonoBehaviour
             if (hit.distance < 0.5f && jumpbtn)
             {
                 jumptime = 0.25f;
+               
             }
+            if (hit.distance < 0.5f)
+            {
+               
+                rdb.drag = 4f;
+            }
+            if (hit.distance > 0.5f)
+            {
+
+                rdb.drag = 0.4f;
+            }
+
             if (hit.distance>0.5f && jumpbtndown && !wing.activeSelf)
             {
                 
