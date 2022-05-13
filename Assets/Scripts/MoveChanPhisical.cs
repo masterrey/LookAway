@@ -21,6 +21,7 @@ public class MoveChanPhisical : MonoBehaviour
     bool jumpbtnrelease = false;
     GameObject closeThing;
     float weight;
+    FixedJoint joint;
     // Start is called before the first frame update
     void Start()
     {
@@ -94,8 +95,11 @@ public class MoveChanPhisical : MonoBehaviour
         {
             //rdb.velocity = relativeDirectionWOy*5 + new Vector3(0,rdb.velocity.y,0);
             rdb.AddForce(relativeDirectionWOy *10000/(rdb.velocity.magnitude+1));
-            Quaternion rottogo = Quaternion.LookRotation(relativeDirectionWOy * 2 + transform.forward);
-            transform.rotation = Quaternion.Lerp(transform.rotation, rottogo, Time.fixedDeltaTime * 50);
+            if (!joint)
+            {
+                Quaternion rottogo = Quaternion.LookRotation(relativeDirectionWOy * 2 + transform.forward);
+                transform.rotation = Quaternion.Lerp(transform.rotation, rottogo, Time.fixedDeltaTime * 50);
+            }
             
         }
         if (Input.GetButtonDown("Fire1"))
@@ -206,9 +210,32 @@ public class MoveChanPhisical : MonoBehaviour
             anim.SetIKPosition(AvatarIKGoal.LeftHand, closeThing.transform.position- transform.right*0.1f);
             anim.SetIKRotation(AvatarIKGoal.LeftHand, Quaternion.identity);
 
+            if (Input.GetButtonDown("Fire1"))
+            {
+                if (joint)
+                {
+                    Destroy(joint);
+                    return;
+                }
+               
+               if(closeThing.GetComponentInParent<Rigidbody>()!=null)
+                {
+                    print("ASD");
+                    joint = closeThing.transform.parent.gameObject.AddComponent<FixedJoint>();
+                    joint.connectedBody = rdb;
+                }
+            }
+           
+
             if (weight <= 0)
             {
                 Destroy(closeThing);
+                if (joint)
+                {
+                    Destroy(joint);
+                    return;
+                }
+
             }
            
         }
