@@ -8,9 +8,9 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: black-hole-spirals-circles-1983154
-  m_Shader: {fileID: -6465566751694194690, guid: e4179c8a335c12b478ca1b2dc595b92e,
-    type: 3}
-  m_ShaderKeywords: _EMISSION
+  m_Shader: {fileID: 4800000, guid: e202ee41c4a1646b89485f5daa21b886, type: 3}
+  m_ShaderKeywords: _EMISSION _GEOREFRACTIONS _RECEIVE_SHADOWS_OFF _REFRACTION _RIMLIGHTING
+    _SIMPLEFUZZ
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -25,21 +25,29 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: a8d1786156574934f98fdfc3e0cc8881, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0.06, y: 0}
     - _BumpMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 766b116e9269d704e8e79fa6ebd7127a, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
         m_Texture: {fileID: 2800000, guid: 87331e6f89254b44a8dd4496b3e7025f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _FoamMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0.06, y: 0}
+    - _MaskMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -85,34 +93,112 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - _Alpha: 1
     - _AlphaClip: 0
+    - _AlphaFromMaskMap: 1
+    - _ApplyFog: 0
+    - _ApplyNormal: 0
     - _Blend: 0
+    - _BumpRefraction: 0.1
     - _BumpScale: 1
+    - _Coverage: 0
     - _Cull: 2
+    - _Culling: 0
     - _Cutoff: 0.5
+    - _Density: 1
+    - _Distortion: 0.01
     - _DstBlend: 0
+    - _DynamicAlpha: 0
+    - _EdgeBlend: 0.87
+    - _EnableBaseMap: 0
+    - _EnableFuzzyLighting: 1
+    - _EnableGeoRefr: 1
+    - _EnableGradient: 0
+    - _EnableMaskMap: 0
+    - _EnableRefraction: 1
+    - _EnableScreenEdgeFade: 0
     - _EnvironmentReflections: 1
+    - _ExcludeForeground: 0
+    - _FinalAlpha: 0.5
+    - _Foam: 0
+    - _FoamScale: 4
+    - _FoamSlopStrength: 0.85
+    - _FoamSmoothness: 0.3
+    - _FoamSoftIntersectionFactor: 0.5
+    - _FoamTiling: 2
+    - _FuzzAmbient: 1
+    - _FuzzBias: 0
+    - _FuzzPower: 4
+    - _FuzzStrength: 2
+    - _FuzzWrap: 0.5
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _HQFog: 0
+    - _Help: 0
+    - _IOR: 1.33
+    - _IsThinShell: 0
+    - _Lower: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
+    - _OrthoSpport: 0
     - _QueueOffset: 0
-    - _ReceiveShadows: 1
-    - _Smoothness: 0.5
+    - _ReadMask: 255
+    - _ReceiveShadows: 0
+    - _ReflectionBumpScale: 0.497
+    - _Refraction: 0.087
+    - _Rim: 1
+    - _RimFrequency: 0
+    - _RimMinPower: 1
+    - _RimPerPositionFrequency: 1
+    - _RimPower: 2
+    - _RotateNormal: 0
+    - _ScreenEdgeFade: 8
+    - _ShadowOffset: 1
+    - _ShadowStrength: 0.7
+    - _Smoothness: 0.938
+    - _SmoothnessBase: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilFail: 0
+    - _StencilOp: 0
+    - _StencilZFail: 0
     - _Surface: 0
+    - _TranslucencyPower: 7
+    - _TranslucencyStrength: 1
+    - _Upper: 1
+    - _UseScattering: 0
     - _WorkflowMode: 1
+    - _WriteMask: 255
+    - _ZTest: 2
     - _ZWrite: 1
+    - _b_influence: 1
+    - _branches_disp: 0.3
+    - _leaves_wiggle_disp: 0.07
+    - _leaves_wiggle_speed: 0.01
+    - _r_influence: 1
+    - _tree_sway_disp: 0.3
+    - _tree_sway_speed: 1
+    - _tree_sway_stutter: 1.5
+    - _tree_sway_stutter_influence: 0.2
+    - _wind_size: 15
     m_Colors:
     - Color_37B0C58F: {r: 0.8773585, g: 0.16967781, b: 0.65141886, a: 0}
     - Color_78611F99: {r: 0.509434, g: 0.509434, b: 0.509434, a: 0}
     - _BaseColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _EmissionColor: {r: 1.235602, g: 1.1450343, b: 0, a: 1}
+    - _FoamSpeed: {r: 0.1, g: 0, b: 0, a: 0}
+    - _RimColor: {r: 68.5935, g: 0, b: 65.09657, a: 1}
+    - _SecondaryTilingSpeedRefractBump: {r: 2, g: 2.3, b: 0.1, a: 1}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+    - _SpecColorBase: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+    - _Speed: {r: 0.1, g: 0, b: 0, a: 0}
+    - _Tint: {r: 1, g: 1, b: 1, a: 1}
+    - _wind_dir: {r: 0.5, g: 0.05, b: 0.5, a: 0}
   m_BuildTextureStacks: []
 --- !u!114 &6389927914173233047
 MonoBehaviour:

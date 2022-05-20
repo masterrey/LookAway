@@ -3,7 +3,7 @@
 #ifndef LIGHTWEIGHT_PARTICLES_SIMPLE_LIT_INPUT_INCLUDED
 #define LIGHTWEIGHT_PARTICLES_SIMPLE_LIT_INPUT_INCLUDED
 
-#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Particles.hlsl"
+//#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Particles.hlsl"
 
 CBUFFER_START(UnityPerMaterial)
     float4 _SoftParticleFadeParams;

@@ -21,9 +21,8 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: dcatyft-3d286c66-03cc-448e-b8d8-a4f0a3a2fc26
-  m_Shader: {fileID: -6465566751694194690, guid: a72dd36d97208c54cb64dec620ae44db,
-    type: 3}
-  m_ShaderKeywords: 
+  m_Shader: {fileID: 4800000, guid: e202ee41c4a1646b89485f5daa21b886, type: 3}
+  m_ShaderKeywords: _REFRACTION
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -42,10 +41,14 @@ Material:
         m_Scale: {x: 5000, y: 5000}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
+        m_Texture: {fileID: 2800000, guid: 58a059b07b093a745b47c2191525ddce, type: 3}
+        m_Scale: {x: 500, y: 500}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _EmissionMap:
+    - _FoamMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -100,26 +103,43 @@ Material:
     - _BumpScale: 1
     - _Cull: 2
     - _Cutoff: 0.5
+    - _Density: 0.02
     - _DstBlend: 0
+    - _EdgeBlend: 0.27
+    - _EnableRefraction: 1
     - _EnvironmentReflections: 1
+    - _Foam: 0
+    - _FoamScale: 4
+    - _FoamSlopStrength: 0.85
+    - _FoamSmoothness: 0.3
+    - _FoamSoftIntersectionFactor: 0.5
+    - _FoamTiling: 2
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _Help: 1
     - _Metallic: 0
     - _OcclusionStrength: 1
+    - _OrthoSpport: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Smoothness: 0.5
+    - _ReflectionBumpScale: 0.518
+    - _Refraction: 0.688
+    - _Smoothness: 0.105
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Surface: 0
     - _WorkflowMode: 1
+    - _ZTest: 4
     - _ZWrite: 1
     m_Colors:
     - Vector2_164B97DB: {r: 2000, g: 2000, b: 0, a: 0}
     - _BaseColor: {r: 0.43965825, g: 0.5600124, b: 0.9811321, a: 1}
-    - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    - _Color: {r: 0, g: 0.35134554, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+    - _FoamSpeed: {r: 0.1, g: 0, b: 0, a: 0}
+    - _SecondaryTilingSpeedRefractBump: {r: 2, g: 2.3, b: 0.1, a: 1}
+    - _SpecColor: {r: 0.2264151, g: 0.2264151, b: 0.2264151, a: 1}
+    - _Speed: {r: 0.1, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
