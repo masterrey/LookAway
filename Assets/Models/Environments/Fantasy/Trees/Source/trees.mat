@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: trees
-  m_Shader: {fileID: 4800000, guid: 8f3d5abc0abe34592987b6e1c1f6ee2f, type: 3}
+  m_Shader: {fileID: 4800000, guid: 56bc1c4ddbe35b245aee9c9f3b5be280, type: 3}
   m_ShaderKeywords: BACKFACENORMALMODE_MIRROR _ALPHATEST_ON _EMISSION _VISUALIZE_COMBINED_WIND
     _WINDQUALITY_FASTEST _WIND_TEXTURE
   m_LightmapFlags: 2
@@ -132,6 +132,7 @@ Material:
     - _EnableDither: 0
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0.424
+    - _GlossPower: 0.164
     - _Glossiness: 0.463
     - _GlossyReflections: 1
     - _HueVariationKwToggle: 0

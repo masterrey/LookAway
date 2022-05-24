@@ -9,7 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: New Terrain Material
   m_Shader: {fileID: 4800000, guid: 0530a238ec61441fdbb8616b02ecf970, type: 3}
-  m_ShaderKeywords: _NORMALMAP _PROCEDURALTEXTURING _TERRAIN_INSTANCED_PERPIXEL_NORMAL
+  m_ShaderKeywords: _NORMALMAP _PARALLAX _PROCEDURALTEXTURING _TERRAIN_BLEND_HEIGHT
+    _TERRAIN_INSTANCED_PERPIXEL_NORMAL
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -127,10 +128,10 @@ Material:
     - _BumpScale: 1
     - _Cull: 2
     - _Culling: 0
-    - _EnableHeightBlend: 0
+    - _EnableHeightBlend: 1
     - _EnableInstancedPerPixelNormal: 1
     - _EnableNormalMap: 1
-    - _EnableParallax: 0
+    - _EnableParallax: 1
     - _EnableProcedural: 1
     - _EnvironmentReflections: 1
     - _HeightTransition: 0.293
@@ -143,7 +144,7 @@ Material:
     - _NormalWidth: 0
     - _NumLayersCount: 1
     - _Occlusion: 0
-    - _Parallax: 0.0218
+    - _Parallax: 0.0116
     - _ProceduralBlend: 0.695
     - _ProceduralScale: 0.966
     - _ProceduralTiling: 5

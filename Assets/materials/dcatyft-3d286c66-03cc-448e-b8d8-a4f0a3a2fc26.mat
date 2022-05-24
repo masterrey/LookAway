@@ -24,7 +24,7 @@ Material:
   m_Shader: {fileID: 4800000, guid: e202ee41c4a1646b89485f5daa21b886, type: 3}
   m_ShaderKeywords: _REFRACTION
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
@@ -41,7 +41,7 @@ Material:
         m_Scale: {x: 5000, y: 5000}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
-        m_Texture: {fileID: 2800000, guid: 58a059b07b093a745b47c2191525ddce, type: 3}
+        m_Texture: {fileID: 2800000, guid: 912edd0c3d79bc84bb45255376757dad, type: 3}
         m_Scale: {x: 500, y: 500}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
@@ -49,7 +49,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _FoamMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 6256982f10c8bb141ac4d83ddbea3bf2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
@@ -84,6 +84,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _WavesNormal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -100,19 +104,24 @@ Material:
     - Vector1_1CCBCF84: 0.0001
     - _AlphaClip: 0
     - _Blend: 0
-    - _BumpScale: 1
+    - _BumpScale: 0.02
+    - _CoastOpacity: 0
     - _Cull: 2
     - _Cutoff: 0.5
-    - _Density: 0.02
-    - _DstBlend: 0
-    - _EdgeBlend: 0.27
+    - _Density: 1.1
+    - _DepthDistance: 0
+    - _DstBlend: 2
+    - _EdgeBlend: 2.68
     - _EnableRefraction: 1
     - _EnvironmentReflections: 1
     - _Foam: 0
+    - _FoamContrast: 0
+    - _FoamDensity: 0.5
+    - _FoamDistance: 0
     - _FoamScale: 4
-    - _FoamSlopStrength: 0.85
-    - _FoamSmoothness: 0.3
-    - _FoamSoftIntersectionFactor: 0.5
+    - _FoamSlopStrength: 0.811
+    - _FoamSmoothness: 0.495
+    - _FoamSoftIntersectionFactor: 2.08
     - _FoamTiling: 2
     - _GlossMapScale: 0
     - _Glossiness: 0
@@ -120,26 +129,34 @@ Material:
     - _Help: 1
     - _Metallic: 0
     - _OcclusionStrength: 1
+    - _Opacity: 0
     - _OrthoSpport: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _ReflectionBumpScale: 0.518
-    - _Refraction: 0.688
-    - _Smoothness: 0.105
+    - _ReflectionBumpScale: 0.619
+    - _Refraction: 0.662
+    - _RefractionScale: 0.2
+    - _Smoothness: 0.957
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Surface: 0
+    - _WavesNormalIntensity: 1
+    - _WavesSpeed: 0
+    - _WavesTile: 1
     - _WorkflowMode: 1
-    - _ZTest: 4
+    - _ZTest: 2
     - _ZWrite: 1
+    - __dirty: 1
     m_Colors:
     - Vector2_164B97DB: {r: 2000, g: 2000, b: 0, a: 0}
     - _BaseColor: {r: 0.43965825, g: 0.5600124, b: 0.9811321, a: 1}
-    - _Color: {r: 0, g: 0.35134554, b: 1, a: 1}
+    - _Color: {r: 0.066037714, g: 0.06011924, b: 0.06011924, a: 0}
+    - _Color1: {r: 0, g: 0, b: 0, a: 0}
+    - _Color2: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FoamSpeed: {r: 0.1, g: 0, b: 0, a: 0}
     - _SecondaryTilingSpeedRefractBump: {r: 2, g: 2.3, b: 0.1, a: 1}
-    - _SpecColor: {r: 0.2264151, g: 0.2264151, b: 0.2264151, a: 1}
-    - _Speed: {r: 0.1, g: 0, b: 0, a: 0}
+    - _SpecColor: {r: 0.4811321, g: 0.4811321, b: 0.4811321, a: 0.27058825}
+    - _Speed: {r: 0.02, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
