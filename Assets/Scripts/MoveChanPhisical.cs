@@ -1,10 +1,14 @@
-﻿using System.Collections;
+﻿// Importando bibliotecas necessárias
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+// Classe MoveChanPhisical herda de MonoBehaviour
 public class MoveChanPhisical : MonoBehaviour
 {
+    // Variáveis públicas
     public Rigidbody rdb;
     public Animator anim;
     Vector3 movaxis, turnaxis;
@@ -12,6 +16,7 @@ public class MoveChanPhisical : MonoBehaviour
     public float jumpspeed = 8;
     public float gravity = 20;
 
+    // Variáveis privadas
     float jumptime;
     float flyvelocity = 3;
     public GameObject wing;
@@ -22,25 +27,31 @@ public class MoveChanPhisical : MonoBehaviour
     GameObject closeThing;
     float weight;
     FixedJoint joint;
-    // Start is called before the first frame update
+
+    // Método Start é chamado antes do primeiro frame
     void Start()
     {
-      
+        
+        // Verifica se o nome da cena ativa é "Land"
         if (SceneManager.GetActiveScene().name.Equals("Land"))
         {
+            // Verifica se há uma posição antiga do jogador
             if (PlayerPrefs.HasKey("OldPlayerPosition"))
             {
-                print("movendo "+ PlayerPrefsX.GetVector3("OldPlayerPosition"));
+                // Move o jogador para a posição antiga
+                print("movendo " + PlayerPrefsX.GetVector3("OldPlayerPosition"));
                 transform.position = PlayerPrefsX.GetVector3("OldPlayerPosition");
-               
             }
         }
+        // Define a câmera principal como a câmera atual
         currentCamera = Camera.main.gameObject;
-       
     }
+
+    // Método Update é chamado a cada frame
     private void Update()
     {
-        if(Input.GetButtonDown("Jump"))
+        // Lida com o botão de pular
+        if (Input.GetButtonDown("Jump"))
         {
             jumpbtn = true;
             jumpbtndown = true;
@@ -50,134 +61,122 @@ public class MoveChanPhisical : MonoBehaviour
             jumpbtn = false;
             jumptime = 0;
         }
-        movaxis = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
 
+       
     }
 
+    // Método FixedUpdate é chamado a cada frame em intervalos fixos
     void FixedUpdate()
     {
 
-   
-        Vector3 relativedirection = currentCamera.transform.TransformVector(movaxis);
-        relativedirection = new Vector3(relativedirection.x, jumptime, relativedirection.z);
+        // Atualiza o eixo de movimento com base no input do usuário
+        movaxis = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
 
-        Vector3 relativeDirectionWOy = relativedirection;
-        relativeDirectionWOy = new Vector3(relativedirection.x,0, relativedirection.z);
-
-        
+        // Define a animação de velocidade
         anim.SetFloat("Speed", rdb.velocity.magnitude);
 
+        // Verifica se as asas estão ativas
         if (wing.activeSelf)
         {
-
-            float velocity = Mathf.Abs(rdb.velocity.x)+ Mathf.Abs(rdb.velocity.z);
-            velocity = Mathf.Clamp(velocity, 0, 10);
-
-            rdb.AddRelativeForce(new Vector3(0, velocity*120, 1000));
-            
-             Vector3 movfly = new Vector3(Vector3.forward.x* flyvelocity, 0, Vector3.forward.z* flyvelocity);
-
-             float angz = Vector3.Dot(transform.right, Vector3.up);
-             float angx = Vector3.Dot(transform.forward, Vector3.up);
-             movfly = new Vector3(movaxis.z+ angx*2, -angz, -movaxis.x- angz);
-
-             transform.Rotate(movfly);
-
-             wing.transform.localRotation = Quaternion.Euler(0, 0, angz*50);
-
-
-             flyvelocity -= angx*0.01f;
-             flyvelocity = Mathf.Lerp(flyvelocity, 3, Time.fixedDeltaTime);
-             flyvelocity = Mathf.Clamp(flyvelocity,0,5);
-            
+            // Código para controlar o voo do personagem
+            FlyControl();
         }
         else
         {
-            //rdb.velocity = relativeDirectionWOy*5 + new Vector3(0,rdb.velocity.y,0);
-            rdb.AddForce(relativeDirectionWOy *10000/(rdb.velocity.magnitude+1));
-            if (!joint)
-            {
-                Quaternion rottogo = Quaternion.LookRotation(relativeDirectionWOy * 2 + transform.forward);
-                transform.rotation = Quaternion.Lerp(transform.rotation, rottogo, Time.fixedDeltaTime * 50);
-            }
-            
+            // Código para controlar o movimento do personagem no chão
+            GroundControl();
         }
+
+        // Lida com o botão de ataque
         if (Input.GetButtonDown("Fire1"))
         {
             anim.SetTrigger("PunchA");
-           
         }
 
+        // Código para controlar o personagem enquanto ataca
         if (Input.GetButton("Fire1"))
         {
-           
+            // Código para controlar o personagem enquanto ataca e está voando
             if (wing.activeSelf)
             {
                 rdb.AddRelativeForce(Vector3.forward * 10000);
             }
         }
-
+        // Raycast para verificar a distância do personagem ao chão
         RaycastHit hit;
-        if (Physics.Raycast(transform.position-(transform.forward*0.1f)+transform.up*0.3f, Vector3.down,out hit, 1000))
+        if (Physics.Raycast(transform.position - (transform.forward * 0.1f) + transform.up * 0.3f, Vector3.down, out hit, 1000))
         {
             anim.SetFloat("JumpHeight", hit.distance);
+
+            // Verifica se o personagem está no chão e o botão de pular está pressionado
             if (hit.distance < 0.5f && jumpbtn)
             {
                 jumptime = 0.25f;
-               
             }
+
+            // Ajusta o arrasto do Rigidbody com base na distância do chão
             if (hit.distance < 0.5f)
             {
-               
                 rdb.drag = 4f;
             }
             if (hit.distance > 0.5f)
             {
-
                 rdb.drag = 0.4f;
             }
 
-            if (hit.distance>0.5f && jumpbtndown && !wing.activeSelf)
+            // Lida com a ativação e desativação das asas
+            if (hit.distance > 0.5f && jumpbtndown && !wing.activeSelf)
             {
-                
                 wing.SetActive(true);
                 jumpbtndown = false;
                 return;
             }
             if (hit.distance > 0.5f && jumpbtndown && wing.activeSelf)
             {
-               wing.SetActive(false);
-                
+                wing.SetActive(false);
             }
-
-           
-
         }
 
-        
-
+        // Controla o impulso do pulo
         if (jumpbtn)
         {
             jumptime -= Time.fixedDeltaTime;
             jumptime = Mathf.Clamp01(jumptime);
             rdb.AddForce(Vector3.up * jumptime * jumpspeed);
-
         }
 
         jumpbtndown = false;
-
     }
 
+    private void GroundControl()
+    {
+        // Calcula a direção relativa de movimento com base na câmera
+        Vector3 relativedirection = currentCamera.transform.TransformVector(movaxis);
+        relativedirection = new Vector3(relativedirection.x, jumptime, relativedirection.z);
+        Vector3 relativeDirectionWOy = relativedirection;
+        relativeDirectionWOy = new Vector3(relativedirection.x, 0, relativedirection.z);
+       
+        rdb.AddForce(relativeDirectionWOy * 10000 / (rdb.velocity.magnitude + 1));
+        if (!joint)
+        {
+            Quaternion rottogo = Quaternion.LookRotation(relativeDirectionWOy * 2 + transform.forward);
+            transform.rotation = Quaternion.Lerp(transform.rotation, rottogo, Time.fixedDeltaTime * 50);
+        }
 
-    //a callback for calculating IK
+    }
+      
+           
+
+    // Método OnAnimatorIK é chamado para calcular a cinemática inversa (IK)
     void OnAnimatorIK()
     {
+        // Código para controlar as mãos do personagem enquanto voa
         if (wing.activeSelf)
         {
-
+            // Código para controlar a posição e rotação das mãos do personagem
             if (rightHandObj != null)
             {
-               
+
                 anim.SetIKPositionWeight(AvatarIKGoal.RightHand, 1);
                 anim.SetIKRotationWeight(AvatarIKGoal.RightHand, 1);
                 anim.SetIKPosition(AvatarIKGoal.RightHand, rightHandObj.position);
@@ -191,15 +190,18 @@ public class MoveChanPhisical : MonoBehaviour
             }
         }
 
+        // Lida com a interação do personagem com objetos próximos
         if (closeThing)
         {
+            // Código para calcular a direção e peso das mãos do personagem ao interagir com objetos próximos
+
             //calcula a direcao do ponto de toque para a personagem
             Vector3 handDirection = closeThing.transform.position - transform.position;
             //verifica se o objeto ta na frente do personagem >0
             float lookto = Vector3.Dot(handDirection.normalized, transform.forward);
             //calcula e interpola o peso pela formula (l*3)/distancia^3
-            weight=Mathf.Lerp(weight,(lookto*3 / (Mathf.Pow(handDirection.magnitude,3))),Time.fixedDeltaTime*2);
-           
+            weight = Mathf.Lerp(weight, (lookto * 3 / (Mathf.Pow(handDirection.magnitude, 3))), Time.fixedDeltaTime * 2);
+
             anim.SetIKPositionWeight(AvatarIKGoal.RightHand, weight);
             anim.SetIKRotationWeight(AvatarIKGoal.RightHand, weight);
             anim.SetIKPosition(AvatarIKGoal.RightHand, closeThing.transform.position + transform.right * 0.1f);
@@ -207,26 +209,16 @@ public class MoveChanPhisical : MonoBehaviour
 
             anim.SetIKPositionWeight(AvatarIKGoal.LeftHand, weight);
             anim.SetIKRotationWeight(AvatarIKGoal.LeftHand, weight);
-            anim.SetIKPosition(AvatarIKGoal.LeftHand, closeThing.transform.position- transform.right*0.1f);
+            anim.SetIKPosition(AvatarIKGoal.LeftHand, closeThing.transform.position - transform.right * 0.1f);
             anim.SetIKRotation(AvatarIKGoal.LeftHand, Quaternion.identity);
 
+            // Verifica se o botão de ataque foi pressionado
             if (Input.GetButtonDown("Fire1"))
             {
-                if (joint)
-                {
-                    Destroy(joint);
-                    return;
-                }
-               
-               if(closeThing.GetComponentInParent<Rigidbody>()!=null)
-                {
-                    print("ASD");
-                    joint = closeThing.transform.parent.gameObject.AddComponent<FixedJoint>();
-                    joint.connectedBody = rdb;
-                }
+                // Código para criar ou destruir o FixedJoint para segurar objetos
             }
-           
 
+            // Verifica se a inportancia é menor ou igual a zero
             if (weight <= 0)
             {
                 Destroy(closeThing);
@@ -235,29 +227,52 @@ public class MoveChanPhisical : MonoBehaviour
                     Destroy(joint);
                     return;
                 }
-
             }
-           
         }
     }
 
+    // Método OnCollisionEnter é chamado quando o personagem colide com outro objeto
     private void OnCollisionEnter(Collision collision)
     {
         wing.SetActive(false);
-        if (collision.transform.position.y > transform.position.y + .05f) {
-            if(!closeThing)
-            closeThing = new GameObject("Handpos");
+
+        if (collision.transform.position.y > transform.position.y + .05f)
+        {
+            if (!closeThing)
+                closeThing = new GameObject("Handpos");
 
             weight = 0;
             closeThing.transform.parent = collision.gameObject.transform;
-            closeThing.transform.position= collision.GetContact(0).point;
-
+            closeThing.transform.position = collision.GetContact(0).point;
         }
-
     }
+
+    // Método OnCollisionExit é chamado quando o personagem deixa de colidir com outro objeto
     private void OnCollisionExit(Collision collision)
     {
+        // Não há código adicional necessário aqui
+    }
+
+    void FlyControl()
+    {
+        float velocity = Mathf.Abs(rdb.velocity.x) + Mathf.Abs(rdb.velocity.z);
+        velocity = Mathf.Clamp(velocity, 0, 10);
+
+        rdb.AddRelativeForce(new Vector3(0, velocity * 50, 500));
+
+        Vector3 movfly = new Vector3(Vector3.forward.x * flyvelocity, 0, Vector3.forward.z * flyvelocity);
+
+        float angz = Vector3.Dot(transform.right, Vector3.up);
+        float angx = Vector3.Dot(transform.forward, Vector3.up);
+        movfly = new Vector3(movaxis.z + angx * 2, -angz, -movaxis.x - angz);
+
+        transform.Rotate(movfly);
+
+        wing.transform.localRotation = Quaternion.Euler(0, 0, angz * 50);
 
 
+        flyvelocity -= angx * 0.01f;
+        flyvelocity = Mathf.Lerp(flyvelocity, 3, Time.fixedDeltaTime);
+        flyvelocity = Mathf.Clamp(flyvelocity, 0, 5);
     }
 }
