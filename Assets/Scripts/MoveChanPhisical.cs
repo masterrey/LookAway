@@ -16,12 +16,14 @@ public class MoveChanPhisical : MonoBehaviour
     public float jumpspeed = 8;
     public float gravity = 20;
 
+
     // Variáveis privadas
     float jumptime;
     float flyvelocity = 3;
     public GameObject wing;
     public Transform rightHandObj, leftHandObj;
     bool jumpbtn = false;
+    bool grounded = false;
     bool jumpbtndown = false;
     bool jumpbtnrelease = false;
     GameObject closeThing;
@@ -102,36 +104,33 @@ public class MoveChanPhisical : MonoBehaviour
                 rdb.AddRelativeForce(Vector3.forward * 10000);
             }
         }
+        grounded = false;
         // Raycast para verificar a distância do personagem ao chão
         RaycastHit hit;
         if (Physics.Raycast(transform.position - (transform.forward * 0.1f) + transform.up * 0.3f, Vector3.down, out hit, 1000))
         {
             anim.SetFloat("JumpHeight", hit.distance);
 
+            if (hit.distance < 0.5f )
+            {
+               
+                grounded = true;
+            }
             // Verifica se o personagem está no chão e o botão de pular está pressionado
-            if (hit.distance < 0.5f && jumpbtn)
+            if (grounded && jumpbtn)
             {
                 jumptime = 0.25f;
-            }
-
-            // Ajusta o arrasto do Rigidbody com base na distância do chão
-            if (hit.distance < 0.5f)
-            {
-                rdb.drag = 4f;
-            }
-            if (hit.distance > 0.5f)
-            {
-                rdb.drag = 0.4f;
+               
             }
 
             // Lida com a ativação e desativação das asas
-            if (hit.distance > 0.5f && jumpbtndown && !wing.activeSelf)
+            if (!grounded && jumpbtndown && !wing.activeSelf)
             {
                 wing.SetActive(true);
                 jumpbtndown = false;
                 return;
             }
-            if (hit.distance > 0.5f && jumpbtndown && wing.activeSelf)
+            if (!grounded && jumpbtndown && wing.activeSelf)
             {
                 wing.SetActive(false);
             }
@@ -151,16 +150,33 @@ public class MoveChanPhisical : MonoBehaviour
     private void GroundControl()
     {
         // Calcula a direção relativa de movimento com base na câmera
-        Vector3 relativedirection = currentCamera.transform.TransformVector(movaxis);
+        Vector3 relativedirection = currentCamera.transform.TransformVector(movaxis).normalized;
         relativedirection = new Vector3(relativedirection.x, jumptime, relativedirection.z);
-        Vector3 relativeDirectionWOy = relativedirection;
-        relativeDirectionWOy = new Vector3(relativedirection.x, 0, relativedirection.z);
-       
-        rdb.AddForce(relativeDirectionWOy * 10000 / (rdb.velocity.magnitude + 1));
+        Vector3 relativeDirectionWOy = new Vector3(relativedirection.x, 0, relativedirection.z); 
+        if (grounded)
+        {
+            rdb.velocity = new Vector3(relativedirection.x * 5, rdb.velocity.y, relativedirection.z * 5);
+        }
+        else
+        {
+            rdb.AddForce(new Vector3(relativedirection.x * 500, 0, relativedirection.z * 500));
+        }
+
+
         if (!joint)
         {
             Quaternion rottogo = Quaternion.LookRotation(relativeDirectionWOy * 2 + transform.forward);
             transform.rotation = Quaternion.Lerp(transform.rotation, rottogo, Time.fixedDeltaTime * 50);
+        }
+        //boiar
+        if (transform.position.y < 31)
+        {
+            rdb.AddForce(Vector3.up* 1200);
+            rdb.drag = 4;
+        }
+        else
+        {
+            rdb.drag = 1;
         }
 
     }
@@ -255,6 +271,7 @@ public class MoveChanPhisical : MonoBehaviour
 
     void FlyControl()
     {
+        rdb.drag = 0.4f;
         float velocity = Mathf.Abs(rdb.velocity.x) + Mathf.Abs(rdb.velocity.z);
         velocity = Mathf.Clamp(velocity, 0, 10);
 
