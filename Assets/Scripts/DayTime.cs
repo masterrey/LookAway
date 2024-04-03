@@ -10,6 +10,7 @@ public class DayTime : MonoBehaviour
     Light sunlight;
     float intensity;
     public Gradient ambient;
+    //delegates  to call morning and afternoon
     public delegate void SunEvent();
     public SunEvent DawnCall;
     public SunEvent DuskCall;
@@ -32,12 +33,20 @@ public class DayTime : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
         daySeconds += Time.deltaTime* daySpeed;
         radDay = daySeconds / (86400/2);
         transform.localRotation = Quaternion.Euler(radDay * (180 / Mathf.PI), 0, 0);
 
-        intensity = Mathf.Clamp01(Vector3.Dot(transform.forward, Vector3.down)+0.3f);
-        sunlight.intensity = intensity+ SunBoost;
+        intensity = Mathf.Clamp01(Vector3.Dot(transform.forward, Vector3.down));
+        if (intensity > 0.2f)
+        {
+            sunlight.intensity = Mathf.Lerp(intensity,intensity + SunBoost,Time.deltaTime);
+        }
+        else
+        {
+            sunlight.intensity = Mathf.Lerp(intensity, intensity, Time.deltaTime);
+        }
 
         RenderSettings.ambientLight = ambient.Evaluate(intensity);
 

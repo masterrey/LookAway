@@ -15,20 +15,26 @@ MonoBehaviour:
   version: 1
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: dcatyft-3d286c66-03cc-448e-b8d8-a4f0a3a2fc26
   m_Shader: {fileID: 4800000, guid: e202ee41c4a1646b89485f5daa21b886, type: 3}
-  m_ShaderKeywords: _REFRACTION
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _FOAM
+  - _REFRACTION
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -100,8 +106,11 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - Vector1_1CCBCF84: 0.0001
+    - _AddFoamFromNormal: 4
+    - _Alpha: 1
     - _AlphaClip: 0
     - _Blend: 0
     - _BumpScale: 0.02
@@ -110,11 +119,12 @@ Material:
     - _Cutoff: 0.5
     - _Density: 1.6
     - _DepthDistance: 0
+    - _DiffuseNormalUp: 0.25
     - _DstBlend: 2
-    - _EdgeBlend: 3.47
+    - _EdgeBlend: 3.1
     - _EnableRefraction: 1
     - _EnvironmentReflections: 1
-    - _Foam: 0
+    - _Foam: 1
     - _FoamContrast: 0
     - _FoamDensity: 0.5
     - _FoamDistance: 0
@@ -123,6 +133,7 @@ Material:
     - _FoamSmoothness: 0.495
     - _FoamSoftIntersectionFactor: 2.08
     - _FoamTiling: 2
+    - _FresnelPower: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
@@ -133,10 +144,10 @@ Material:
     - _OrthoSpport: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _ReflectionBumpScale: 0.757
-    - _Refraction: 0.73
+    - _ReflectionBumpScale: 0.62
+    - _Refraction: 0.5
     - _RefractionScale: 0.2
-    - _Smoothness: 0.815
+    - _Smoothness: 0.67
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
