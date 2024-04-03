@@ -2,20 +2,24 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M Stairs terrain blended
   m_Shader: {fileID: 4800000, guid: b15f8f6cc428b44529391a8fac1f6515, type: 3}
-  m_ShaderKeywords: 
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2001
+  m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -35,12 +39,15 @@ Material:
         m_Texture: {fileID: 2800000, guid: 08fdf5f367b584b9d973e95e5c24c2f0, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - : 0
     - _AlphaClip: 0
     - _AlphaShift: 0.04
     - _AlphaWidth: 12.8
     - _ApplyNormal: 0
+    - _BlendThresholdPixel: 1
+    - _BlendThresholdVertex: 2
     - _BumpScale: 1
     - _Cull: 2
     - _Culling: 0
@@ -54,6 +61,7 @@ Material:
     - _Offset: 0
     - _ReadMask: 255
     - _ReceiveShadows: 1
+    - _RenderInDeferred: 0
     - _Rim: 0
     - _RimFrequency: 0
     - _RimMinPower: 1
@@ -73,6 +81,7 @@ Material:
     - _StencilOp: 0
     - _StencilZFail: 0
     - _WriteMask: 255
+    - _ZTest: 4
     - _ZWrite: 0
     m_Colors:
     - _BaseColor: {r: 0.6792453, g: 0.6792453, b: 0.6792453, a: 1}
@@ -81,3 +90,4 @@ Material:
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _TerrainPos: {r: 0, g: 0, b: 0, a: 0}
     - _TerrainSize: {r: 500, g: 160, b: 500, a: 0}
+  m_BuildTextureStacks: []

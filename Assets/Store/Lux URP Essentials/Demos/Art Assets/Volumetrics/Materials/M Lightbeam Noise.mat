@@ -9,11 +9,11 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: M Lightbeam Noise
   m_Shader: {fileID: 4800000, guid: 4571e5fb008664916836abe841f15f2d, type: 3}
-  m_ShaderKeywords: ORTHO_SUPPORT _APPLYFOG
+  m_ShaderKeywords: ORTHO_SUPPORT _APPLYFOG _MASKMAP
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
+  m_CustomRenderQueue: 3050
   stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
@@ -36,7 +36,7 @@ Material:
     - _Border: 3
     - _CameraFarFadeDistance: -0.18
     - _CameraNearFadeDistance: 0.83
-    - _ConeWidth: 4.22
+    - _ConeWidth: 6
     - _Cull: 2
     - _DetailStrength: 0.25
     - _DistanceAtten: 5
@@ -45,7 +45,7 @@ Material:
     - _LimitLength: 50
     - _OrthoSpport: 1
     - _ReadMask: 255
-    - _SpecGlossEnabled: 0
+    - _SpecGlossEnabled: 1
     - _SpotFade: 1
     - _StencilCompare: 6
     - _StencilRef: 0
@@ -54,7 +54,6 @@ Material:
     - _near: 0
     m_Colors:
     - _CameraFadeDistances: {r: 1, g: 0.5, b: 1, a: 3}
-    - _Color: {r: 0.20209555, g: 1.8664118, b: 2.270603, a: 0.23137255}
+    - _Color: {r: 0.88292116, g: 2.2523499, b: 1.396457, a: 0.09803922}
     - _DetailScrollSpeed: {r: 0, g: 1, b: 2, a: 0.3}
     - _SceneFadeDistances: {r: 0.36, g: 2.7027028, b: 0.36, a: 0.73}
-  m_BuildTextureStacks: []

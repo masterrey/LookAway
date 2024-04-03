@@ -15,14 +15,23 @@ MonoBehaviour:
   version: 1
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M Fern Math
   m_Shader: {fileID: 4800000, guid: ebb84453ebe98e446850ba756ea3f03f, type: 3}
-  m_ShaderKeywords: _ALPHATEST_ON _NORMALMAP _WIND_MATH
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _ALPHATEST_ON
+  - _DISPLACEMENT
+  - _GBUFFERLIGHTING_TRANSMISSION
+  - _NORMALMAP
+  - _RECEIVEDECALS
+  - _WIND_MATH
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 1
@@ -30,6 +39,7 @@ Material:
   stringTagMap:
     RenderType: TransparentCutout
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -65,44 +75,68 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AlphaClip: 1
+    - _ApplyCookiesForTransmission: 0
     - _ApplyNormal: 1
+    - _ApplyNormalDepthNormal: 0
     - _Blend: 0
     - _Brightness: 1
     - _BumpScale: 1
-    - _Cull: 2
+    - _Coverage: 0
+    - _Cull: 0
     - _Culling: 0
     - _Cutoff: 0.5
+    - _Debug: 0
+    - _DebugBrightness: 1
     - _DebugColor: 1
-    - _Distortion: 0.01
+    - _DebugVertexColor: 0
+    - _Displacement: 1
+    - _DisplacementSampleSize: 0.1
+    - _DisplacementStrength: 2
+    - _DisplacementStrengthVertical: 0.2
+    - _Distortion: 0.05
     - _DstBlend: 0
     - _EnvironmentReflections: 1
+    - _GbufferLighting: 3
     - _GlossMapScale: 1
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _MaskByShadowStrength: 0
+    - _HelpA: 0
+    - _MaskByShadowStrength: 0.7
     - _Metallic: 0
+    - _NormalDisplacement: 1
     - _OcclusionStrength: 1
+    - _OverrideTransmission: 0
+    - _PerInstanceVariation: 2.18
     - _QueueOffset: 0
+    - _ReceiveDecals: 1
     - _ReceiveShadows: 1
-    - _SampleSize: 0.5
-    - _ShadowStrength: 0.7
+    - _SampleSize: 0.516
+    - _SecondaryUp: 0
+    - _ShadowStrength: 1
     - _Shadows: 0
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _Stretchiness: 0.4
     - _Surface: 0
-    - _TranslucencyPower: 7
-    - _TranslucencyStrength: 1
+    - _TranslucencyPower: 4
+    - _TranslucencyStrength: 4
+    - _Turbulence: 0.34
+    - _TurbulenceFrequency: 1.74
+    - _TurbulenceMask: 0
     - _Wind: 1
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    - _BaseColor: {r: 0.8018868, g: 0.8018868, b: 0.8018868, a: 1}
     - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-    - _DistanceFade: {r: 2500, g: 0.001, b: 0, a: 0}
+    - _DistanceFade: {r: 2500, g: 0.0011111111, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _WindMultiplier: {r: 1, g: 1, b: 1, a: 0}
+    - _SpecColor: {r: 0.19999993, g: 0.19999993, b: 0.19999993, a: 1}
+    - _TransmissionColor: {r: 0.73, g: 0.85, b: 0.40999997, a: 1}
+    - _WindMultiplier: {r: 0.37, g: 0.87, b: 0.33, a: 1}
+  m_BuildTextureStacks: []

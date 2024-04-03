@@ -15,21 +15,31 @@ MonoBehaviour:
   version: 1
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M Challenger Hair blended 1
   m_Shader: {fileID: 4800000, guid: f57195abcda384635bef144c1ff32eb4, type: 3}
-  m_ShaderKeywords: _ALPHATEST_ON _ENABLEVFACE _MASKMAP _NORMALMAP _SECONDARYLOBE
-    _STRANDDIR_BITANGENT
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _ENABLEVFACE
+  - _MASKMAP
+  - _NORMALMAP
+  - _RECEIVEDECALS
+  - _SECONDARYLOBE
+  - _STRANDDIR_BITANGENT
+  m_InvalidKeywords:
+  - _ALPHATEST_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 1
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -77,6 +87,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AlphaClip: 1
     - _AmbientReflection: 0.35
@@ -101,6 +112,7 @@ Material:
     - _OcclusionStrength: 1
     - _QueueOffset: 0
     - _ReadMask: 2
+    - _ReceiveDecals: 1
     - _ReceiveShadows: 1
     - _Rim: 0
     - _RimFrequency: 5
@@ -144,3 +156,4 @@ Material:
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _SpecularTint: {r: 0.14150941, g: 0.13683693, b: 0.13683693, a: 1}
     - _SubsurfaceColor: {r: 1, g: 0.39999998, b: 0.24999997, a: 1}
+  m_BuildTextureStacks: []

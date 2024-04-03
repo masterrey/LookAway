@@ -47,9 +47,23 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _1: 0.8
     - _2: 0.7
+    - _AlphaCutoff: 0.5
     - _ChromaticAberration: 0
     - _CoastOpacity: 0.348
     - _CoastalWavesDensity: 0.5
@@ -68,6 +82,8 @@ Material:
     - _Normal: 0.15
     - _Opacity: 1
     - _Power: 0.2
+    - _QueueControl: 0
+    - _QueueOffset: 0
     - _RefractionIntensity: 0.15
     - _RefractionScale: 0.2
     - _Scale: 50
@@ -89,6 +105,8 @@ Material:
     - _Color1: {r: 0.049739826, g: 0.322, b: 0.30629268, a: 0}
     - _Color2: {r: 0.09011214, g: 0.6285934, b: 0.7075472, a: 0}
     - _DepthColor: {r: 0, g: 1, b: 0.9725489, a: 0}
+    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _NormalScale: {r: 2, g: 2, b: 0, a: 0}
     - _Vector0: {r: 1, g: 1, b: 1, a: 0}
     - _WaterColor: {r: 1, g: 1, b: 1, a: 0}
+  m_BuildTextureStacks: []

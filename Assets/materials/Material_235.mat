@@ -2,21 +2,36 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Material_235
-  m_Shader: {fileID: 4800000, guid: 56bc1c4ddbe35b245aee9c9f3b5be280, type: 3}
-  m_ShaderKeywords: EFFECT_BILLBOARD _ALPHATEST_ON _BENDINGMODE_BLUE _VISUALIZE_COMBINED_WIND
-    _WINDQUALITY_BETTER _WIND_TEXTURE
+  m_Shader: {fileID: 4800000, guid: df2e9e79972df4deca1815c90eac9a16, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _ALPHATEST_ON
+  - _ENABLEBASEMAP
+  - _NORMALINDEPTHNORMALPASS
+  - _RECEIVEDECALS
+  - _SSAO_ENABLED
+  - _SSAO_FLATSHADED
+  m_InvalidKeywords:
+  - EFFECT_BILLBOARD
+  - _BENDINGMODE_BLUE
+  - _VISUALIZE_COMBINED_WIND
+  - _WINDQUALITY_BETTER
+  - _WIND_TEXTURE
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 1
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
+  m_CustomRenderQueue: 2450
+  stringTagMap:
+    RenderType: TransparentCutout
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -25,7 +40,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: c3bb1d5298b924d80959c9f822ffe414, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpSpecMap:
@@ -88,9 +103,11 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AlphaClip: 1
     - _ApplyNormal: 0
+    - _ApplyNormalDepthNormal: 1
     - _BendingMode: 0
     - _BillboardKwToggle: 1
     - _BillboardShadowFade: 0.5
@@ -103,13 +120,17 @@ Material:
     - _DetailNormalMapScale: 1
     - _Distortion: 0.01
     - _DstBlend: 0
+    - _EnableBaseMap: 1
     - _EnableDither: 0
     - _EnableNormal: 0
     - _EnvironmentReflections: 1
+    - _FlatShadedDepthNormal: 1
     - _GlossMapScale: 1
     - _GlossPower: 0.5
     - _Glossiness: 0.145
     - _GlossyReflections: 1
+    - _Help: 0
+    - _HelpA: 0
     - _HueVariationKwToggle: 0
     - _MaskByShadowStrength: 0
     - _Metallic: 0
@@ -118,18 +139,34 @@ Material:
     - _Occlusion: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _QueueOffset: 0
+    - _ReadMask: 255
+    - _ReceiveDecals: 1
+    - _ReceiveSSAO: 1
     - _ReceiveShadows: 1
+    - _Rim: 0
+    - _RimFrequency: 0
+    - _RimMinPower: 1
+    - _RimPerPositionFrequency: 1
+    - _RimPower: 2
     - _SampleSize: 0.5
     - _ShadowOffsetScale: 1
     - _ShadowStrength: 0.584
+    - _Shadows: 0
     - _Shininess: 0.078125
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SquashAmount: 1
     - _SrcBlend: 1
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilFail: 0
+    - _StencilOp: 0
+    - _StencilZFail: 0
     - _SubsurfaceIndirect: 0.25
     - _SubsurfaceKwToggle: 0
+    - _Surface: 0
     - _TranslucencyPower: 7
     - _TranslucencyStrength: 1
     - _TranslucencyViewDependency: 0.652
@@ -138,6 +175,7 @@ Material:
     - _Visualize: 0
     - _Wind: 0
     - _WindQuality: 3
+    - _WriteMask: 255
     - _ZWrite: 1
     - _b_influence: 0.316
     - _branches_disp: 0.3
@@ -156,6 +194,7 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 0}
     - _HueVariation: {r: 1, g: 0.5, b: 0, a: 0.1}
     - _HueVariationColor: {r: 1, g: 0.5, b: 0, a: 0.1}
+    - _RimColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _SubsurfaceColor: {r: 1, g: 1, b: 1, a: 1}
     - _Tint: {r: 0.004182993, g: 0.8867924, b: 0.15868169, a: 1}

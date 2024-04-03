@@ -15,14 +15,24 @@ MonoBehaviour:
   version: 2
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M Ground Toon A
-  m_Shader: {fileID: 4800000, guid: 589366c8d179a91428574ab8bc5cf021, type: 3}
-  m_ShaderKeywords: 
+  m_Shader: {fileID: 4800000, guid: da8cbf846d45f7545928653e272925c0, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _NORMALINDEPTHNORMALPASS
+  - _RECEIVEDECALS
+  - _SPECULARHIGHLIGHTS_OFF
+  - _SSAO_ENABLED
+  m_InvalidKeywords:
+  - _ENERGYCONSERVATION_ON
+  - _RAMP_OFF
+  - _TEXMODE_OFF
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -30,6 +40,7 @@ Material:
   stringTagMap:
     RenderType: Opaque
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -73,6 +84,19 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AddLightFallOff: 1
     - _AlphaClip: 0
@@ -80,6 +104,7 @@ Material:
     - _Anisotropic: 0
     - _Anisotropy: 0
     - _ApplyNormal: 0
+    - _ApplyNormalDepthNormal: 1
     - _Blend: 0
     - _Border: 8
     - _BumpScale: 1
@@ -95,6 +120,7 @@ Material:
     - _DiffuseFallOff: 0.022
     - _DiffuseStep: 0
     - _DstBlend: 0
+    - _DstBlendAlpha: 0
     - _EnableMaskMap: 0
     - _EnableSmoothToonRamp: 0
     - _EnableToonOutline: 0
@@ -106,6 +132,8 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _Help: 0
+    - _HelpA: 0
+    - _HelpX: 0
     - _LightColorContribution: 1
     - _LuxBlend: 0
     - _LuxSurface: 0
@@ -115,6 +143,8 @@ Material:
     - _QueueOffset: 0
     - _Ramp: 0
     - _ReadMask: 255
+    - _ReceiveDecals: 1
+    - _ReceiveSSAO: 1
     - _ReceiveShadows: 1
     - _Rim: 0
     - _RimFrequency: 0
@@ -131,6 +161,7 @@ Material:
     - _SpecularHighlights: 0
     - _SpecularStep: 0.45
     - _SrcBlend: 1
+    - _SrcBlendAlpha: 1
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilFail: 0
@@ -154,6 +185,8 @@ Material:
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _RimColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _ShadedBaseColor: {r: 0, g: 0, b: 0, a: 1}
+    - _ShadedDecalColor: {r: 0.5, g: 5.5000005, b: 0.5, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _SpecColor2nd: {r: 0.4, g: 0.4, b: 0.4, a: 1}
     - _ToonRimColor: {r: 1, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []

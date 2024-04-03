@@ -2,16 +2,28 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M Smoke per vertex tess
   m_Shader: {fileID: 4800000, guid: b47f879278306384585cc44fc8ba8a87, type: 3}
-  m_ShaderKeywords: _ADDITIONALLIGHT_SHADOWS _FLIPBOOKBLENDING_OFF _FLIPBOOKBLENDING_ON
-    _NORMALMAP _PERVERTEX _PERVERTEX_SAMPLEOFFSET _PERVERTEX_SHADOWS _SHADOWS_PERPIXEL
-    _SHADOWS_PERVERTEX _SPECULARHIGHLIGHTS_OFF _SPECULAR_COLOR
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _ADDITIONALLIGHT_SHADOWS
+  - _ALPHATEST_ON
+  - _FLIPBOOKBLENDING_ON
+  - _PERVERTEX_SAMPLEOFFSET
+  - _PERVERTEX_SHADOWS
+  - _SPECULARHIGHLIGHTS_OFF
+  - _SPECULAR_COLOR
+  m_InvalidKeywords:
+  - _FLIPBOOKBLENDING_OFF
+  - _PERVERTEX
+  - _SHADOWS_PERPIXEL
+  - _SHADOWS_PERVERTEX
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -19,6 +31,7 @@ Material:
   stringTagMap: {}
   disabledShaderPasses:
   - SHADOWCASTER
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -42,10 +55,11 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AdditionalLightShadows: 1
     - _AlphaClip: 0
-    - _ApplyNormal: 1
+    - _ApplyNormal: 0
     - _Blend: 0
     - _BlendOp: 0
     - _BumpScale: 1
@@ -54,7 +68,8 @@ Material:
     - _CameraNearFadeDistance: 1
     - _ColorMode: 0
     - _Cull: 2
-    - _Cutoff: 1
+    - _Cutoff: 0.001
+    - _Disp: 0.11
     - _DistortionBlend: 0.5
     - _DistortionEnabled: 0
     - _DistortionStrength: 1
@@ -64,6 +79,7 @@ Material:
     - _Dummy0: 0
     - _Dummy1: 0
     - _EnabelEmission: 0
+    - _EnableAlphaTesting: 1
     - _EnableSpecGloss: 0
     - _EnableTransmission: 0
     - _FlipbookBlending: 1
@@ -74,7 +90,7 @@ Material:
     - _PerVertexShadows: 1
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _SampleOffset: 0.2
+    - _SampleOffset: 0.1
     - _Shadows: 0
     - _Smoothness: 0.5
     - _SmoothnessSource: 0
@@ -86,7 +102,7 @@ Material:
     - _SpecularHighlights: 0
     - _SrcBlend: 5
     - _Surface: 1
-    - _Tess: 3
+    - _Tess: 5
     - _Transmission: 0.5
     - _TransmissionDistortion: 0.01
     - _Vel: 0.5
@@ -101,4 +117,5 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SoftParticleFadeParams: {r: 0, g: 0.5, b: 0, a: 0}
     - _SpecColor: {r: 1, g: 1, b: 1, a: 1}
-    - _TessRange: {r: 5, g: 15, b: 0, a: 0}
+    - _TessRange: {r: 20, g: 100, b: 0, a: 0}
+  m_BuildTextureStacks: []

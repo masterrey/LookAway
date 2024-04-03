@@ -1,6 +1,225 @@
 ## Link to the latest version of the documentation:
 https://docs.google.com/document/d/1ck3hmPzKUdewHfwsvmPYwSPCP8azwtpzN7aOLJHvMqE/edit#
 
+
+## Version 1.98.1
+
+### Fixed
+- Lux Terrain shader: Depth Normal Pass fixed
+
+
+## Version 1.98
+
+### Added
+- Preview for URP 16.0.4 added.
+
+### Fixed
+- Translucent Lighting: Fixed in Forward+.
+- Toon & Outline: Batching fixed.
+- Fast Outline AlphaTested: Fixed on Metal.
+- Foliage Shader: Custom transmission color fixed in deferred, debug added.
+- Tree Creator Leaves: Cross fading fixed in deferred.
+- Billboard: Fixed compile error on Metal.
+
+
+## Version 1.97
+
+### Fixed
+- Skin shader on iOS
+
+
+## Version 1.96b
+
+### Added
+- Experimental Shader Graph function for "Best fitting Normals" added. 
+
+
+## Version 1.96a
+
+### Fixed
+- Mismatching macro definitions fixed for the different versions of URP 15.0.6.
+- Fixed procedural texturing node when switching the build platform to Android.
+
+
+## Version 1.96
+
+### Added
+- Added shaders compatible with URP 15.0.6
+
+### Fixed
+- Terrain Shader fixed procedural texturing when switching the build platform to Android.
+- Increased lighting BRDF specular max for half float math (mobile) to match the visual look of full float math (desktop) better.
+
+
+## Version 1.95b
+
+### Fixed
+- Fixed Water and Glass shaders and Realtime Global Illumination (needs Unity 2022.2.16+)
+
+
+## Version 1.95a
+
+### Added
+- Version for Unity 2022.2.14 and URP 14.07 added
+
+
+## Version 1.95
+
+### Changed
+- Skin Shader Graph: If you let the lighting function sample the normals it will now take the original samplers (whih reflect your texture import settings when it comes to trilinear or anisotropic filtering).
+
+
+## Version 1.94
+
+### Fixed
+- Skin Shader: Ambient
+
+### Changed
+- Bumped URP from 14.0.5 to UPR 14.0.6
+
+
+## Version 1.93
+
+### Fixed
+- Profiling in GrassDisplacementRenderFeature.cs.
+- Fixed missing pass names in grass and foliage shader.
+
+
+## Version 1.92
+
+### Changed
+- Bumped URP 12.1. to URP 12.1.10
+- Bumped URP 14.0.4 to UPR 14.0.5
+
+### Fixed
+- Fixed Fuzzy shader on Metal.
+- Fixed Particle shaders.
+- Fixed Top Down (lerp)
+
+
+## Version 1.91
+
+### Fixed
+- GGX/Cloth/Hair: Fixed reflections
+
+### Added
+- Shader Graph: Hair lighting sub graph added.
+- Grass Shader: Only needed for URP 12.1 - "No Light Layers (URP 12 only)" added as grass placed using the terrain engine will not receive any lighting if Light Layers are enabled.
+
+
+## Version 1.9
+
+### Added
+- HLSL Shaders for URP 14 added:
+- - Added support for Forward+
+- - Added support for Rendering Layers
+- - Added support for LOD cross fading
+- - Added support for DOTS instancing on almost all HLSL shaders.
+- - Added simple geometry based billboard shader for tree creator trees.
+
+- Added simple procedural skybox shader which supports fog.
+
+- Shader Graph nodes: In shader Tone Mapping added.
+- Shader Graph nodes: Standard lighting added.
+- Shader Graph nodes: GPU instanced Mesh Particles node added.
+
+### Fixed
+- Cloth shader: Fixed naming of meta pass.
+- Uber shader GUI: Does not override the custom render queue settings anymore.
+- Billboard shader: Added missing multicompile pragma to the shadow caster pass.
+- Toon Outline shaders: Fixed SRP batcher compatibility.
+- Lux URP Toon & Outline: Fixed missing SSAO properties.
+- Toon Lighting: Fixed occlusion if SSAO is disabled.
+- Lit Decal: Fixed error if orthographic and HQ were enabled
+
+### Changed
+- Shader Graph nodes: Skin Lighting node lets you provide custom normals to add e.g support for wrinkle maps.
+- Removed the "Lux URP Grass TextureDisplace" shader from the "Lux SRP Grass Displacement" folder: The default grass shader has an option to apply grass displacement.
+
+
+## Version 1.86
+
+### Fixed
+- Fixed depth sampling for URP 13.1.8. - needs you to download the package with Unity 2022.1.x.
+- Lux URP Fast Outline Double Pass: VR single pass instancing fixed.
+- Lux URP Simple Fuzz: Reverted front face semantic to fix VR single pass instancing.
+- Lux Transparent Graph Simple: Changed alpha to fix fog for URP 13.1.8.
+- Added some fixes to the GUI of the Uber shader.
+
+
+## Version 1.85.1
+
+### Fixed
+- Hair lighting and additional lights per vertex fixed.
+- Billboard shader and additional lights per vertex fixed.
+
+
+## Version 1.85
+
+### Changed
+- Moved entire project to URP 12.1
+
+### Fixed
+- Uber shader: Fixed some keyword combinations and compilining issues, fixed inspector.
+- Cloth lighting HLSL: Fixed missing baked AO.
+- Cloth STL: Fixed DepthOnly and Meta pass.
+- Tree Creator Bark Optimized: Fixed missing support for Shader Model 2 (gles gles3 glcore).
+
+### Added
+- Toon & Outline: Added shader to URP 12.1.
+- Fast Outline AlphaTested shader: Added option "Do not calculate width in Screen Space" which - if checked - will create outlines like the "Toon & Outline" shader that scale over distance. Needed and usefull in case you enable Depth Priming.
+- Fast Outline AlphaTested Double Pass shader: Added.
+
+
+## Version 1.82
+
+### Added
+- LuxURP_BillboardBounds.cs added which lets you tweak the billboards' mesh bounds to prevent them from being culled too early.
+
+Following changes only affect the URP 12.1 package:
+
+### Fixed
+- Fixed ambient occlusion debug view for skin, hair, lit extended and clear coat shaders.
+- Fixed billboard shader and screen space shadows (upright only, view aligned billboards should not cast shadows at all).
+- Fixed DepthOnly shaders.
+- Fixed Fuzzy shader declaring _MainTex twice.
+
+### Changed
+- Wind, foliage and grass bending reworked:
+- - Wind uses simplified inputs.
+- - Wind may change the frequencies of higher level animations according to the main strength.
+- - Wind derives turbulence from main wind now. Turbulence as set on wind zone will be ignored.
+- - Lux Wind params renamed from LWRP to URP. Example: "_LuxLWRPWindDirSize" --> "_LuxURPWindDirSize"
+- - Foliage shader now supports additional, advanced turbulence and simple displacement (touch bending - WIP) which has to be enabled in the material inspector.
+- - Foliage shader includes vertex color debug mode so no additional shader is required.
+- - Grass shader now supports displacement (touch bending) which has to be enabled in the material inspector. The "Lux URP Grass TextureDisplace" shader is deprecated. 
+- Shader Graphs: Toon Lighting V1 shaders converted to V2.
+
+### Added
+- Tree Creator shaders now support deferred lighting (approximated) and decals.
+- Grass Displacement: Shader for trail renderers added.
+- Skin shader: Added support for detail normals. 
+
+### Known Issues
+- Debug view in deferred is still as corrupted as using built in shaders! So switch to forward to debug your materials.
+
+
+
+## Version 1.81
+
+- Package for URP 10.7.0 added
+- Package for URP 12.1 updated
+
+### Fixed
+- Depth Normal shaders
+- Muted some compiler warnings.
+- Muted the "LuxURP_GrassMeshPostprocessor" script to prevent long re import times in huge projects.
+
+### Changed
+- Procedural Texturing Node: Dynamic branching added.
+
+
+
 ## Version 1.8
 
 - Package for URP 12.1 updated and custom lighting for shader graph added.

@@ -1,0 +1,218 @@
+﻿using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
+
+public class GrassDisplacementRenderFeature : ScriptableRendererFeature
+{
+    
+    [System.Serializable]
+    public enum RTDisplacementSize {
+        _128 = 128,
+        _256 = 256,
+        _512 = 512,
+        _1024 = 1024
+    }
+
+    [System.Serializable]
+    public class GrassDisplacementSettings
+    {
+        public RTDisplacementSize Resolution = RTDisplacementSize._256;
+        public float Size = 20.0f;
+        public bool ShiftRenderTex = false;
+    }
+
+    public override void Create()
+    {
+        m_GrassDisplacementPass = new GrassDisplacementPass();
+        m_GrassDisplacementPass.renderPassEvent = RenderPassEvent.BeforeRenderingShadows;
+    }
+
+    // Here you can inject one or multiple render passes in the renderer.
+    // This method is called when setting up the renderer once per-camera.
+    public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
+    {
+        renderer.EnqueuePass(m_GrassDisplacementPass);
+    }
+
+    public GrassDisplacementSettings settings = new GrassDisplacementSettings();
+    GrassDisplacementPass m_GrassDisplacementPass;
+
+
+    class GrassDisplacementPass : ScriptableRenderPass
+    {
+        
+        private const string ProfilerTag = "Render Lux Grass Displacement FX";
+        private static ProfilingSampler m_ProfilingSampler = new ProfilingSampler(ProfilerTag);
+
+        ShaderTagId m_GrassDisplacementFXShaderTag = new ShaderTagId("LuxGrassDisplacementFX");
+
+        private SinglePassStereoMode m_StereoRenderingMode;
+    //  There is no 0.5 in 8bit colors...
+        Color m_ClearColor = new Color(127.0f/255.0f, 127.0f/255.0f,1,1);
+
+        RenderTexture m_GrassDisplacementFX = null;
+
+        private Matrix4x4 projectionMatrix;
+        private Matrix4x4 worldToCameraMatrix;
+
+        public float m_Size = 20.0f;
+        public int m_Resolution = 256;
+        public bool m_ShiftRenderTex = false;
+
+        private float stepSize;
+        private float oneOverStepSize;
+
+        private Vector4 posSize = Vector4.zero;
+        private static int DisplacementTexPosSizePID = Shader.PropertyToID("_Lux_DisplacementPosition");
+        private static int _Lux_DisplacementRT = Shader.PropertyToID("_Lux_DisplacementRT");
+
+        private FilteringSettings transparentFilterSettings { get; set; }
+
+
+        public GrassDisplacementPass()
+        {
+            transparentFilterSettings = new FilteringSettings(RenderQueueRange.transparent);
+        }
+
+
+        // This method is called before executing the render pass.
+        // It can be used to configure render targets and their clear state. Also to create temporary render target textures.
+        // When empty this render pass will render to the active camera render target.
+        // You should never call CommandBuffer.SetRenderTarget. Instead call <c>ConfigureTarget</c> and <c>ConfigureClear</c>.
+        // The render pipeline will ensure target setup and clearing happens in a performant manner.
+        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        {
+            var desc = renderingData.cameraData.cameraTargetDescriptor;
+            desc.depthBufferBits = 0;
+            desc.width = m_Resolution;
+            desc.height = m_Resolution;
+            desc.colorFormat = RenderTextureFormat.Default;
+        //  XR: force our RT to be always 2D
+            desc.dimension = TextureDimension.Tex2D;
+
+            cmd.GetTemporaryRT(_Lux_DisplacementRT, desc, FilterMode.Bilinear);
+            ConfigureTarget(m_GrassDisplacementFX);
+            ConfigureClear(ClearFlag.Color, m_ClearColor);
+
+        //  Set up all constants
+            stepSize = m_Size / (float)m_Resolution;
+            oneOverStepSize = 1.0f / stepSize;
+            var halfSize = m_Size  * 0.5f;
+            projectionMatrix = Matrix4x4.Ortho(-halfSize, halfSize, -halfSize, halfSize, 0.1f, 80.0f);
+            projectionMatrix = GL.GetGPUProjectionMatrix(projectionMatrix, false);
+            worldToCameraMatrix.SetRow(0, new Vector4(1,0,0,0) ); //last is x pos
+            worldToCameraMatrix.SetRow(1, new Vector4(0,0,1,0) ); //last is z pos
+            worldToCameraMatrix.SetRow(2, new Vector4(0,1,0,0) ); //last is y pos
+            worldToCameraMatrix.SetRow(3, new Vector4(0,0,0,1) );
+        }
+
+        // Here you can implement the rendering logic.
+        // Use <c>ScriptableRenderContext</c> to issue drawing commands or execute command buffers
+        // https://docs.unity3d.com/ScriptReference/Rendering.ScriptableRenderContext.html
+        // You don't have to call ScriptableRenderContext.submit, the render pipeline will call it at specific points in the pipeline.
+        public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+        {
+
+            CommandBuffer cmd = new CommandBuffer(); // CommandBufferPool.Get(ProfilerTag);
+            cmd.Clear();
+
+            using (new ProfilingScope(cmd, m_ProfilingSampler))
+            {
+                var drawSettings = CreateDrawingSettings(m_GrassDisplacementFXShaderTag, ref renderingData, SortingCriteria.CommonTransparent);
+                var filteringSettings = transparentFilterSettings;
+
+                
+
+                var camera = renderingData.cameraData.camera;
+                var cameraTransform = camera.transform;
+                var cameraPos = cameraTransform.position;
+
+                var resultWaterDisplacement = new UnityEngine.Rendering.RendererUtils.RendererListDesc(m_GrassDisplacementFXShaderTag, renderingData.cullResults, camera)
+                {
+                    rendererConfiguration = PerObjectData.None,
+                    renderQueueRange = RenderQueueRange.all,
+                    sortingCriteria = SortingCriteria.CommonTransparent, 
+                    excludeObjectMotionVectors = false,
+                    layerMask = -1,
+                };
+
+#if ENABLE_VR && ENABLE_XR_MODULE
+                var isStereoEnabled = renderingData.cameraData.xr.enabled; //isStereoEnabled; //
+                if (isStereoEnabled) {
+                    m_StereoRenderingMode = XRSettings.stereoRenderingMode;
+                    cmd.SetSinglePassStereo(SinglePassStereoMode.None);
+                }
+#endif
+
+            //  Push cameraPos forward – if enabled    
+                var camForward = cameraTransform.forward;
+                // unstable
+                // cameraPos.x += camForward.x * m_Size * 0.5f;
+                // cameraPos.z += camForward.z * m_Size * 0.5f;
+                if (m_ShiftRenderTex) {
+                    var t_camForward = new Vector2(camForward.x, camForward.z);
+                    t_camForward.Normalize();
+                //  still rather unstable...
+                    cameraPos.x += t_camForward.x * m_Size * 0.33f;
+                    cameraPos.z += t_camForward.y * m_Size * 0.33f;
+                }
+            
+            //  Store original Camera matrices
+                var worldToCameraMatrixOrig = camera.worldToCameraMatrix;
+                var projectionMatrixOrig = camera.projectionMatrix;
+
+            //  Quantize movement to fit texel size of RT – this stabilzes the final visual result
+                Vector2 positionRT = Vector2.zero; // bad
+                positionRT.x = Mathf.Floor(cameraPos.x * oneOverStepSize) * stepSize;
+                positionRT.y = Mathf.Floor(cameraPos.z * oneOverStepSize) * stepSize;
+
+            //  Update the custom worldToCameraMatrix – we only have to update the translation/position
+                worldToCameraMatrix.SetColumn(3, new Vector4(-positionRT.x, -positionRT.y, -cameraPos.y - 40.0f, 1) );
+                cmd.SetViewProjectionMatrices(worldToCameraMatrix, projectionMatrix);
+            
+            //  ---------------------------------------------------------
+            //  Calc and set grass shader params
+                posSize.x = positionRT.x - m_Size * 0.5f;
+                posSize.y = positionRT.y - m_Size * 0.5f;
+                posSize.z = 1.0f / m_Size ;
+                cmd.SetGlobalVector(DisplacementTexPosSizePID, posSize );
+
+            //  ---------------------------------------------------------
+            //  Call execute
+                //context.ExecuteCommandBuffer(cmd);
+                //cmd.Clear();
+
+                //CoreUtils.SetRenderTarget(cmd, _Lux_DisplacementRT, ClearFlag.Color, m_ClearColor, 0, CubemapFace.Unknown, -1);
+                context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filteringSettings);
+            //    CoreUtils.DrawRendererList(context, cmd, context.CreateRendererList(resultWaterDisplacement));
+                //context.ExecuteCommandBuffer(cmd);
+
+            //  ---------------------------------------------------------
+            //  Restore Camera matrices
+                //cmd.Clear();
+                cmd.SetViewProjectionMatrices(worldToCameraMatrixOrig, projectionMatrixOrig);
+#if ENABLE_VR && ENABLE_XR_MODULE
+                if (isStereoEnabled) {
+                    cmd.SetSinglePassStereo(m_StereoRenderingMode);
+                }
+#endif
+            }
+
+        //  ---------------------------------------------------------
+        //  Call execute a 2nd time
+            //context.ExecuteCommandBuffer(cmd);
+            //cmd.Clear();
+            //CommandBufferPool.Release(cmd);
+        
+        }
+
+        // Cleanup any allocated resources that were created during the execution of this render pass.
+        public override void OnCameraCleanup(CommandBuffer cmd)
+        {
+        }
+    }
+
+    
+}
+
+

@@ -15,21 +15,31 @@ MonoBehaviour:
   version: 1
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M Challenger Hair
   m_Shader: {fileID: 4800000, guid: 6ea049e9f2f0d4ec693322ebc817af04, type: 3}
-  m_ShaderKeywords: _ALPHATEST_ON _ENABLEVFACE _MASKMAP _NORMALMAP _SECONDARYLOBE
-    _STRANDDIR_BITANGENT
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _ENABLEVFACE
+  - _MASKMAP
+  - _NORMALINDEPTHNORMALPASS
+  - _NORMALMAP
+  - _RECEIVEDECALS
+  - _SECONDARYLOBE
+  - _STRANDDIR_BITANGENT
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 1
+  m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 1
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -77,10 +87,12 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AlphaClip: 1
     - _AmbientReflection: 0.172
     - _ApplyNormal: 1
+    - _ApplyNormalDepthNormal: 1
     - _ApplyNormalDiffuse: 0
     - _Bias: 3
     - _Blend: 0
@@ -98,10 +110,13 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _HelpA: 0
+    - _HelpX: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _QueueOffset: 0
     - _ReadMask: 2
+    - _ReceiveDecals: 1
     - _ReceiveShadows: 1
     - _Rim: 0
     - _RimFrequency: 5
@@ -145,3 +160,4 @@ Material:
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _SpecularTint: {r: 0.14150941, g: 0.13683693, b: 0.13683693, a: 1}
     - _SubsurfaceColor: {r: 1, g: 0.39999998, b: 0.24999997, a: 1}
+  m_BuildTextureStacks: []

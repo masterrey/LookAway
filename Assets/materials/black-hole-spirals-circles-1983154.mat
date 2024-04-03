@@ -2,14 +2,24 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: black-hole-spirals-circles-1983154
   m_Shader: {fileID: 4800000, guid: 5e6ffe5288ee9884aa4421c68281da1a, type: 3}
-  m_ShaderKeywords: _EMISSION _GEOREFRACTIONS _REFRACTION _RIMLIGHTING _SIMPLEFUZZ
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _NORMALINDEPTHNORMALPASS
+  - _RECEIVEDECALS
+  - _RIMLIGHTING
+  - _SIMPLEFUZZ
+  m_InvalidKeywords:
+  - _EMISSION
+  - _GEOREFRACTIONS
+  - _REFRACTION
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -17,6 +27,7 @@ Material:
   stringTagMap:
     RenderType: Opaque
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -124,6 +135,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - Vector1_64FF58D5: 1
     - _Alpha: 1
@@ -131,6 +143,7 @@ Material:
     - _AlphaFromMaskMap: 1
     - _ApplyFog: 0
     - _ApplyNormal: 0
+    - _ApplyNormalDepthNormal: 1
     - _Blend: 0.261
     - _BumpRefraction: 0.1
     - _BumpScale: 1
@@ -139,6 +152,7 @@ Material:
     - _Cull: 2
     - _Culling: 0
     - _Cutoff: 0.368
+    - _DecalTransmission: 1
     - _Density: 1
     - _DetailStrength: 1
     - _Distortion: 0.01
@@ -171,6 +185,8 @@ Material:
     - _GlossyReflections: 0
     - _HQFog: 0
     - _Help: 0
+    - _HelpA: 0
+    - _HelpB: 0
     - _IOR: 1.33
     - _IsThinShell: 0
     - _LimitLength: 50
@@ -180,6 +196,7 @@ Material:
     - _OrthoSpport: 0
     - _QueueOffset: 0
     - _ReadMask: 255
+    - _ReceiveDecals: 1
     - _ReceiveShadows: 1
     - _ReflectionBumpScale: 0.497
     - _Refraction: 0.087
@@ -192,6 +209,7 @@ Material:
     - _ScreenEdgeFade: 8
     - _ShadowOffset: 1
     - _ShadowStrength: 0.7
+    - _Shadows: 0
     - _Smoothness: 0.938
     - _SmoothnessBase: 0.5
     - _SmoothnessTextureChannel: 0
@@ -248,7 +266,7 @@ Material:
     - _InputSize_Albedo: {r: 512, g: 512, b: 9, a: 0}
     - _InputSize_Mask: {r: 0, g: 0, b: 0, a: 0}
     - _InputSize_Normal: {r: 0, g: 0, b: 0, a: 0}
-    - _RimColor: {r: 68.5935, g: 0, b: 65.09657, a: 1}
+    - _RimColor: {r: 2.653943, g: 0, b: 10.943242, a: 1}
     - _SecondaryTilingSpeedRefractBump: {r: 2, g: 2.3, b: 0.1, a: 1}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _SpecColorBase: {r: 0.2, g: 0.2, b: 0.2, a: 1}

@@ -2,14 +2,23 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M Cloth Charlie Sheen
   m_Shader: {fileID: 4800000, guid: b7641b9989561438493d54527b6849db, type: 3}
-  m_ShaderKeywords: _COTTONWOOL _MASKMAP _NORMALMAP _SCATTERING
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _COTTONWOOL
+  - _MASKMAP
+  - _NORMALINDEPTHNORMALPASS
+  - _NORMALMAP
+  - _RECEIVEDECALS
+  - _SCATTERING
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 1
@@ -17,6 +26,7 @@ Material:
   stringTagMap:
     RenderType: Opaque
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -48,6 +58,19 @@ Material:
         m_Texture: {fileID: 2800000, guid: 3b145faea86314d09ab42116437731c1, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AlphaClip: 0
     - _AlphaFromMaskMap: 1
@@ -55,6 +78,7 @@ Material:
     - _Anisotropy: 0
     - _ApplyMaskMap: 1
     - _ApplyNormal: 1
+    - _ApplyNormalDepthNormal: 1
     - _ApplyNormalDiffuse: 0
     - _Bias: 3
     - _BumpScale: 1
@@ -68,9 +92,11 @@ Material:
     - _EnableMaskMap: 1
     - _EnvironmentReflections: 1
     - _Help: 0
+    - _HelpX: 0
     - _OcclusionStrength: 1
     - _QueueOffset: 0
     - _ReadMask: 255
+    - _ReceiveDecals: 1
     - _ReceiveShadows: 1
     - _Rim: 0
     - _RimFrequency: 5
@@ -87,6 +113,7 @@ Material:
     - _StencilFail: 0
     - _StencilOp: 0
     - _StencilZFail: 0
+    - _Surface: 0
     - _TranslucencyPower: 5
     - _TranslucencyStrength: 1
     - _UseCottonWool: 1
@@ -100,3 +127,4 @@ Material:
     - _SheenColor: {r: 0.35956872, g: 0.45299998, b: 0.44167498, a: 1}
     - _SpecColor: {r: 0.27899998, g: 0.27899998, b: 0.27899998, a: 1}
     - _SubsurfaceColor: {r: 1, g: 0.39999998, b: 0.24999997, a: 1}
+  m_BuildTextureStacks: []

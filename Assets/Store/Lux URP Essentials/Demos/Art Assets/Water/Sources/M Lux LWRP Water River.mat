@@ -2,20 +2,26 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M Lux LWRP Water River
   m_Shader: {fileID: 4800000, guid: e202ee41c4a1646b89485f5daa21b886, type: 3}
-  m_ShaderKeywords: _FOAM _REFRACTION
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _FOAM
+  - _REFRACTION
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 1
+  m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -35,19 +41,22 @@ Material:
         m_Texture: {fileID: 2800000, guid: a5c17b52284ad7842b5a0deaa9438cc4, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
+    - _AddFoamFromNormal: 4
     - _Alpha: 1
     - _BumpScale: 1
     - _Culling: 0
     - _Density: 4.2
+    - _DiffuseNormalUp: 0.25
     - _DstBlend: 10
     - _EdgeBlend: 3
     - _EnableRefraction: 1
     - _EnvironmentReflections: 1
     - _Foam: 1
     - _FoamScale: 12
-    - _FoamSlopStrength: 0.554
-    - _FoamSmoothness: 0.26
+    - _FoamSlopStrength: 0.5
+    - _FoamSmoothness: 0.5
     - _FoamSoftIntersectionFactor: 1.16
     - _FoamTiling: 6
     - _FoanScale: 12.97
@@ -66,8 +75,9 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 0.46226418, g: 0.34839088, b: 0.28564438, a: 1}
-    - _FoamSpeed: {r: 0, g: 0.06, b: 0, a: 0}
+    - _FoamSpeed: {r: 0, g: 0.08, b: 0, a: 0}
     - _SecondaryTilingSpeed: {r: 2, g: 2.3, b: 0, a: 0}
     - _SecondaryTilingSpeedRefractBump: {r: 2, g: 2.3, b: 0.1, a: 1}
     - _SpecColor: {r: 0.322, g: 0.322, b: 0.322, a: 1}
-    - _Speed: {r: 0, g: 0.15, b: 0, a: 0}
+    - _Speed: {r: 0, g: 0.2, b: 0, a: 0}
+  m_BuildTextureStacks: []

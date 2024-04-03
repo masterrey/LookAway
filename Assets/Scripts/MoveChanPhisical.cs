@@ -8,10 +8,12 @@ using UnityEngine.SceneManagement;
 // Classe MoveChanPhisical herda de MonoBehaviour
 public class MoveChanPhisical : MonoBehaviour
 {
+    public int AlturaAgua = 31;
+
     // Variáveis públicas
     public Rigidbody rdb;
     public Animator anim;
-    Vector3 movaxis, turnaxis;
+    Vector3 movaxis;
     public GameObject currentCamera;
     public float jumpspeed = 8;
     public float gravity = 20;
@@ -25,7 +27,6 @@ public class MoveChanPhisical : MonoBehaviour
     bool jumpbtn = false;
     bool grounded = false;
     bool jumpbtndown = false;
-    bool jumpbtnrelease = false;
     GameObject closeThing;
     float weight;
     FixedJoint joint;
@@ -141,7 +142,7 @@ public class MoveChanPhisical : MonoBehaviour
         {
             jumptime -= Time.fixedDeltaTime;
             jumptime = Mathf.Clamp01(jumptime);
-            rdb.AddForce(Vector3.up * jumptime * jumpspeed);
+            rdb.AddForce(jumpspeed * jumptime * Vector3.up);
         }
 
         jumpbtndown = false;
@@ -169,7 +170,7 @@ public class MoveChanPhisical : MonoBehaviour
             transform.rotation = Quaternion.Lerp(transform.rotation, rottogo, Time.fixedDeltaTime * 50);
         }
         //boiar
-        if (transform.position.y < 31)
+        if (transform.position.y < AlturaAgua)
         {
             rdb.AddForce(Vector3.up* 1200);
             rdb.drag = 4;

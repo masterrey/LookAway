@@ -2,14 +2,23 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M Clear Coat Fibre Duo Tone
   m_Shader: {fileID: 4800000, guid: e6879759aa0f34068938df45650d4f6c, type: 3}
-  m_ShaderKeywords: _ADJUSTSPEC _MASKMAPSECONDARY _NORMALMAP _SECONDARYCOLOR _SECONDARYLOBE
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _MASKMAPSECONDARY
+  - _NORMALMAP
+  - _RECEIVEDECALS
+  - _SECONDARYCOLOR
+  - _SECONDARYLOBE
+  m_InvalidKeywords:
+  - _NORMALINDEPTHNORMALPASS
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -17,6 +26,7 @@ Material:
   stringTagMap:
     RenderType: Opaque
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -33,7 +43,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: ffdba2ef866d74e96b61cba2c7b81734, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MaskMap:
@@ -42,21 +52,25 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _SecondaryMask:
         m_Texture: {fileID: 2800000, guid: 8dab5e0c9d93b472e96175ae4c343ed8, type: 3}
-        m_Scale: {x: 1, y: 1}
+        m_Scale: {x: 10, y: 10}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AdjustSpec: 1
     - _AlphaFromMaskMap: 1
     - _Anisotropy: 0
     - _ApplyNormal: 1
+    - _ApplyNormalDepthNormal: 1
     - _BumpScale: 1
     - _ClearCoatSmoothness: 0.9
     - _ClearCoatThickness: 0.845
     - _Cull: 2
     - _Culling: 0
     - _Cutoff: 0.5
+    - _DisableGBufferPass: 0
     - _Distortion: 0.01
     - _EnableAlphaTesting: 0
+    - _EnableBaseMap: 0
     - _EnableCoatMask: 0
     - _EnableMaskMap: 0
     - _EnableSecColor: 1
@@ -65,11 +79,14 @@ Material:
     - _EnableStandardLighting: 0
     - _EnvironmentReflections: 1
     - _Help: 0
+    - _HelpX: 0
+    - _HelpY: 0
     - _Metallic: 0
     - _Occlusion: 1
     - _OcclusionStrength: 1
     - _QueueOffset: 0
     - _ReadMask: 255
+    - _ReceiveDecals: 1
     - _ReceiveShadows: 1
     - _Rim: 0
     - _RimFrequency: 0
@@ -85,6 +102,7 @@ Material:
     - _StencilFail: 0
     - _StencilOp: 0
     - _StencilZFail: 0
+    - _Surface: 0
     - _TranslucencyPower: 7
     - _TranslucencyStrength: 1
     - _UseCottonWool: 0
@@ -98,3 +116,4 @@ Material:
     - _SecondaryColor: {r: 1, g: 0, b: 0, a: 1}
     - _SheenColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _SpecColor: {r: 0.5660378, g: 0.5660378, b: 0.5660378, a: 1}
+  m_BuildTextureStacks: []

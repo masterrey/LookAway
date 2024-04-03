@@ -9,8 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: M Toon 1Step Rim Transparent
   m_Shader: {fileID: 4800000, guid: da8cbf846d45f7545928653e272925c0, type: 3}
-  m_ShaderKeywords: RIM_ON SPECULAR_ON _ALPHAMODULATE_ON _ALPHAPREMULTIPLY_ON _RAMP_OFF
-    _TEXMODE_OFF _TOONRIM
+  m_ShaderKeywords: _NORMALINDEPTHNORMALPASS _RECEIVEDECALS _SSAO_ENABLED _TOONRIM
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -66,6 +65,19 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - GRADIENT: 0
     - SMOOTHGRADIENT: 0
@@ -73,7 +85,10 @@ Material:
     - _AddLightFallOff: 1
     - _AlphaClip: 0
     - _AlphaFromMaskMap: 1
+    - _Anisotropic: 0
+    - _Anisotropy: 0
     - _ApplyNormal: 0
+    - _ApplyNormalDepthNormal: 1
     - _Blend: 0
     - _BumpScale: 1
     - _ColorizedShadowsAdd: 1
@@ -98,6 +113,8 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _Help: 0
+    - _HelpA: 0
+    - _HelpX: 0
     - _LightColorContribution: 1
     - _LuxBlend: 1
     - _LuxSurface: 1
@@ -107,6 +124,8 @@ Material:
     - _QueueOffset: 0
     - _Ramp: 0
     - _ReadMask: 255
+    - _ReceiveDecals: 1
+    - _ReceiveSSAO: 1
     - _ReceiveShadows: 1
     - _Rim: 0
     - _RimAttenuation: 0
@@ -149,10 +168,12 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _RimColor: {r: 0, g: 0, b: 0, a: 1}
     - _ShadedBaseColor: {r: 0, g: 0.31764707, b: 0.39607844, a: 1}
+    - _ShadedDecalColor: {r: 0.5, g: 5.5000005, b: 0.5, a: 1}
     - _SpecColor: {r: 16, g: 16, b: 16, a: 1}
     - _SpecColor2nd: {r: 0.4, g: 0.4, b: 0.4, a: 1}
     - _Specular: {r: 4, g: 4, b: 4, a: 0}
     - _ToonRimColor: {r: 1, g: 0.9858491, b: 0.9858491, a: 1}
+  m_BuildTextureStacks: []
 --- !u!114 &1292651858282865764
 MonoBehaviour:
   m_ObjectHideFlags: 11

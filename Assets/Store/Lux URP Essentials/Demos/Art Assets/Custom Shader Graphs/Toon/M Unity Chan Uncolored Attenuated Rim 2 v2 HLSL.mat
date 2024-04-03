@@ -2,22 +2,38 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M Unity Chan Uncolored Attenuated Rim 2 v2 HLSL
   m_Shader: {fileID: 4800000, guid: 589366c8d179a91428574ab8bc5cf021, type: 3}
-  m_ShaderKeywords: NORMAL_ON SMOOTHGRADIENT_ON SPECULAR_ON _COLORIZEMAIN _ENVIRONMENTREFLECTIONS_OFF
-    _NORMALMAP _RAMP_OFF _SPECULARHIGHLIGHTS_OFF _TEXMODE_TWO _TOONRIM
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _COLORIZEMAIN
+  - _ENVIRONMENTREFLECTIONS_OFF
+  - _NORMALINDEPTHNORMALPASS
+  - _NORMALMAP
+  - _RECEIVEDECALS
+  - _SPECULARHIGHLIGHTS_OFF
+  - _SSAO_ENABLED
+  - _TEXMODE_TWO
+  - _TOONRIM
+  m_InvalidKeywords:
+  - NORMAL_ON
+  - SMOOTHGRADIENT_ON
+  - SPECULAR_ON
+  - _RAMP_OFF
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 1
+  m_DoubleSidedGI: 0
   m_CustomRenderQueue: 2000
   stringTagMap:
     RenderType: Opaque
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -49,6 +65,7 @@ Material:
         m_Texture: {fileID: 2800000, guid: 9df1c8590f4e44ffb9f9300ca3ffd55a, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - GRADIENT: 0
     - SMOOTHGRADIENT: 1
@@ -59,6 +76,7 @@ Material:
     - _Anisotropic: 0
     - _Anisotropy: 0
     - _ApplyNormal: 1
+    - _ApplyNormalDepthNormal: 1
     - _Border: 6
     - _BumpScale: 1
     - _ColorMask: 15
@@ -66,7 +84,7 @@ Material:
     - _ColorizedShadowsMain: 1
     - _CompensateScale: 0
     - _Coverage: 0
-    - _Cull: 0
+    - _Cull: 2
     - _CullOutline: 1
     - _Culling: 0
     - _Cutoff: 0.5
@@ -87,6 +105,8 @@ Material:
     - _QueueOffset: 0
     - _Ramp: 0
     - _ReadMask: 255
+    - _ReceiveDecals: 1
+    - _ReceiveSSAO: 1
     - _ReceiveShadows: 1
     - _Rim: 0
     - _RimAttenuation: 1
@@ -126,6 +146,7 @@ Material:
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 0.7019608}
     - _RimColor: {r: 1, g: 1, b: 1, a: 1}
     - _ShadedBaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _ShadedDecalColor: {r: 0.5, g: 5.5000005, b: 0.5, a: 1}
     - _SpecColor: {r: 1, g: 1, b: 1, a: 1}
     - _SpecColor2nd: {r: 0.4, g: 0.4, b: 0.4, a: 1}
     - _Specular: {r: 0, g: 0, b: 0, a: 0}

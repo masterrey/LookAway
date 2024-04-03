@@ -2,7 +2,7 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -10,15 +10,19 @@ Material:
   m_Name: M Toon 2Steps Bumped
   m_Shader: {fileID: -6465566751694194690, guid: b4ca407065ebd29428dcf026ebad5e6e,
     type: 3}
-  m_ShaderKeywords: NORMAL_ON _RECEIVE_SHADOWS_OFF
-  m_LightmapFlags: 4
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - NORMAL_ON
+  - _RECEIVE_SHADOWS_ON
+  m_InvalidKeywords: []
+  m_LightmapFlags: 0
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -62,12 +66,30 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
+    - ANISO: 0
     - GRADIENT: 0
+    - NORMAL: 1
+    - RIM: 0
     - SMOOTHGRADIENT: 0
     - SMOOTHGRADIENT_ON: 0
+    - SPEC: 0
     - _AddLightFallOff: 1
     - _AlphaClip: 0
+    - _Anisotropy: 0
     - _Blend: 0
     - _BumpScale: 1
     - _ColorizedShadowsAdd: 1
@@ -86,18 +108,22 @@ Material:
     - _EnableToonRim: 0
     - _EnergyConservation: 0
     - _EnvironmentReflections: 1
+    - _Environment_Reflections: 0
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _LightColorContribution: 1
     - _LuxSurface: 1
     - _Metallic: 0
-    - _Occlusion: 0
+    - _Occlusion: 1
     - _OcclusionStrength: 1
+    - _QueueControl: 0
     - _QueueOffset: 0
+    - _RECEIVE_SHADOWS: 0
     - _Ramp: 0
     - _RampSmoothSampling: 0
     - _ReceiveShadows: 1
+    - _Receive_SSAO: 1
     - _RimAttenuation: 0
     - _RimFallOff: 1
     - _RimPower: 0.5
@@ -124,11 +150,13 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _RimColor: {r: 0, g: 0, b: 0, a: 1}
-    - _ShadedBaseColor: {r: 1, g: 0.5228405, b: 0.27843142, a: 1}
+    - _ShadedBaseColor: {r: 0.801, g: 0.41777653, b: 0.22302356, a: 1}
+    - _ShadedDecalColor: {r: 0.49803913, g: 0.49803913, b: 0.49803913, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _Specular: {r: 1, g: 1, b: 1, a: 0}
     - _Tiling: {r: 2, g: 2, b: 0, a: 0}
     - _ToonRimColor: {r: 1, g: 0.9858491, b: 0.9858491, a: 1}
+  m_BuildTextureStacks: []
 --- !u!114 &1292651858282865764
 MonoBehaviour:
   m_ObjectHideFlags: 11
@@ -141,4 +169,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 2
+  version: 7

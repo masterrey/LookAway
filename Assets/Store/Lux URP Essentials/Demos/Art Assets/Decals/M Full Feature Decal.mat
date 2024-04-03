@@ -2,20 +2,26 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M Full Feature Decal
   m_Shader: {fileID: 4800000, guid: f99be0b93825ea740860fa6b3f1b94ed, type: 3}
-  m_ShaderKeywords: _COMBINEDTEXTURE _NORMALMAP
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _COMBINEDTEXTURE
+  - _NORMALMAP
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -31,6 +37,7 @@ Material:
         m_Texture: {fileID: 2800000, guid: 4b31fa2d34f2d43dd886b06d024370c2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _ApplyNormal: 1
     - _Border: 3
@@ -39,6 +46,8 @@ Material:
     - _DecalNormal: 0
     - _DecalNormalStrength: 0.5
     - _EnvironmentReflections: 1
+    - _HQSampling: 0
+    - _NormalBuffer: 0
     - _Occlusion: 0.5
     - _OrthoSpport: 0
     - _ReadMask: 1
@@ -55,3 +64,4 @@ Material:
     - _DistanceFade: {r: 2500, g: 0.001, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 1.2799816, b: 2, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+  m_BuildTextureStacks: []

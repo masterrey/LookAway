@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: M Candle transmission
   m_Shader: {fileID: 4800000, guid: 481f1ebdae2a4eb4584eb24ec4e3bb76, type: 3}
-  m_ShaderKeywords: _MASKMAP
+  m_ShaderKeywords: _MASKMAP _NORMALINDEPTHNORMALPASS _RECEIVEDECALS
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -51,14 +51,17 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AlphaClip: 0
     - _ApplyNormal: 0
+    - _ApplyNormalDepthNormal: 1
     - _Blend: 0
     - _BumpScale: 1
     - _Cull: 2
     - _CustomWrap: 0.4
     - _Cutoff: 0.5
+    - _DisableGBufferPass: 0
     - _Distortion: 0.01
     - _DstBlend: 0
     - _EnableMaskMap: 1
@@ -66,12 +69,14 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _HelpX: 0
     - _MaskByShadowStrength: 0
     - _Metallic: 0
     - _Occlusion: 1
     - _OcclusionStrength: 1
     - _QueueOffset: 0
     - _ReadMask: 255
+    - _ReceiveDecals: 1
     - _ReceiveShadows: 1
     - _Rim: 0
     - _RimFrequency: 0
