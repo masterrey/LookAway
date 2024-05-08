@@ -1,47 +1,120 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class IAControl : MonoBehaviour
 {
-    public CharacterController chtr;
-    Vector3 move;
-    public GameObject player;
-    float myrot;
+    NavMeshAgent agent;
+    public Transform target;
+    Animator anim;
+
+    enum State
+    {
+        IDLE,
+        PATROL,
+        BERSERK
+    }
+    [SerializeField]
+    State state = State.IDLE;
+    State oldState;
+
+    // Start is called before the first frame update
     void Start()
     {
-        if (!chtr)
-            chtr = GetComponent<CharacterController>();
-        Cursor.lockState = CursorLockMode.Locked;
+        agent = GetComponent<NavMeshAgent>();
+        StartCoroutine(IDLE());
+        anim = GetComponent<Animator>();
+        state = State.IDLE;
     }
-
 
     // Update is called once per frame
     void Update()
     {
-
-        move = Vector3.forward*0.5f;
-        Vector3 l1 = player.transform.position - transform.position;
-        myrot = Mathf.LerpAngle(myrot, Vector3.SignedAngle(transform.forward, l1, Vector3.up), Time.deltaTime * 10);
-       
-
-        if (Physics.Raycast(transform.position-new Vector3(0,0.3f,0), transform.forward+ transform.right, out RaycastHit hit,1))
+        if (oldState != state)
         {
-            myrot= Mathf.LerpAngle(myrot, Vector3.SignedAngle(transform.right, l1, Vector3.up), Time.deltaTime * 10);
+            oldState = state;
+            switch (state)
+            {
+                case State.IDLE:
+                    StartCoroutine(IDLE());
+                    break;
+                case State.PATROL:
+                    StartCoroutine(Patrol());
+                    break;
+                case State.BERSERK:
+                    StartCoroutine(Berserk());
+                    break;
+            }
         }
-       
+    }
 
-        if (Physics.Raycast(transform.position - new Vector3(0, 0.3f, 0), transform.forward -transform.right, out RaycastHit hit2, 1))
+
+    IEnumerator Berserk()
+    {
+        Debug.Log("Berserk");
+        while (target && state == State.BERSERK)
         {
-            myrot = Mathf.LerpAngle(myrot, Vector3.SignedAngle(-transform.right, l1, Vector3.up), Time.deltaTime * 10);
+            anim.SetFloat("Speed", agent.velocity.magnitude);
+            anim.SetFloat("Turn", Vector3.Dot(agent.velocity.normalized, transform.forward));
+            agent.SetDestination(target.position);
+            yield return new WaitForSeconds(1);
         }
-       
+        state= State.IDLE;
+    }
+
+    IEnumerator IDLE()
+    {
+        Debug.Log("IDLE");
+        while (!target && state == State.IDLE)
+        {
+            
+            yield return new WaitForSeconds(5);
+            state = State.PATROL;
+        }
+    }
+
+    IEnumerator Patrol()
+    {
+        Debug.Log("Patrol");
+        while (!target && state == State.PATROL)
+        {
+            yield return new WaitForSeconds(1);
+            RandomPlacesToGO();
+            yield return new WaitForSeconds(5);
+        }
+      
+    }
 
 
-        //conversao de direcao local pra global 
-        Vector3 globalmove = transform.TransformDirection(move);
-        chtr.SimpleMove(globalmove * 5);
-        transform.Rotate(new Vector3(0,myrot,0));
-       
+    void RandomPlacesToGO()
+    {
+        Vector3 randomDirection = Random.insideUnitSphere * 10;
+        randomDirection += transform.position;
+        NavMeshHit hit;
+        NavMesh.SamplePosition(randomDirection, out hit, 10, 1);
+        Vector3 finalPosition = hit.position;
+        agent.SetDestination(finalPosition);
+    }
+
+
+    public void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Player"))
+        {
+            target=other.transform;
+            StopAllCoroutines();
+            state = State.BERSERK;
+        }
+    }
+    
+
+    public void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.CompareTag("Player"))
+        {
+            target = null;
+            
+        }
     }
 }

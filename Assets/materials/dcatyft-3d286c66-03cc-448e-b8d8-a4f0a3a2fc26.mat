@@ -48,7 +48,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 2800000, guid: 912edd0c3d79bc84bb45255376757dad, type: 3}
-        m_Scale: {x: 500, y: 500}
+        m_Scale: {x: 1000, y: 1000}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
         m_Texture: {fileID: 0}
@@ -120,8 +120,8 @@ Material:
     - _Density: 1.6
     - _DepthDistance: 0
     - _DiffuseNormalUp: 0.25
-    - _DstBlend: 2
-    - _EdgeBlend: 3.1
+    - _DstBlend: 10
+    - _EdgeBlend: 0.35
     - _EnableRefraction: 1
     - _EnvironmentReflections: 1
     - _Foam: 1
@@ -144,10 +144,10 @@ Material:
     - _OrthoSpport: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _ReflectionBumpScale: 0.62
-    - _Refraction: 0.5
+    - _ReflectionBumpScale: 0.608
+    - _Refraction: 0.432
     - _RefractionScale: 0.2
-    - _Smoothness: 0.67
+    - _Smoothness: 0.974
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -167,7 +167,7 @@ Material:
     - _Color2: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FoamSpeed: {r: 0.1, g: 0, b: 0, a: 0}
-    - _SecondaryTilingSpeedRefractBump: {r: 2, g: 2.3, b: 0.1, a: 1}
+    - _SecondaryTilingSpeedRefractBump: {r: 1.98, g: 2.3, b: 0.1, a: 1}
     - _SpecColor: {r: 0.4811321, g: 0.4811321, b: 0.4811321, a: 0.27058825}
     - _Speed: {r: 0.02, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
