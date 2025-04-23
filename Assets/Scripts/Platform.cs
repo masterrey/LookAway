@@ -21,7 +21,7 @@ public class Platform : MonoBehaviour
         if (move)
         {
             transform.position = position +
-                new Vector3(0, 0, Mathf.Sin(Time.time * velocity) * distance);
+                new Vector3(0, 0,Mathf.Sin(Time.time * velocity) * distance);
         }
 
 
