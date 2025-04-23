@@ -2,10 +2,100 @@
 https://docs.google.com/document/d/1ck3hmPzKUdewHfwsvmPYwSPCP8azwtpzN7aOLJHvMqE/edit#
 
 
+## Version 2.0 preview for Unity 6000.0.23f1
+
+### Changed
+- Changed normalWS interpolator from half3 to float3 to avoid bending artifacts on TBDRs.
+
+
+## Version 1.99.d preview for Unity 6000.0.12f1
+
+### Fixed
+- Foliage shader: Fixed motion vectors.
+
+### Known Issues
+- The _CameraDepthTexture is not bound when using deferred rendering. So all shaders which rely on it will look odd (water, decals, particles). A Unity bug.
+- Lightmap preview on the terrain is broken if terrain instancing is enabled (Unity bug).
+
+
+## Version 1.99.c preview for Unity 6000.0.11f1
+
+### Fixed
+- Fixed debug view in shader graph shaders using custom lighting functions.
+
+### Changed
+- Added proper APV lighting to the terrain base shader.
+
+### Added
+- Terrain Shader: Stencil support added.
+- Terrain Blend: Added version 2.
+- Terrain Blend: Added shader graph version.
+- Terrain Blend: Added adapt to terrain shader graph version.
+- Custom Function: Detail texturing added.
+
+
+## Version 1.99.b preview for Unity 6000.0.9f1
+
+### Fixed
+- As URP changed GI lighting i had to rework all shaders and GI functions.
+- Fixed APV sampling in custom lighting functions for Shader Graph.
+- Fixed light map uvs in shader graph shaders.
+- Transparent Lighting for Shader Graph fixed.
+- Lux Terrain shader: Re-added Depth Normal pass fix.
+- Terrain Shader GUI fixed.
+
+### Changed
+- Shader Graph custom lighting functions: ScreenPosition removed from the input parameters.
+- Toon lighting: Improved edges between lighting steps which tended to get pixelated over distance.
+
+
+## Version 1.99.a preview for Unity 6
+
+### Added
+- Support for the GPU Resident Drawer added were needed.
+- Support for APVs added to all custom lighting functions (HLSL and Shader Graph).
+- Motion Vecotors added to all HLSL shaders. SH shaders simply add them automatically.
+- ShaderGraph shaders: Custom lighting -> per vertex SH added
+
+### Changed
+- Toon Outlines: Now are rendered using a custom renderer feature. Make sure you add it!
+- Grass Displacement: Rewritten to make use of the Render Graph.
+- Terrain Height Normal map: Now gets imported as RGBAHalf to improve the quality on Metal
+
+### Fixed
+- HLSL shader: DOTS instancing combined with cross fading fixed
+
+
+## Version 1.98.4
+
+### Fixed
+- Fixed light map uvs in shader graph shaders.
+- Transparent Lighting for Shader Graph fixed.
+- Lux Terrain shader: Re-added Depth Normal pass fix.
+- Terrain Shader GUI fixed.
+
+
+## Version 1.98.3
+
+### Fixed
+- Lux Terrain shader: Another parallax fix.
+
+ 
+## Version 1.98.2
+
+### Fixed
+- Lux Uber shader: #pragma multi_compile _ _LIGHT_LAYERS fixed.
+- Lux Terrain shader: Procedural + parallax fixed.
+
+
 ## Version 1.98.1
+
+### Added
+- Lux Terrain Shader: Added per layer tint control
 
 ### Fixed
 - Lux Terrain shader: Depth Normal Pass fixed
+- Foveated Rendering on Metal in 2022.3.20
 
 
 ## Version 1.98
@@ -66,7 +156,7 @@ https://docs.google.com/document/d/1ck3hmPzKUdewHfwsvmPYwSPCP8azwtpzN7aOLJHvMqE/
 ## Version 1.95
 
 ### Changed
-- Skin Shader Graph: If you let the lighting function sample the normals it will now take the original samplers (whih reflect your texture import settings when it comes to trilinear or anisotropic filtering).
+- Skin Shader Graph: If you let the lighting function sample the normals it will now take the original samplers (which reflects your texture import settings when it comes to trilinear or anisotropic filtering).
 
 
 ## Version 1.94

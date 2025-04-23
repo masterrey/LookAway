@@ -64,21 +64,22 @@ Shader "Lux URP/Nature/Tree Creator Bark Optimized"
             "RenderPipeline" = "UniversalPipeline"
             "RenderType" = "Opaque"
             "Queue" = "Geometry"
-            "ShaderModel" = "4.5"
         }
         LOD 100
 
         Pass
         {
             Name "ForwardLit"
-            Tags{"LightMode" = "UniversalForward"}
+            Tags
+            {
+                "LightMode" = "UniversalForward"
+            }
             
             ZWrite On
             Cull Back
 
             HLSLPROGRAM
-            #pragma exclude_renderers gles gles3 glcore
-            #pragma target 4.5
+            #pragma target 2.0
 
             // -------------------------------------
             // Material Keywords
@@ -106,12 +107,13 @@ Shader "Lux URP/Nature/Tree Creator Bark Optimized"
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
-            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
             #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
             #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
-            #pragma multi_compile_fragment _ _LIGHT_LAYERS
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
+            #pragma multi_compile _ _LIGHT_LAYERS
             #pragma multi_compile _ _FORWARD_PLUS
+            #include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
 
             // -------------------------------------
@@ -126,6 +128,7 @@ Shader "Lux URP/Nature/Tree Creator Bark Optimized"
             #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fog
             #pragma multi_compile_fragment _ DEBUG_DISPLAY
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ProbeVolumeVariants.hlsl"
 
             //--------------------------------------
             // GPU Instancing
@@ -158,7 +161,10 @@ Shader "Lux URP/Nature/Tree Creator Bark Optimized"
         Pass
         {
             Name "ShadowCaster"
-            Tags{"LightMode" = "ShadowCaster"}
+            Tags
+            {
+                "LightMode" = "ShadowCaster"
+            }
 
             ZWrite On
             ZTest LEqual
@@ -166,8 +172,7 @@ Shader "Lux URP/Nature/Tree Creator Bark Optimized"
             Cull Back
 
             HLSLPROGRAM
-            #pragma exclude_renderers gles gles3 glcore
-            #pragma target 4.5
+            #pragma target 2.0
 
             // -------------------------------------
             // Material Keywords
@@ -184,11 +189,12 @@ Shader "Lux URP/Nature/Tree Creator Bark Optimized"
 
             // -------------------------------------
             // Universal Pipeline keywords
-            #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
-
+            
             // -------------------------------------
             // Unity defined keywords
             #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
+            #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
 
 // Property 'unity_LODFade' shares the same constant buffer offset with 'unity_RenderingLayer'. Ignoring.
 #ifdef LOD_FADE_CROSSFADE
@@ -212,22 +218,24 @@ Shader "Lux URP/Nature/Tree Creator Bark Optimized"
         Pass
         {
             Name "GBuffer"
-            Tags{"LightMode" = "UniversalGBuffer"}
+            Tags
+            {
+                "LightMode" = "UniversalGBuffer"
+            }
 
             ZWrite On
             ZTest LEqual
             Cull Back //[_Cull]
 
             HLSLPROGRAM
-            #pragma exclude_renderers gles gles3 glcore
             #pragma target 4.5
+            #pragma exclude_renderers gles3 glcore
 
             // -------------------------------------
             // Material Keywords
             #define _NORMALMAP
 
             #pragma shader_feature_local_vertex _WINDFROMSCRIPT
-
             #pragma shader_feature_local_fragment _RECEIVEDECALS
 
             #pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
@@ -238,30 +246,35 @@ Shader "Lux URP/Nature/Tree Creator Bark Optimized"
             // -------------------------------------
             // Universal Pipeline keywords
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
+            //#pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+            //#pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
-            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
             #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
             #pragma multi_compile_fragment _ _RENDER_PASS_ENABLED
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
 
             // -------------------------------------
             // Unity defined keywords
 
             // We have to enable all these a otherwise deferred lighting will be broken!
-            // #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
-            // #pragma multi_compile _ SHADOWS_SHADOWMASK
-            // #pragma multi_compile _ DIRLIGHTMAP_COMBINED
-            // #pragma multi_compile _ LIGHTMAP_ON
-            // #pragma multi_compile _ DYNAMICLIGHTMAP_ON
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile _ DIRLIGHTMAP_COMBINED
+            #pragma multi_compile _ LIGHTMAP_ON
+            #pragma multi_compile _ DYNAMICLIGHTMAP_ON
+            
             #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ProbeVolumeVariants.hlsl"
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+            //#pragma instancing_options norenderinglayer assumeuniformscaling nomatrices nolightprobe nolightmap
 
 // Property 'unity_LODFade' shares the same constant buffer offset with 'unity_RenderingLayer'. Ignoring.
 #ifdef LOD_FADE_CROSSFADE
@@ -283,15 +296,18 @@ Shader "Lux URP/Nature/Tree Creator Bark Optimized"
         
         Pass
         {
-            Tags{"LightMode" = "DepthOnly"}
+            Name "DepthOnly"
+            Tags
+            {
+                "LightMode" = "DepthOnly"
+            }
 
             ZWrite On
             ColorMask R
             Cull Back
 
             HLSLPROGRAM
-            #pragma exclude_renderers gles gles3 glcore
-            #pragma target 4.5
+            #pragma target 2.0
 
             // -------------------------------------
             // Material Keywords
@@ -308,6 +324,7 @@ Shader "Lux URP/Nature/Tree Creator Bark Optimized"
             // GPU Instancing
             #pragma multi_compile_instancing
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+
 
 // Property 'unity_LODFade' shares the same constant buffer offset with 'unity_RenderingLayer'. Ignoring.
 #ifdef LOD_FADE_CROSSFADE
@@ -331,14 +348,16 @@ Shader "Lux URP/Nature/Tree Creator Bark Optimized"
         Pass
         {
             Name "DepthNormals"
-            Tags{"LightMode" = "DepthNormals"}
+            Tags
+            {
+                "LightMode" = "DepthNormals"
+            }
 
             ZWrite On
             Cull[_Cull]
 
             HLSLPROGRAM
-            #pragma exclude_renderers gles gles3 glcore
-            #pragma target 4.5
+            #pragma target 2.0
 
             // -------------------------------------
             // Material Keywords
@@ -351,6 +370,8 @@ Shader "Lux URP/Nature/Tree Creator Bark Optimized"
             // -------------------------------------
             // Unity defined keywords
             #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+            
+            // -------------------------------------
             // Universal Pipeline keywords
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
 
@@ -359,7 +380,6 @@ Shader "Lux URP/Nature/Tree Creator Bark Optimized"
             #pragma multi_compile_instancing
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
 
-
 // Property 'unity_LODFade' shares the same constant buffer offset with 'unity_RenderingLayer'. Ignoring.
 #ifdef LOD_FADE_CROSSFADE
     #ifdef INSTANCING_ON 
@@ -376,228 +396,6 @@ Shader "Lux URP/Nature/Tree Creator Bark Optimized"
 
             ENDHLSL
         }
-
-    //  End Passes -----------------------------------------------------
-    
-    }
-
-
-//  --------------------------------------------------------------------
-
-    SubShader
-    {
-        Tags
-        {
-            "RenderPipeline" = "UniversalPipeline"
-            "RenderType" = "Opaque"
-            "Queue" = "Geometry"
-            "ShaderModel" = "2.0"
-        }
-        LOD 100
-
-        Pass
-        {
-            Name "ForwardLit"
-            Tags{"LightMode" = "UniversalForward"}
-            
-            ZWrite On
-            Cull Back
-
-            HLSLPROGRAM
-            #pragma only_renderers gles gles3 glcore d3d11
-            #pragma target 2.0
-
-            // -------------------------------------
-            // Material Keywords
-
-        //  We always have a combined normal map
-            #define _NORMALMAP
-
-            #pragma shader_feature_local_vertex _WINDFROMSCRIPT
-
-            #pragma shader_feature_local_fragment _RECEIVEDECALS
-
-            #pragma shader_feature _ENABLEDITHERING
-            #pragma multi_compile __ BILLBOARD_FACE_CAMERA_POS
-
-            #pragma shader_feature _SPECULARHIGHLIGHTS_OFF
-            #pragma shader_feature _ENVIRONMENTREFLECTIONS_OFF
-            #pragma shader_feature _RECEIVE_SHADOWS_OFF
-
-
-            // -------------------------------------
-            // Universal Pipeline keywords
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
-            #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-            #pragma multi_compile _ EVALUATE_SH_MIXED EVALUATE_SH_VERTEX
-            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
-            #pragma multi_compile_fragment _ _SHADOWS_SOFT
-            #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
-            #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
-            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
-            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
-            #pragma multi_compile_fragment _ _LIGHT_LAYERS
-            #pragma multi_compile_fragment _ _LIGHT_COOKIES
-            #pragma multi_compile _ _FORWARD_PLUS
-
-            // -------------------------------------
-            // Unity defined keywords
-
-        //  Trees do not support lightmapping
-            // #pragma multi_compile _ DIRLIGHTMAP_COMBINED
-            // #pragma multi_compile _ LIGHTMAP_ON
-            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
-            #pragma multi_compile_fog
-            #pragma multi_compile_fragment _ DEBUG_DISPLAY
-
-            //--------------------------------------
-            // GPU Instancing
-            #pragma multi_compile_instancing
-            #pragma instancing_options renderinglayer
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-
-
-        //  Include base inputs and all other needed "base" includes
-            #include "Includes/Lux URP Tree Creator Inputs.hlsl"
-
-            #include "Includes/Lux URP Creator Bark ForwardLit Pass.hlsl"
-
-            #pragma vertex LitPassVertex
-            #pragma fragment LitPassFragment
-
-            ENDHLSL
-        }
-
-
-    //  Shadows -----------------------------------------------------
-        
-        Pass
-        {
-            Name "ShadowCaster"
-            Tags{"LightMode" = "ShadowCaster"}
-
-            ZWrite On
-            ZTest LEqual
-            ColorMask 0
-            Cull Back
-
-            HLSLPROGRAM
-            #pragma only_renderers gles gles3 glcore d3d11
-            #pragma target 2.0
-
-            // -------------------------------------
-            // Material Keywords
-            #pragma shader_feature_local_vertex _WINDFROMSCRIPT
-
-        //  Usually no shadows during the transition...
-            #pragma shader_feature _ENABLEDITHERING
-            #pragma multi_compile __ BILLBOARD_FACE_CAMERA_POS
-
-            // -------------------------------------
-            // Unity defined keywords
-            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
-
-            //--------------------------------------
-            // GPU Instancing
-            #pragma multi_compile_instancing
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-
-            // -------------------------------------
-            // Universal Pipeline keywords
-            #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
-
-        //  Include base inputs and all other needed "base" includes
-            #include "Includes/Lux URP Tree Creator Inputs.hlsl"
-            #include "Includes/Lux URP Creator Bark ShadowCaster Pass.hlsl"
-
-            #pragma vertex ShadowPassVertex
-            #pragma fragment ShadowPassFragment
-             
-            ENDHLSL
-        }
-
-    //  Depth -----------------------------------------------------
-        
-        Pass
-        {
-            Tags{"LightMode" = "DepthOnly"}
-
-            ZWrite On
-            ColorMask R
-            Cull Back
-
-            HLSLPROGRAM
-            #pragma only_renderers gles gles3 glcore d3d11
-            #pragma target 2.0
-
-            // -------------------------------------
-            // Material Keywords
-            #pragma shader_feature_local_vertex _WINDFROMSCRIPT
-
-            #pragma shader_feature _ENABLEDITHERING
-            #pragma multi_compile __ BILLBOARD_FACE_CAMERA_POS
-
-            // -------------------------------------
-            // Unity defined keywords
-            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
-
-            //--------------------------------------
-            // GPU Instancing
-            #pragma multi_compile_instancing
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-
-            #define DEPTHONLYPASS
-            #include "Includes/Lux URP Tree Creator Inputs.hlsl"
-            #include "Includes/Lux URP Creator Bark DepthOnly Pass.hlsl"
-
-            #pragma vertex DepthOnlyVertex
-            #pragma fragment DepthOnlyFragment
-
-            ENDHLSL
-        }
-
-    //  DepthNormal -----------------------------------------------------
-        
-        Pass
-        {
-            Name "DepthNormals"
-            Tags{"LightMode" = "DepthNormals"}
-
-            ZWrite On
-            Cull[_Cull]
-
-            HLSLPROGRAM
-            #pragma only_renderers gles gles3 glcore d3d11
-            #pragma target 2.0
-
-            // -------------------------------------
-            // Material Keywords
-            #pragma shader_feature_local_vertex _WINDFROMSCRIPT
-
-            #pragma shader_feature _ENABLEDITHERING
-            #pragma shader_feature _NORMALINDEPTHNORMALPASS
-            #pragma multi_compile __ BILLBOARD_FACE_CAMERA_POS
-
-            // -------------------------------------
-            // Unity defined keywords
-            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
-
-            //--------------------------------------
-            // GPU Instancing
-            #pragma multi_compile_instancing
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-
-            #define DEPTHNORMALONLYPASS
-            #include "Includes/Lux URP Tree Creator Inputs.hlsl"
-            #include "Includes/Lux URP Creator Bark DepthNormal Pass.hlsl"
-
-            #pragma vertex DepthNormalsVertex
-            #pragma fragment DepthNormalsFragment
-
-            ENDHLSL
-        }
-
-    //  End Passes -----------------------------------------------------
     
     }
 

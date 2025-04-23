@@ -12,17 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 7
+  version: 9
 --- !u!21 &2100000
 Material:
   serializedVersion: 8
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 32
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M Transmission Graph Candle
-  m_Shader: {fileID: -6465566751694194690, guid: 1474f6b4298900e4aaf0eee07195d3e1,
-    type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 1474f6b4298900e4aaf0eee07195d3e1, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -32,7 +31,8 @@ Material:
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
-  disabledShaderPasses: []
+  disabledShaderPasses:
+  - MOTIONVECTORS
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -66,6 +66,7 @@ Material:
     - _CutOff: 1
     - _MaskByShadowStrength: 0
     - _Occlusion: 0.338
+    - _OverrideTransmission: 0
     - _QueueControl: 0
     - _QueueOffset: 0
     - _Smoothness: 0.573
@@ -76,4 +77,6 @@ Material:
     m_Colors:
     - _BaseColor: {r: 0.53885853, g: 0.8867924, b: 0.43921322, a: 1}
     - _Specular: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 0.003921569}
+    - _Transmission_Color: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1

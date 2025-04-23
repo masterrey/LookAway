@@ -44,6 +44,12 @@ struct Varyings
     #ifdef DYNAMICLIGHTMAP_ON
         float2  dynamicLightmapUV       : TEXCOORD8;
     #endif
+
+    #ifdef USE_APV_PROBE_OCCLUSION
+        float4 probeOcclusion           : TEXCOORD9;
+    #endif
+
+
     float4 positionCS                   : SV_POSITION;
 
 //  Not supported in URP - and not needed :)
@@ -72,7 +78,7 @@ Varyings LitGBufferPassVertex (Attributes input)
     #if !defined(_UPRIGHT)
         input.positionOS.xyz = 0;
         #if defined(_PIVOTTOBOTTOM)
-            input.positionOS.xy = input.texcoord.xy - float2(0.5f, 0.0f);
+            input.positionOS.xy = input.texcoord.xy - float2(0.5, 0.0);
         #else
             input.positionOS.xy = input.texcoord.xy - 0.5;
         #endif
@@ -101,18 +107,18 @@ Varyings LitGBufferPassVertex (Attributes input)
         
     //  Expand Billboard
         float2 percent = input.texcoord.xy;
-        float3 billboardPos = (percent.x - 0.5f) * _Shrink * billboardTangentWS;
+        float3 billboardPos = (percent.x - 0.5) * _Shrink * billboardTangentWS;
         #if defined(_PIVOTTOBOTTOM)
             billboardPos.y += percent.y;
         #else
-            billboardPos.y += percent.y - 0.5f;
+            billboardPos.y += percent.y - 0.5;
         #endif
         output.positionWS = TransformObjectToWorld(billboardPos).xyz;
         output.positionCS = TransformWorldToHClip(output.positionWS);
     #endif
 
     output.uv = input.texcoord.xy;
-    output.uv.x = (output.uv.x - 0.5f) * _Shrink + 0.5f;
+    output.uv.x = (output.uv.x - 0.5) * _Shrink + 0.5;
 
     output.normalWS = billboardNormalWS;
     #ifdef _NORMALMAP
@@ -180,12 +186,27 @@ FragmentOutput LitGBufferPassFragment(Varyings input)
     
     #if defined(DYNAMICLIGHTMAP_ON)
         inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.dynamicLightmapUV, input.vertexSH, inputData.normalWS);
+        inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
+    #elif !defined(LIGHTMAP_ON) && (defined(PROBE_VOLUMES_L1) || defined(PROBE_VOLUMES_L2))
+        inputData.bakedGI = SAMPLE_GI(input.vertexSH,
+            GetAbsolutePositionWS(inputData.positionWS),
+            inputData.normalWS,
+            inputData.viewDirectionWS,
+            inputData.positionCS.xy,
+            input.probeOcclusion,
+            inputData.shadowMask);
     #else
         inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.vertexSH, inputData.normalWS);
+        inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
     #endif
 
     inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
-    inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
+
+    #if UNITY_VERSION >= 60000000
+        SETUP_DEBUG_TEXTURE_DATA(inputData, UNDO_TRANSFORM_TEX(input.uv, _BaseMap));
+    #else 
+        SETUP_DEBUG_TEXTURE_DATA(inputData, input.uv, _BaseMap);
+    #endif
 
     BRDFData brdfData;
     InitializeBRDFData(surfaceData.albedo, surfaceData.metallic, surfaceData.specular, surfaceData.smoothness, surfaceData.alpha, brdfData);

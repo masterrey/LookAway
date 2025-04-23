@@ -48,7 +48,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 2800000, guid: 912edd0c3d79bc84bb45255376757dad, type: 3}
-        m_Scale: {x: 1000, y: 1000}
+        m_Scale: {x: 80, y: 80}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
         m_Texture: {fileID: 0}
@@ -120,7 +120,7 @@ Material:
     - _Density: 1.6
     - _DepthDistance: 0
     - _DiffuseNormalUp: 0.25
-    - _DstBlend: 10
+    - _DstBlend: 5
     - _EdgeBlend: 0.35
     - _EnableRefraction: 1
     - _EnvironmentReflections: 1
@@ -145,7 +145,7 @@ Material:
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _ReflectionBumpScale: 0.608
-    - _Refraction: 0.432
+    - _Refraction: 0.4
     - _RefractionScale: 0.2
     - _Smoothness: 0.974
     - _SmoothnessTextureChannel: 0
@@ -156,18 +156,18 @@ Material:
     - _WavesSpeed: 0
     - _WavesTile: 1
     - _WorkflowMode: 1
-    - _ZTest: 2
+    - _ZTest: 4
     - _ZWrite: 1
     - __dirty: 1
     m_Colors:
     - Vector2_164B97DB: {r: 2000, g: 2000, b: 0, a: 0}
     - _BaseColor: {r: 0.43965825, g: 0.5600124, b: 0.9811321, a: 1}
-    - _Color: {r: 0.066037714, g: 0.06011924, b: 0.06011924, a: 0}
+    - _Color: {r: 0, g: 0.09185814, b: 0.4811321, a: 0}
     - _Color1: {r: 0, g: 0, b: 0, a: 0}
     - _Color2: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FoamSpeed: {r: 0.1, g: 0, b: 0, a: 0}
     - _SecondaryTilingSpeedRefractBump: {r: 1.98, g: 2.3, b: 0.1, a: 1}
-    - _SpecColor: {r: 0.4811321, g: 0.4811321, b: 0.4811321, a: 0.27058825}
+    - _SpecColor: {r: 0.4716981, g: 0.4716981, b: 0.4716981, a: 0.27058825}
     - _Speed: {r: 0.02, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

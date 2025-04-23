@@ -71,7 +71,10 @@
         Pass
         {
             Name "ForwardLit"
-            Tags{"LightMode" = "UniversalForward"}
+            Tags
+            {  
+                "LightMode" = "UniversalForward"
+            }
 
             Stencil {
                 Ref  [_StencilRef]
@@ -79,7 +82,6 @@
                 WriteMask [_WriteMask]
                 Comp [_StencilCompare]
             }
-
 
             Blend SrcAlpha OneMinusSrcAlpha
 
@@ -115,26 +117,31 @@
             // -------------------------------------
             // Universal Pipeline keywords
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
-            #pragma multi_compile _ _ADDITIONAL_LIGHTS
+            #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+            #pragma multi_compile _ EVALUATE_SH_MIXED EVALUATE_SH_VERTEX
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
             #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
 
-            #pragma multi_compile_fragment _ _LIGHT_LAYERS
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
+            #pragma multi_compile _ _LIGHT_LAYERS
             #pragma multi_compile _ _FORWARD_PLUS
+
+            #include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
 
             // -------------------------------------
             // Unity defined keywords
             #pragma multi_compile_fog
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ProbeVolumeVariants.hlsl"
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-            
             
             #pragma vertex vert
             #pragma fragment frag
@@ -185,14 +192,14 @@
                 UNITY_VERTEX_INPUT_INSTANCE_ID
                 UNITY_VERTEX_OUTPUT_STEREO
 
-                float4 viewRayOS : TEXCOORD0;
-                float3 camPosOS : TEXCOORD1;
-                float4 screenUV : TEXCOORD2;
+                float4 viewRayOS                : TEXCOORD0;
+                float3 camPosOS                 : TEXCOORD1;
+                float4 screenUV                 : TEXCOORD2;
 
-                float fogCoord : TEXCOORD3;
+                float fogCoord                  : TEXCOORD3;
 
                 #if defined(_NORMALMAP) || defined(_DECALNORMAL)
-                    half3 normalWS              : TEXCOORD4;
+                    float3 normalWS             : TEXCOORD4; // float3 to avoid bending artifacts on TBDRs
                 #endif
                 
                 #if defined(_NORMALMAP)
@@ -200,7 +207,13 @@
                     half3 bitangentWS           : TEXCOORD6;
                 #endif
 
-                half fade : TEXCOORD7;
+                half fade                       : TEXCOORD7;
+
+                DECLARE_LIGHTMAP_OR_SH(staticLightmapUV, vertexSH, 8);
+
+                #ifdef USE_APV_PROBE_OCCLUSION
+                    float4 probeOcclusion       : TEXCOORD10;
+                #endif
             };
 
             VertexOutput vert (VertexInput v)
@@ -211,6 +224,11 @@
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
                 output.positionCS = TransformObjectToHClip(v.vertex.xyz);
+
+                float3 positionWS = TransformObjectToWorld(v.vertex.xyz);
+                half3 normalWS = TransformObjectToWorldNormal(half3(0.0h, 1.0h, 0.0h));
+
+                OUTPUT_SH4(positionWS, normalWS.xyz, GetWorldSpaceNormalizeViewDir(positionWS), output.vertexSH, output.probeOcclusion);
 
             //  We do all calculations in Object Space
                 float4 positionVS = mul(UNITY_MATRIX_V, mul(UNITY_MATRIX_M, v.vertex));
@@ -240,7 +258,7 @@
                 }
 
                 #if defined(_NORMALMAP) || defined(_DECALNORMAL)
-                    output.normalWS = TransformObjectToWorldNormal(half3(0.0h, 1.0h, 0.0h));
+                    output.normalWS = normalWS;
                 #endif
 
                 #if defined(_NORMALMAP)
@@ -268,7 +286,6 @@
 
         //  HQ decal sampling from: http://www.humus.name/index.php?page=3D&ID=84
         //  Decal MipmapLevel to avoid the 2x2 pixels artefacts on the edges where the decal is projected to.
-            //float2 ComputeDecalDDX(VertexOutput input, float2 uv, float2 decalUV) {
 
             void ComputeDecalDDX(VertexOutput input, float2 uv, float2 decalUV, out float2 uvDiff, out float2 depths) {
                 float2 ScreenDeltaX = float2(1, 0);
@@ -280,11 +297,10 @@
                 float2 UvDiffX0 = decalUV - ((input.camPosOS + input.viewRayOS.xyz * depth0).xz + float2(0.5, 0.5));
                 float2 UvDiffX1 = ((input.camPosOS + input.viewRayOS.xyz * depth1).xz + float2(0.5, 0.5)) - decalUV;
                 
-                //return dot(UvDiffX0, UvDiffX0) < dot(UvDiffX1, UvDiffX1) ? UvDiffX0 : UvDiffX1;
                 uvDiff = dot(UvDiffX0, UvDiffX0) < dot(UvDiffX1, UvDiffX1) ? UvDiffX0 : UvDiffX1;
                 depths = float2(depth0, depth1);
             }
-            //float2 ComputeDecalDDY(VertexOutput input, float2 uv, float2 decalUV) {
+            
             void ComputeDecalDDY(VertexOutput input, float2 uv, float2 decalUV, out float2 uvDiff, out float2 depths) {
                 float2 ScreenDeltaY = float2(0, 1);
                 float depth0 = LOAD_TEXTURE2D_X(_CameraDepthTexture, _ScaledScreenParams.xy * uv - ScreenDeltaY).x;
@@ -295,7 +311,6 @@
                 float2 UvDiffY0 = decalUV - ((input.camPosOS + input.viewRayOS.xyz * depth0).xz + float2(0.5, 0.5));
                 float2 UvDiffY1 = ((input.camPosOS + input.viewRayOS.xyz * depth1).xz + float2(0.5, 0.5)) - decalUV;
                 
-                //return dot(UvDiffY0, UvDiffY0) < dot(UvDiffY1, UvDiffY1) ? UvDiffY0 : UvDiffY1;
                 uvDiff = dot(UvDiffY0, UvDiffY0) < dot(UvDiffY1, UvDiffY1) ? UvDiffY0 : UvDiffY1;
                 depths = float2(depth0, depth1);
             }
@@ -466,7 +481,7 @@
                         //positionWS = mul(GetObjectToWorldMatrix(), float4(positionOS, 1)).xyz;
                         float3 RayWS = mul((float3x3)GetObjectToWorldMatrix(), input.viewRayOS.xyz);
                         //float3 posWS = _WorldSpaceCameraPos + RayWS * min(depthX.x, min(depthX.y, min(depthY.x, depthY.y)));
-                        float3 posWS = _WorldSpaceCameraPos + normalize(RayWS) * (depthX.x + depthX.y + depthY.x +depthY.y) / 4;
+                        float3 posWS = _WorldSpaceCameraPos + normalize(RayWS) * (depthX.x + depthX.y + depthY.x + depthY.y) / 4;
                         posWS = (posWS + positionWS) / 2;
 
                         RayWS = normalize(RayWS);
@@ -517,20 +532,20 @@
              // We can't calculate per vertex lighting
                 inputData.vertexLighting = 0;
             //  So we have to sample SH fully per pixel
-                inputData.bakedGI = SampleSH(inputData.normalWS);
 
-                // col = UniversalFragmentPBR(
-                //     inputData, 
-                //     col.rgb, 
-                //     0, //surfaceData.metallic, 
-                //     specular, 
-                //     smoothness,
-                //     occlusion,
-                //     emission,
-                //     alpha);
+                #if !defined(LIGHTMAP_ON) && (defined(PROBE_VOLUMES_L1) || defined(PROBE_VOLUMES_L2))
+                    inputData.bakedGI = SAMPLE_GI(input.vertexSH,
+                        GetAbsolutePositionWS(inputData.positionWS),
+                        inputData.normalWS,
+                        inputData.viewDirectionWS,
+                        input.positionCS.xy,
+                        input.probeOcclusion,
+                        inputData.shadowMask);
+                #else
+                    inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.vertexSH, inputData.normalWS);
+                #endif
 
-            //  URP 14: We have to use latest lighting here to make glossienvironmentreflections work properly.
-                
+            //  Since URP 14: We have to use latest lighting here to make glossienvironmentreflections work properly.
                 SurfaceData surfaceData = (SurfaceData)0;
                 surfaceData.albedo = col.rgb;
                 surfaceData.metallic = 0;

@@ -108,7 +108,7 @@
             //#ifdef _ADDITIONAL_LIGHTS
                 float3 positionWS           : TEXCOORD2;
             //#endif
-            half3 normalWS                  : TEXCOORD3;
+            float3 normalWS                 : TEXCOORD3; // float3 to avoid bending artifacts on TBDRs
             //float3 viewDirWS              : TEXCOORD4;
             #if defined(_NORMALMAP)
                 half4 tangentWS             : TEXCOORD5;
@@ -119,6 +119,10 @@
             #endif
             float4 projectionCoord          : TEXCOORD8;
             float  scale                    : TEXCOORD9;
+
+            #ifdef USE_APV_PROBE_OCCLUSION
+                float4 probeOcclusion       : TEXCOORD10;
+            #endif
 
         #endif
 

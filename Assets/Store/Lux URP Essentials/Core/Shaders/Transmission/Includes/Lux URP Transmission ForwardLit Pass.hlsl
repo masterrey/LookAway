@@ -26,7 +26,7 @@ struct Varyings
         float2 uv                       : TEXCOORD0;
     #endif
     float3 positionWS                   : TEXCOORD1;
-    half3 normalWS                      : TEXCOORD2;
+    float3 normalWS                     : TEXCOORD2; // float3 to avoid bending artifacts on TBDRs
     #if defined(_NORMALMAP)
         half4 tangentWS                 : TEXCOORD3;
     #endif
@@ -41,6 +41,10 @@ struct Varyings
     DECLARE_LIGHTMAP_OR_SH(staticLightmapUV, vertexSH, 6);
     #ifdef DYNAMICLIGHTMAP_ON
         float2  dynamicLightmapUV       : TEXCOORD7;
+    #endif
+
+    #ifdef USE_APV_PROBE_OCCLUSION
+        float4 probeOcclusion           : TEXCOORD10;
     #endif
 
     float4 positionCS                   : SV_POSITION;
@@ -85,7 +89,9 @@ Varyings LitPassVertex(Attributes input)
     #ifdef DYNAMICLIGHTMAP_ON
         output.dynamicLightmapUV = input.dynamicLightmapUV.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
     #endif
-    OUTPUT_SH(output.normalWS, output.vertexSH);
+    
+    OUTPUT_SH4(vertexInput.positionWS, output.normalWS.xyz, GetWorldSpaceNormalizeViewDir(vertexInput.positionWS), output.vertexSH, output.probeOcclusion);
+
     #ifdef _ADDITIONAL_LIGHTS_VERTEX
         output.fogFactorAndVertexLight = half4(fogFactor, vertexLight);
     #else
@@ -144,12 +150,20 @@ void InitializeInputData(Varyings input, half3 normalTS, half facing, out InputD
     #endif
     #if defined(DYNAMICLIGHTMAP_ON)
         inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.dynamicLightmapUV, input.vertexSH, inputData.normalWS);
+    #elif !defined(LIGHTMAP_ON) && (defined(PROBE_VOLUMES_L1) || defined(PROBE_VOLUMES_L2))
+        inputData.bakedGI = SAMPLE_GI(input.vertexSH,
+            GetAbsolutePositionWS(inputData.positionWS),
+            inputData.normalWS,
+            inputData.viewDirectionWS,
+            input.positionCS.xy,
+            input.probeOcclusion,
+            inputData.shadowMask);
     #else
         inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.vertexSH, inputData.normalWS);
+        inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
     #endif
 
     inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
-    inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
 
     #if defined(DEBUG_DISPLAY)
     #if defined(DYNAMICLIGHTMAP_ON)

@@ -26,7 +26,7 @@ struct Varyings
         half3 viewDirTS     : TEXCOORD5;
     #endif
 
-    //UNITY_VERTEX_INPUT_INSTANCE_ID
+    UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
 //  Shadow caster specific input
@@ -38,7 +38,7 @@ Varyings ShadowPassVertex(Attributes input)
 {
     Varyings output = (Varyings)0;
     UNITY_SETUP_INSTANCE_ID(input);
-    //UNITY_TRANSFER_INSTANCE_ID(input, output);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
 
     float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
 
@@ -82,7 +82,7 @@ Varyings ShadowPassVertex(Attributes input)
 
 half4 ShadowPassFragment(Varyings input, half facing : VFACE) : SV_TARGET
 {
-    //UNITY_SETUP_INSTANCE_ID(input);
+    UNITY_SETUP_INSTANCE_ID(input);
 
     //  LOD crossfading
     // #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES)

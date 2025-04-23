@@ -16,6 +16,8 @@ struct Varyings
     #if defined (_ALPHATEST_ON)
         float2 uv                   : TEXCOORD0;
     #endif
+
+    UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
 //  Shadow caster specific input
@@ -26,6 +28,7 @@ Varyings ShadowPassVertex(Attributes input)
 {
     Varyings output = (Varyings)0;
     UNITY_SETUP_INSTANCE_ID(input);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
 
     #if defined(_ALPHATEST_ON)
         output.uv.xy = TRANSFORM_TEX(input.texcoord, _BaseMap);
@@ -51,6 +54,8 @@ Varyings ShadowPassVertex(Attributes input)
 
 half4 ShadowPassFragment(Varyings input) : SV_TARGET
 {
+    UNITY_SETUP_INSTANCE_ID(input);
+
     #ifdef LOD_FADE_CROSSFADE
         LODFadeCrossFade(input.positionCS);
     #endif

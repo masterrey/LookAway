@@ -10,7 +10,7 @@ namespace LuxURPEssentials.Demo {
 	    // Start is called before the first frame update
 	    void Start()
 	    {
-	        UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset urp = GraphicsSettings.renderPipelineAsset as UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset;
+	        UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset urp = GraphicsSettings.defaultRenderPipeline as UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset;
 
 	        if (urp.supportsCameraDepthTexture == true) {
 	        	Debug.Log("CameraDepthTexture supported.");

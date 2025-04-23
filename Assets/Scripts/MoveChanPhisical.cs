@@ -8,8 +8,8 @@ using UnityEngine.SceneManagement;
 // Classe MoveChanPhisical herda de MonoBehaviour
 public class MoveChanPhisical : MonoBehaviour
 {
-    public int AlturaAgua = 31;
-
+    //usado para boiar
+    public int waterLevel = 31;
     // Variáveis públicas
     public Rigidbody rdb;
     public Animator anim;
@@ -17,7 +17,6 @@ public class MoveChanPhisical : MonoBehaviour
     public GameObject currentCamera;
     public float jumpspeed = 8;
     public float gravity = 20;
-
 
     // Variáveis privadas
     float jumptime;
@@ -34,7 +33,6 @@ public class MoveChanPhisical : MonoBehaviour
     // Método Start é chamado antes do primeiro frame
     void Start()
     {
-        
         // Verifica se o nome da cena ativa é "Land"
         if (SceneManager.GetActiveScene().name.Equals("Land"))
         {
@@ -76,7 +74,7 @@ public class MoveChanPhisical : MonoBehaviour
         movaxis = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
 
         // Define a animação de velocidade
-        anim.SetFloat("Speed", rdb.velocity.magnitude);
+        anim.SetFloat("Speed", rdb.linearVelocity.magnitude);
 
         // Verifica se as asas estão ativas
         if (wing.activeSelf)
@@ -156,7 +154,7 @@ public class MoveChanPhisical : MonoBehaviour
         Vector3 relativeDirectionWOy = new Vector3(relativedirection.x, 0, relativedirection.z); 
         if (grounded)
         {
-            rdb.velocity = new Vector3(relativedirection.x * 5, rdb.velocity.y, relativedirection.z * 5);
+            rdb.linearVelocity = new Vector3(relativedirection.x * 5, rdb.linearVelocity.y, relativedirection.z * 5);
         }
         else
         {
@@ -170,14 +168,14 @@ public class MoveChanPhisical : MonoBehaviour
             transform.rotation = Quaternion.Lerp(transform.rotation, rottogo, Time.fixedDeltaTime * 50);
         }
         //boiar
-        if (transform.position.y < AlturaAgua)
+        if (transform.position.y < waterLevel)
         {
             rdb.AddForce(Vector3.up* 1200);
-            rdb.drag = 4;
+            rdb.linearDamping = 4;
         }
         else
         {
-            rdb.drag = 1;
+            rdb.linearDamping = 1;
         }
 
     }
@@ -269,13 +267,15 @@ public class MoveChanPhisical : MonoBehaviour
     {
         // Não há código adicional necessário aqui
     }
-
+    /// <summary>
+    /// Método para controlar o voo do personagem.
+    /// </summary>
     void FlyControl()
     {
-        rdb.drag = 0.4f;
-        float velocity = Mathf.Abs(rdb.velocity.x) + Mathf.Abs(rdb.velocity.z);
+        rdb.linearDamping = 0.4f;
+        float velocity = Mathf.Abs(rdb.linearVelocity.x) + Mathf.Abs(rdb.linearVelocity.z);
         velocity = Mathf.Clamp(velocity, 0, 10);
-
+        
         rdb.AddRelativeForce(new Vector3(0, velocity * 50, 500));
 
         Vector3 movfly = new Vector3(Vector3.forward.x * flyvelocity, 0, Vector3.forward.z * flyvelocity);

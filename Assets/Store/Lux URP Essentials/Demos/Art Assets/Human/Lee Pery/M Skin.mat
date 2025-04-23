@@ -16,7 +16,7 @@ MonoBehaviour:
 --- !u!21 &2100000
 Material:
   serializedVersion: 8
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 32
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -101,7 +101,7 @@ Material:
     - _ApplyNormalDepthNormal: 1
     - _ApplyNormalDiffuse: 1
     - _Backscatter: 1
-    - _Bias: 2.5
+    - _Bias: 3
     - _Blend: 0
     - _BumpScale: 1
     - _Cull: 2
@@ -109,7 +109,7 @@ Material:
     - _Curvature: 0.3
     - _Cutoff: 0.5
     - _DecalTransmission: 1
-    - _DetailBumpScale: 0.35
+    - _DetailBumpScale: 0.15
     - _Distortion: 0.01
     - _DstBlend: 0
     - _EnableBackscatter: 1
@@ -167,3 +167,4 @@ Material:
     - _SubsurfaceColor: {r: 1, g: 0.39999998, b: 0.24999997, a: 1}
     - _WindMultiplier: {r: 1, g: 2, b: 1, a: 0}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1

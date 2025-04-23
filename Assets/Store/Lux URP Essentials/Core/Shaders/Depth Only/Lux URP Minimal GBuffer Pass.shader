@@ -63,7 +63,7 @@ Shader "Lux URP/Minimal GBuffer Pass"
 
             // -------------------------------------
             // Universal Pipeline keywords
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
+            #pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
             #pragma multi_compile_fragment _ _RENDER_PASS_ENABLED
 
             // -------------------------------------
@@ -76,8 +76,8 @@ Shader "Lux URP/Minimal GBuffer Pass"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-            #pragma instancing_options renderinglayer
-            //#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+
 
             #pragma vertex LitGBufferPassVertex
             #pragma fragment LitGBufferPassFragment
@@ -156,13 +156,13 @@ Shader "Lux URP/Minimal GBuffer Pass"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-            // #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl" // needs shader target 4.5
-            
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+
             // -------------------------------------
             // Unity defined keywords
             #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             // Universal Pipeline keywords
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
+            #pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
 
             #define DEPTHNORMALPASS
 

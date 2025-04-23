@@ -8,18 +8,21 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M ConiferBillboard A
-  m_Shader: {fileID: -6465566751694194690, guid: fc822ee56cbe29d4593186675659870f,
-    type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: fc822ee56cbe29d4593186675659870f, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _ALPHATEST_ON
+  - _SPECULAR_SETUP
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 1
   m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
+  stringTagMap:
+    RenderType: TransparentCutout
+  disabledShaderPasses:
+  - MOTIONVECTORS
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -100,7 +103,7 @@ Material:
     m_Floats:
     - _AOfromGI: 0
     - _AlphaClip: 1
-    - _AlphaToMask: 0
+    - _AlphaToMask: 1
     - _ApplyNormal: 1
     - _ApplyNormalDepthNormal: 1
     - _BendPower: 3.6
@@ -113,6 +116,7 @@ Material:
     - _CameraFadeShadows: 0
     - _CameraFadingEnabled: 0
     - _CameraShadowFadeDist: 1
+    - _CastShadows: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Contrast: 0.7
@@ -193,10 +197,11 @@ Material:
     - _TransmissionStregth: 0.5
     - _WindPower: 1
     - _WindStrength: 0.035
-    - _WorkflowMode: 1
+    - _WorkflowMode: 0
     - _WriteMask: 255
     - _ZTest: 4
     - _ZWrite: 1
+    - _ZWriteControl: 0
     - _aces: 0
     - _tonemap: 0
     m_Colors:
@@ -209,6 +214,7 @@ Material:
     - _TranslucencyColor: {r: 0.73, g: 0.85, b: 0.40999997, a: 1}
     - _TransmissionColor: {r: 0.73, g: 0.85, b: 0.40999997, a: 1}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!114 &6618986290309244866
 MonoBehaviour:
   m_ObjectHideFlags: 11
@@ -221,4 +227,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 7
+  version: 9

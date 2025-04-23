@@ -20,7 +20,7 @@
 //  defines e.g. "DECLARE_LIGHTMAP_OR_SH"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
  
-    #include "../Includes/Lux URP Toon Lighting.hlsl"
+
 
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
@@ -87,7 +87,7 @@
 
         float4  _GradientMap_TexelSize;
         float4  _BaseMap_TexelSize;
-        
+
     CBUFFER_END
 
 //  Additional textures
@@ -98,6 +98,12 @@
     #if defined(_MASKMAP)
         TEXTURE2D(_MaskMap); SAMPLER(sampler_MaskMap);
     #endif
+
+    TEXTURE2D(_GradientMap); 
+
+
+    #include "../Includes/Lux URP Toon Lighting.hlsl"
+
 
 //  Global Inputs
 

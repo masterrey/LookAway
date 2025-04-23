@@ -59,7 +59,10 @@ Shader "Lux URP/Fast Outline AlphaTested"
         Pass
         {
             Name "StandardUnlit"
-            Tags{"LightMode" = "UniversalForward"}
+            Tags
+            {
+                "LightMode" = "UniversalForward"
+            }
 
             Stencil {
                 Ref      [_StencilRef]
@@ -91,9 +94,7 @@ Shader "Lux URP/Fast Outline AlphaTested"
             // GPU Instancing
             #pragma multi_compile_instancing
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-            
 
-        //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Fast Outlines AlphaTested Inputs.hlsl"
 
             #pragma vertex LitPassVertex
@@ -111,9 +112,9 @@ Shader "Lux URP/Fast Outline AlphaTested"
 
                 VertexPositionInputs vertexInput;
                 vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
-                // #if defined(_APPLYFOG)
+                //#if defined(_APPLYFOG)
                     output.fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
-                // #endif
+                //#endif
                 output.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
                 output.positionWS = vertexInput.positionWS;
                 output.positionCS = vertexInput.positionCS;
@@ -213,7 +214,6 @@ Shader "Lux URP/Fast Outline AlphaTested"
             // GPU Instancing
             #pragma multi_compile_instancing
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-            
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Fast Outlines AlphaTested Inputs.hlsl"
@@ -315,7 +315,6 @@ Shader "Lux URP/Fast Outline AlphaTested"
             // GPU Instancing
             #pragma multi_compile_instancing
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-            
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Fast Outlines AlphaTested Inputs.hlsl"

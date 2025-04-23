@@ -121,6 +121,10 @@
             #endif
         #endif
 
+        #ifdef USE_APV_PROBE_OCCLUSION
+            float4 probeOcclusion           : TEXCOORD10;
+        #endif
+
         UNITY_VERTEX_INPUT_INSTANCE_ID
         UNITY_VERTEX_OUTPUT_STEREO
     };

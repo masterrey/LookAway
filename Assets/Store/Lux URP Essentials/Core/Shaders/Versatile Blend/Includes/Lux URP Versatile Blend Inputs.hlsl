@@ -61,29 +61,47 @@
         float3 normalOS                     : NORMAL;
         float4 tangentOS                    : TANGENT;
         float2 texcoord                     : TEXCOORD0;
-        float2 lightmapUV                   : TEXCOORD1;
+        float2 staticLightmapUV             : TEXCOORD1;
+        float2 dynamicLightmapUV            : TEXCOORD2;
         UNITY_VERTEX_INPUT_INSTANCE_ID
     };
     
     struct VertexOutput
     {
-        float4 positionCS                   : SV_POSITION;
-        float2 uv                           : TEXCOORD0;
-        #if !defined(UNITY_PASS_SHADOWCASTER) && !defined(DEPTHONLYPASS)
-            DECLARE_LIGHTMAP_OR_SH(lightmapUV, vertexSH, 1);
-            //#if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
-                float3 positionWS           : TEXCOORD2;
-            //#endif
-            float3 normalWS                 : TEXCOORD3;
-            #if defined(_NORMALMAP)
-                float4 tangentWS            : TEXCOORD4;
-            #endif
-            float3 viewDirWS                : TEXCOORD5;
-            
-            half4 fogFactorAndVertexLight   : TEXCOORD6;
+        float2 uv                               : TEXCOORD0;
         
-            float2 screenUV : TEXCOORD8;
+        #if !defined(UNITY_PASS_SHADOWCASTER) && !defined(DEPTHONLYPASS)
+            //#if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
+                float3 positionWS               : TEXCOORD1;
+            //#endif
+            float3 normalWS                     : TEXCOORD2;
+            #if defined(_NORMALMAP)
+                half4 tangentWS                : TEXCOORD3;
+            #endif
+            #ifdef _ADDITIONAL_LIGHTS_VERTEX
+                half4 fogFactorAndVertexLight   : TEXCOORD4; // x: fogFactor, yzw: vertex light
+            #else
+                half  fogFactor                 : TEXCOORD4;
+            #endif
+
+            #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
+                float4 shadowCoord              : TEXCOORD5;
+            #endif
+
+            float2 screenUV                     : TEXCOORD6;
+            
+            DECLARE_LIGHTMAP_OR_SH(staticLightmapUV, vertexSH, 7);
+            #ifdef DYNAMICLIGHTMAP_ON
+                float2  dynamicLightmapUV       : TEXCOORD8;
+            #endif
         #endif
+
+        #ifdef USE_APV_PROBE_OCCLUSION
+            float4 probeOcclusion               : TEXCOORD10;
+        #endif
+
+        float4 positionCS                       : SV_POSITION;
+
         UNITY_VERTEX_INPUT_INSTANCE_ID
         UNITY_VERTEX_OUTPUT_STEREO
     };

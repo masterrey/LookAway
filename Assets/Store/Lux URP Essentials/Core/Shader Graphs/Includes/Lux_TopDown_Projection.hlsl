@@ -29,6 +29,7 @@ void TopDownProjection_half(
     half    TopDownFuzzStrength,
     half    TopDownFuzzPower,
     half    TopDownFuzzBias,
+    half    TopDownFuzzAmbient,
 
 
     out half3 Albedo_o,
@@ -60,12 +61,12 @@ void TopDownProjection_half(
 //  Calculate normal in world space
     NormalWS_o = normalWS;
 //  Use Reoriented Normal Mapping to bring the top down normal into world space
-    half3 n1 = lerp(NormalWS, normalWS, saturate(1.0h - normalBlendFactor + TopDownLowerNormalMinStrength).xxx );
+    half3 n1 = lerp(NormalWS, normalWS, saturate(1.0 - normalBlendFactor + TopDownLowerNormalMinStrength).xxx );
 //  We must apply some crazy swizzling here: Swizzle world space to tangent space
     n1 = n1.xzy;
     half3 n2 = TopDownNormalTS.xyz;
-    n1.z += 1.0h;
-    n2.xy *= -1.0h;
+    n1.z += 1.0;
+    n2.xy *= -1.0;
     half3 topDownNormal = n1 * dot(n1, n2) / max(0.001, n1.z) - n2;
 //  Swizzle tangent space to world space
     topDownNormal = topDownNormal.xzy;
@@ -78,8 +79,8 @@ void TopDownProjection_half(
     if (TopDownFuzz)
     {
         half NdotV = dot(NormalWS_o, ViewDirWS);
-        half fuzz = exp2( (1.0h - NdotV) * TopDownFuzzPower - TopDownFuzzPower) + TopDownFuzzBias;
-        topDownAlbedo = topDownAlbedo * (fuzz * TopDownFuzzStrength + 1.0h);
+        half fuzz = exp2( (1.0 - NdotV) * TopDownFuzzPower - TopDownFuzzPower) + TopDownFuzzBias;
+        topDownAlbedo = topDownAlbedo * (fuzz * TopDownFuzzStrength + TopDownFuzzAmbient + 1.0);
     }
 
 //  Blend all other parameters
@@ -124,6 +125,7 @@ void TopDownProjection_float(
     half    TopDownFuzzStrength,
     half    TopDownFuzzPower,
     half    TopDownFuzzBias,
+    half    TopDownFuzzAmbient,
 
     out half3 Albedo_o,
     out half3 NormalWS_o,
@@ -138,7 +140,7 @@ void TopDownProjection_float(
         Albedo, NormalTS, Smoothness, Occlusion, Metallic,
         TopDownMask, TopDownAlbedo, TopDownNormalTS, TopDownMetallic, TopDownOcclusion, TopDownSmoothness,
         TopDownNormalLimit, TopDownSharpness, TopDownLowerPixelNormalInfluence, TopDownLowerNormalMinStrength,
-        TopDownFuzz, TopDownFuzzStrength, TopDownFuzzPower, TopDownFuzzBias,
+        TopDownFuzz, TopDownFuzzStrength, TopDownFuzzPower, TopDownFuzzBias, TopDownFuzzAmbient,
         Albedo_o, NormalWS_o, Smoothness_o, Occlusion_o, Metallic_o, Blend_o 
     );
 }

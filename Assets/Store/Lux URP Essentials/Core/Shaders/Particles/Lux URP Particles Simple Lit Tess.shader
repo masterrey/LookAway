@@ -150,7 +150,10 @@
         Pass
         {
             Name "ForwardLit"
-            Tags {"LightMode" = "UniversalForward"}
+            Tags
+            {
+                "LightMode" = "UniversalForward"
+            }
             
             BlendOp[_BlendOp]
             Blend[_SrcBlend][_DstBlend]
@@ -200,6 +203,9 @@
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
             #pragma multi_compile _ _FORWARD_PLUS
 
+            #include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
+
         //  When using Forward+ we skip per vertex shadows :(
             #if !defined(_FORWARD_PLUS)
                 #if defined(_SHADOWS_SOFT) && defined(_PERVERTEX_SHADOWS)
@@ -215,10 +221,13 @@
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
 
             // -------------------------------------
             // Unity defined keywords
             #pragma multi_compile_fog
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ProbeVolumeVariants.hlsl"
 
             #pragma hull ParticlesLitHull
             #pragma domain ParticlesLitDomain

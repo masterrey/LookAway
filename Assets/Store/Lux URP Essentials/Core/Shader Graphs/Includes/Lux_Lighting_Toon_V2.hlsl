@@ -7,8 +7,6 @@
     #define _CUSTOMDBUFFER
 #endif
 
-
-
 #if !defined(SHADERGRAPH_PREVIEW) || defined(UNIVERSAL_LIGHTING_INCLUDED)
 
 //  As we do not have access to the vertex lights we will make the shader always sample add lights per pixel
@@ -93,7 +91,9 @@
 	    half lowerEdge = compValue - change;
 	    half upperEdge = compValue + change;
 	//  Do the inverse interpolation
-	    half stepped = (gradient - lowerEdge) / (upperEdge - lowerEdge);
+        //half stepped = (gradient - lowerEdge) / (upperEdge - lowerEdge); // pixelated
+    //  Custom "inverse lerp"
+        half stepped = (gradient - lowerEdge * 0.5) / (upperEdge - lowerEdge);
 	    stepped = saturate(stepped);
 	    return stepped;
 	}
@@ -104,7 +104,6 @@ void Lighting_half(
 
 //  Base inputs
     float3 positionWS,
-    float4 positionSP,
     half3 viewDirectionWS,
 
 //  Normal inputs    
@@ -147,7 +146,7 @@ void Lighting_half(
     half rimAttenuation,
 
 //  Lightmapping
-    float2 lightMapUV,
+    float2 staticLightmapUV,
     float2 dynamicLightMapUV,
 
     bool receiveSSAO,
@@ -158,6 +157,9 @@ void Lighting_half(
     float GradientWidth,
 	SamplerState sampler_Linear,
 	SamplerState sampler_Point,
+
+    half3 vertexSH,
+    float4 ProbeOcclusion,
 
 //  Final lit color
     out half3 Lighting,
@@ -183,9 +185,13 @@ void Lighting_half(
 
     half3 tnormal = normalWS;
 
+//  Has to be zero initialized    
+    half3x3 tangentToWorld = (half3x3)0;
+
 //  Normal mapping
     #if defined(NORMAL_ON)
-        tnormal = TransformTangentToWorld(normalTS, half3x3(tangentWS.xyz, bitangentWS.xyz, normalWS.xyz));
+        tangentToWorld = half3x3(tangentWS.xyz, bitangentWS.xyz, normalWS.xyz);
+        tnormal = TransformTangentToWorld(normalTS, tangentToWorld);
     #endif
 //  Not normalized normals cause uggly specular highlights on mobile. So we always normalize.
     #if defined(SPEC_ON)
@@ -198,18 +204,41 @@ void Lighting_half(
 //  Remap values - old version
     //half diffuseUpper = saturate(diffuseStep + diffuseFalloff);
 
+//  Reconstruct positionCS somehow...
+    float4 positionCS = TransformWorldToHClip(positionWS);
+    
+    float2 normalizedScreenSpaceUV = positionCS.xy;
+    normalizedScreenSpaceUV /= positionCS.w;
+    normalizedScreenSpaceUV = normalizedScreenSpaceUV * 0.5f + 0.5f;
+    #if UNITY_UV_STARTS_AT_TOP
+        normalizedScreenSpaceUV.y = 1.0 - normalizedScreenSpaceUV.y;
+    #endif
+
 //  GI Lighting
-    half3 bakedGI;
-    #ifdef LIGHTMAP_ON
-        lightMapUV = lightMapUV * unity_LightmapST.xy + unity_LightmapST.zw;
-        #if defined(DYNAMICLIGHTMAP_ON)
-            dynamicLightMapUV = dynamicLightMapUV * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
-            bakedGI = SAMPLE_GI(lightMapUV, dynamicLightMapUV, half3(0,0,0), normalWS);
-        #else
-            bakedGI = SAMPLE_GI(lightMapUV, half3(0,0,0), normalWS);
-        #endif
-    #else
-        bakedGI = SampleSH(normalWS); 
+    
+//  These have to be zero initialized, otherwise decals and debug error!
+    half3 bakedGI = (half3)0.0;
+    half4 t_shadowMask = (half4)0.0;
+
+    #if defined(DYNAMICLIGHTMAP_ON)
+        dynamicLightMapUV = dynamicLightMapUV * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+        bakedGI = SAMPLE_GI(staticLightmapUV, dynamicLightmapUV, vertexSH, normalWS);
+        staticLightmapUV = staticLightmapUV * unity_LightmapST.xy + unity_LightmapST.zw;
+        t_shadowMask = SAMPLE_SHADOWMASK(staticLightmapUV);
+    #elif !defined(LIGHTMAP_ON) && (defined(PROBE_VOLUMES_L1) || defined(PROBE_VOLUMES_L2))
+        bakedGI = SAMPLE_GI(
+            vertexSH,                                            
+            GetAbsolutePositionWS(positionWS),
+            normalWS,
+            viewDirectionWS,
+            normalizedScreenSpaceUV * _ScreenSize.xy,
+            ProbeOcclusion,
+            t_shadowMask 
+        );
+    #else 
+        staticLightmapUV = staticLightmapUV * unity_LightmapST.xy + unity_LightmapST.zw;
+        bakedGI = SAMPLE_GI(staticLightmapUV, vertexSH, normalWS);
+        t_shadowMask = SAMPLE_SHADOWMASK(staticLightmapUV);
     #endif
 
 //  Fill standard URP structs so we can use the built in functions
@@ -220,14 +249,25 @@ void Lighting_half(
         inputData.viewDirectionWS = viewDirectionWS;
         inputData.bakedGI = bakedGI;
         #if _MAIN_LIGHT_SHADOWS_SCREEN
-        //  Here we need raw
-            inputData.shadowCoord = positionSP;
+            inputData.shadowCoord = ComputeScreenPos(positionCS);
         #else
             inputData.shadowCoord = TransformWorldToShadowCoord(inputData.positionWS);
         #endif
         //  Apply perspective division
-        inputData.normalizedScreenSpaceUV = positionSP.xy * rcp(positionSP.w);
-        inputData.shadowMask = SAMPLE_SHADOWMASK(lightMapUV);
+        inputData.normalizedScreenSpaceUV = normalizedScreenSpaceUV;
+        inputData.shadowMask = t_shadowMask;
+
+        #if defined(DEBUG_DISPLAY)
+            inputData.positionCS = positionCS; //?
+            #if defined(DYNAMICLIGHTMAP_ON)
+                inputData.dynamicLightmapUV = dynamicLightmapUV;
+            #endif
+            #if defined(LIGHTMAP_ON)
+                inputData.staticLightmapUV = staticLightmapUV;
+            #else
+                inputData.vertexSH = vertexSH;
+            #endif
+        #endif
     }
     SurfaceData surfaceData = (SurfaceData)0;
     {
@@ -243,7 +283,7 @@ void Lighting_half(
     BRDFData brdfData;
 //  We can't use our specular here as it can be anything. So we simply use the default dielectric value here.
     float alpha = 1;
-    InitializeBRDFData(albedo, 0, kDieletricSpec.rgb, smoothness, alpha, brdfData);
+    InitializeBRDFData(albedo, 0, kDielectricSpec.rgb, smoothness, alpha, brdfData);
 
 //  Rim Lighting
     half3 rimLighting = 0;
@@ -257,16 +297,22 @@ void Lighting_half(
 
 //  Debugging
     #if defined(DEBUG_DISPLAY)
-        half4 debugColor;
-        if (CanDebugOverrideOutputColor(inputData, surfaceData, brdfData, debugColor))
-        {
-            Lighting = debugColor.rgb;
-            MetaAlbedo = debugColor.rgb;
-            MetaSpecular = specular;
-            MetaSmoothness = smoothness;
-            MetaOcclusion = occlusion;
-            MetaNormal = normalTS;
-        }
+        // half4 debugColor;
+        // if (CanDebugOverrideOutputColor(inputData, surfaceData, brdfData, debugColor))
+        // {
+        //     Lighting = debugColor.rgb;
+        //     MetaAlbedo = debugColor.rgb;
+        //     MetaSpecular = specular;
+        //     MetaSmoothness = smoothness;
+        //     MetaOcclusion = occlusion;
+        //     MetaNormal = normalTS;
+        // }
+        Lighting = 0;
+        MetaAlbedo = albedo;
+        MetaSpecular = specular;
+        MetaSmoothness = smoothness;
+        MetaOcclusion = occlusion;
+        MetaNormal = normalTS;
     #else
 
         half4 shadowMask = CalculateShadowMask(inputData);
@@ -290,8 +336,8 @@ void Lighting_half(
     //  Decals Part 1
     //  Here we get the decals' albedo and combine it with brdfData.diffuse as this is used by GI
         #if defined(_CUSTOMDBUFFER)
-            float2 positionCS = inputData.normalizedScreenSpaceUV * _ScreenSize.xy;
-            FETCH_DBUFFER(DBuffer, _DBufferTexture, int2(positionCS.xy));
+            float2 positionDS = inputData.normalizedScreenSpaceUV * _ScreenSize.xy;
+            FETCH_DBUFFER(DBuffer, _DBufferTexture, int2(positionDS.xy));
             DecalSurfaceData decalSurfaceData;
             DECODE_FROM_DBUFFER(DBuffer, decalSurfaceData);
             // using alpha compositing https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch23.html, mean weight of 1 is neutral
@@ -346,9 +392,9 @@ void Lighting_half(
         #endif
 
     //  Specular
-        half specularSmoothness;
-        half3 spec;
-        half specularUpper;
+        half specularSmoothness = (half)0;
+        half3 spec = (half3)0;
+        half specularUpper = (half)0;
 
     #if defined(_LIGHT_LAYERS)
         if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
@@ -548,7 +594,6 @@ void Lighting_float(
 
 //  Base inputs
     float3 positionWS,
-    float4 positionSP,
     half3 viewDirectionWS,
 
 //  Normal inputs    
@@ -592,7 +637,7 @@ void Lighting_float(
     half rimAttenuation,
 
 //  Lightmapping
-    float2 lightMapUV,
+    float2 staticLightmapUV,
     float2 dynamicLightMapUV,
 
     bool receiveSSAO,
@@ -604,6 +649,9 @@ void Lighting_float(
 	SamplerState sampler_Linear,
 	SamplerState sampler_Point,
 
+    half3 vertexSH,
+    float4 ProbeOcclusion,
+
 //  Final lit color
     out half3 Lighting,
     out half3 MetaAlbedo,
@@ -614,13 +662,14 @@ void Lighting_float(
 )
 {
     Lighting_half(
-        positionWS, positionSP, viewDirectionWS, normalWS, tangentWS, bitangentWS, normalTS, 
+        positionWS, viewDirectionWS, normalWS, tangentWS, bitangentWS, normalTS, 
         albedo, shadedAlbedo, shadedDecalColor, anisotropy, energyConservation, specular, smoothness, occlusion,
         steps, diffuseStep, diffuseFalloff, specularStep, specularFalloff, shadowFalloff, shadowBiasDirectional, shadowBiasAdditional, 
         colorizeMainLight, colorizeAddLights, lightColorContribution, addLightFalloff,
         rimPower, rimFalloff, rimColor, rimAttenuation,
-        lightMapUV, dynamicLightMapUV, receiveSSAO, receiveReflections,
+        staticLightmapUV, dynamicLightMapUV, receiveSSAO, receiveReflections,
         GradientMap, GradientWidth, sampler_Linear, sampler_Point,
+        vertexSH, ProbeOcclusion,
         Lighting, MetaAlbedo, MetaSpecular, MetaSmoothness, MetaOcclusion, MetaNormal
     );
 }

@@ -60,9 +60,9 @@
         float2 uv                           : TEXCOORD0;
         half3 normalWS                      : TEXCOORD1;
         float3 positionWS                   : TEXCOORD2;
-        // #if defined(_APPLYFOG)
+        //#if defined(_APPLYFOG)
             half fogFactor                  : TEXCOORD3;
-        // #endif
+        //#endif
         UNITY_VERTEX_INPUT_INSTANCE_ID
         UNITY_VERTEX_OUTPUT_STEREO
     };

@@ -143,7 +143,7 @@
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
             #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
+            #pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
             #pragma multi_compile_fragment _ _RENDER_PASS_ENABLED
 
             // -------------------------------------
@@ -154,7 +154,7 @@
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
-            //#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+            //#pragma multi_compile _ DOTS_INSTANCING_ON
 
         //  As we do not store the alpha mask with the base map we have to use custom functions 
             #pragma vertex LitGBufferPassVertex
@@ -195,7 +195,7 @@
             struct Varyings {
                 float4 positionCS     : SV_POSITION;
                 float2 uv             : TEXCOORD0;
-                half3 normalWS        : TEXCOORD1;
+                float3 normalWS       : TEXCOORD1; // float3 to avoid bending artifacts on TBDRs
                 #if defined(_NORMALMAP)
                     half4 tangentWS   : TEXCOORD2;
                 #endif
@@ -209,6 +209,11 @@
                 #ifdef DYNAMICLIGHTMAP_ON
                     float2  dynamicLightmapUV       : TEXCOORD8; // Dynamic lightmap UVs
                 #endif
+
+                #ifdef USE_APV_PROBE_OCCLUSION
+                    float4 probeOcclusion           : TEXCOORD9;
+                #endif
+                
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
@@ -239,8 +244,9 @@
                 #ifdef DYNAMICLIGHTMAP_ON
                     output.dynamicLightmapUV = input.dynamicLightmapUV.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
                 #endif
-                OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
-
+                
+                OUTPUT_SH4(vertexInput.positionWS, output.normalWS.xyz, GetWorldSpaceNormalizeViewDir(vertexInput.positionWS), output.vertexSH, output.probeOcclusion);
+    
                 return output;
             }
 

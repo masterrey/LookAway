@@ -120,8 +120,94 @@ inline float3 AnimateVertex(float3 pos, float3 normal, float4 animParams)
     float fBranchPhase = fObjPhase + animParams.x;
     float fVtxPhase = dot(pos.xyz, animParams.y + fBranchPhase);
 
+
+//  MotionVectors
+    float time = _Time.y;
+#if defined MVPREVIOUS
+    time -= unity_DeltaTime.z; // smooth deltatime
+#endif
+
     // x is used for edges; y is used for branches
-    float2 vWavesIn = _Time.yy + float2(fVtxPhase, fBranchPhase );
+    // float2 vWavesIn = _Time.yy + float2(fVtxPhase, fBranchPhase );
+    float2 vWavesIn = time.xx + float2(fVtxPhase, fBranchPhase );
+
+    // 1.975, 0.793, 0.375, 0.193 are good frequencies
+    half4 vWaves = (frac( vWavesIn.xxyy * float4(1.975, 0.793, 0.375, 0.193) ) * 2.0 - 1.0); // changed to float (android issues)
+    vWaves = SmoothTriangleWave( vWaves );
+    half2 vWavesSum = vWaves.xz + vWaves.yw;
+    
+    // Edge (xz) and branch bending (y)
+    float3 bend = animParams.y * fDetailAmp *       abs(normal.xyz);
+    bend.y = animParams.w * fBranchAmp;
+    pos.xyz += ((vWavesSum.xyx * bend) + (wind.xyz * vWavesSum.y * animParams.w)) * wind.w          * branchWindAnim;
+    
+    // Primary bending
+    pos.xyz += animParams.z * wind.xyz                                                              * mainWindAnim;
+
+    pos = normalize(pos) * origLength;
+
+    return pos;
+}
+
+// Detail bending
+inline float3 AnimateVertexMV(float3 pos, float3 normal, float4 animParams, bool previousFrame)
+{
+    // animParams stored in color
+    // animParams.x = branch phase
+    // animParams.y = edge flutter factor
+    // animParams.z = primary factor
+    // animParams.w = secondary factor
+
+    float mainWindAnim = 1;
+    float branchWindAnim = 1;
+
+//  Fade in Wind
+    float4 wind;
+
+    #if defined(_WINDFROMSCRIPT)
+        wind.xyz = TransformWorldToObjectDir(_LuxURPWindDirSize.xyz);
+    //  In case we have no Wind Prefab foliage will vanish otherwise.
+        wind.xyz = clamp(wind.xyz, -1, 1);
+        wind.xyz *= _LuxURPWindStrengthTurbulencePulsemagnitudePulseFrequency.x;
+        wind.w = _LuxURPWindStrengthTurbulencePulsemagnitudePulseFrequency.y;
+
+    //  Animate incoming wind
+        float3 objectWorldPos = UNITY_PREV_MATRIX_M._m03_m13_m23;
+        float3 absObjectWorldPos = abs(objectWorldPos.xyz * 0.125h);
+        half sinuswave = _LuxURPWindStrengthTurbulencePulsemagnitudePulseFrequency.w;
+        half2 vOscillations = SmoothTriangleWave( half2(absObjectWorldPos.x + sinuswave, absObjectWorldPos.z + sinuswave * 0.7h) );
+        // x used for main wind bending / y used for tumbling
+
+    //  To make it better match we simplify the calculation
+        float2 fOsc = (vOscillations.xy + vOscillations.yy) * 0.5;
+
+        mainWindAnim += fOsc.x * _LuxURPWindStrengthTurbulencePulsemagnitudePulseFrequency.z;
+        branchWindAnim += fOsc.y * _LuxURPWindStrengthTurbulencePulsemagnitudePulseFrequency.z;
+    #else
+        wind = UNITY_ACCESS_INSTANCED_PROP(Props, _Wind) * UNITY_ACCESS_INSTANCED_PROP(Props, _SquashAmount);
+    #endif
+
+// /////////////////////////
+
+    float origLength = length(pos);
+
+    float fDetailAmp = 0.1f;
+    float fBranchAmp = 0.3f;
+    
+    // Phases (object, vertex, branch)
+    float fObjPhase = dot(UNITY_MATRIX_M._m03_m13_m23, 1);
+    float fBranchPhase = fObjPhase + animParams.x;
+    float fVtxPhase = dot(pos.xyz, animParams.y + fBranchPhase);
+
+
+//  MotionVectors
+    //float time = _Time.y;
+    float time = previousFrame ? _LastTimeParameters.x : _Time.y;
+
+    // x is used for edges; y is used for branches
+    // float2 vWavesIn = _Time.yy + float2(fVtxPhase, fBranchPhase );
+    float2 vWavesIn = time.xx + float2(fVtxPhase, fBranchPhase );
+
     // 1.975, 0.793, 0.375, 0.193 are good frequencies
     half4 vWaves = (frac( vWavesIn.xxyy * float4(1.975, 0.793, 0.375, 0.193) ) * 2.0 - 1.0); // changed to float (android issues)
     vWaves = SmoothTriangleWave( vWaves );
@@ -174,6 +260,21 @@ void TreeVertLeaf (inout Attributes v)
     v.positionOS.xyz *= UNITY_ACCESS_INSTANCED_PROP(Props, _TreeInstanceScale.xyz);
     v.positionOS = AnimateVertex (v.positionOS, v.normalOS, float4(v.color.xy, v.texcoord1.xy));
     v.positionOS = Squash(v.positionOS);
+    // v.color.rgb = UNITY_ACCESS_INSTANCED_PROP(Props, _TreeInstanceColor.rgb) * _Color.rgb;
+    // v.normalOS = normalize(v.normalOS);
+    // v.tangentOS.xyz = normalize(v.tangentOS.xyz);
+}
+
+
+float3 TreeVertLeafMV (Attributes v, float3 positionOS, bool previousFrame)
+{
+    ExpandBillboard (UNITY_MATRIX_IT_MV, positionOS, v.normalOS, v.tangentOS);
+    positionOS.xyz *= UNITY_ACCESS_INSTANCED_PROP(Props, _TreeInstanceScale.xyz);
+    positionOS = AnimateVertexMV (positionOS, v.normalOS, float4(v.color.xy, v.texcoord1.xy), previousFrame);
+    positionOS = Squash(positionOS);
+
+    return positionOS;
+
     // v.color.rgb = UNITY_ACCESS_INSTANCED_PROP(Props, _TreeInstanceColor.rgb) * _Color.rgb;
     // v.normalOS = normalize(v.normalOS);
     // v.tangentOS.xyz = normalize(v.tangentOS.xyz);

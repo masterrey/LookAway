@@ -24,6 +24,9 @@ struct Varyings
     #if defined(_NORMALINDEPTHNORMALPASS)
         half4 tangentWS             : TEXCOORD3;
     #endif
+
+    UNITY_VERTEX_INPUT_INSTANCE_ID
+    UNITY_VERTEX_OUTPUT_STEREO
 };
 
 // Tree Creator Library relies on Attributes and Varyings
@@ -33,6 +36,8 @@ Varyings DepthNormalsVertex(Attributes input)
 {
     Varyings output = (Varyings)0;
     UNITY_SETUP_INSTANCE_ID(input);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
+    UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
 //  Wind in Object Space -------------------
     TreeVertLeaf(input);
@@ -75,6 +80,8 @@ void DepthNormalsFragment(
 #endif
 )
 {
+    UNITY_SETUP_INSTANCE_ID(input);
+    UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
     
     #ifdef LOD_FADE_CROSSFADE
         LODFadeCrossFade(input.positionCS);

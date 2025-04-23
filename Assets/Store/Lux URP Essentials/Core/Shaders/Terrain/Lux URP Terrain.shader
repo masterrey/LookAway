@@ -4,10 +4,6 @@
     {
         [HeaderHelpLuxURP_URL(tbg083mgl1iw)]
         
-    //  Lux specific properties
-        //[Toggle(_NORMALMAP)]
-        //_EnableNormalMap                        ("Enable Normal Map", Float) = 0.0
-
         [Toggle(_NORMALINDEPTHNORMALPASS)]
         _ApplyNormalDepthNormal                 ("Enable Normal in Depth Normal Pass", Float) = 1.0
 
@@ -26,6 +22,9 @@
         _ProceduralBlend                        ("     Blend", Range(0.0, 1.0)) = 0.6
         _ProceduralScale                        ("     Scale", Range(0.5, 1.5)) = 1
         _ProceduralTiling                       ("     Size in World Space", Float) = 5
+
+    //  [Toggle(_FORCEPROBEVOLUMES)]            
+    //  _ForceProbeVolumes                      ("Force ProbeVolumes", Float) = 0.0
 
         // Layer count is passed down to guide height-blend enable/disable, due
         // to the fact that heigh-based blend will be broken with multipass.
@@ -58,8 +57,24 @@
         [HideInInspector] _MainTex("BaseMap (RGB)", 2D) = "grey" {}
         [HideInInspector] _BaseColor("Main Color", Color) = (1,1,1,1)
 
+        [HideInInspector] _TerrainHolesTexture("Holes Map (RGB)", 2D) = "white" {}
+
         [Toggle(_TERRAIN_INSTANCED_PERPIXEL_NORMAL)]
         _EnableInstancedPerPixelNormal          ("Enable Instanced per-pixel normal", Float) = 1.0
+
+        [Header(Stencil)]
+        [Space(8)]
+        [IntRange] _Stencil         ("Stencil Reference", Range (0, 255)) = 0
+        [IntRange] _ReadMask        ("     Read Mask", Range (0, 255)) = 255
+        [IntRange] _WriteMask       ("     Write Mask", Range (0, 255)) = 255
+        [Enum(UnityEngine.Rendering.CompareFunction)]
+        _StencilComp                ("Stencil Comparison", Int) = 8
+        [Enum(UnityEngine.Rendering.StencilOp)]
+        _StencilOp                  ("Stencil Operation", Int) = 0
+        [Enum(UnityEngine.Rendering.StencilOp)]
+        _StencilFail                ("Stencil Fail Op", Int) = 0
+        [Enum(UnityEngine.Rendering.StencilOp)] 
+        _StencilZFail               ("Stencil ZFail Op", Int) = 0
     }
 
     SubShader
@@ -78,7 +93,23 @@
         Pass
         {
             Name "ForwardLit"
-            Tags { "LightMode" = "UniversalForward" }
+            Tags
+            {
+                "LightMode" = "UniversalForward"
+            }
+
+        //  Needed by terrain blending
+            Stencil
+            {
+                Ref  [_Stencil]
+                ReadMask [_ReadMask]
+                WriteMask [_WriteMask]
+                Comp [_StencilComp]
+                Pass [_StencilOp]
+                Fail  [_StencilFail]
+                ZFail [_StencilZFail]     
+            }
+
             HLSLPROGRAM
             #pragma target 3.0
 
@@ -92,17 +123,18 @@
             // Universal Pipeline keywords
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile _ _LIGHT_LAYERS
+            #pragma multi_compile _ _FORWARD_PLUS
             #pragma multi_compile _ EVALUATE_SH_MIXED EVALUATE_SH_VERTEX
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
-            #pragma multi_compile_fragment _ _SHADOWS_SOFT
-            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
-            #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
             #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
             #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
-            #pragma multi_compile_fragment _ _LIGHT_LAYERS
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
-            #pragma multi_compile _ _FORWARD_PLUS
+            #include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
 
             #pragma multi_compile __ _ALPHATEST_ON
@@ -114,8 +146,12 @@
             #pragma multi_compile _ DYNAMICLIGHTMAP_ON
             #pragma multi_compile_fog
             #pragma multi_compile_fragment _ DEBUG_DISPLAY
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ProbeVolumeVariants.hlsl"
+
+            //--------------------------------------
+            // GPU Instancing
             #pragma multi_compile_instancing
-            #pragma instancing_options norenderinglayer assumeuniformscaling nomatrices nolightprobe nolightmap
+            #pragma instancing_options assumeuniformscaling nomatrices nolightprobe nolightmap
 
             #pragma shader_feature_local_fragment _TERRAIN_BLEND_HEIGHT
             #pragma shader_feature_local _NORMALMAP
@@ -134,7 +170,10 @@
         Pass
         {
             Name "ShadowCaster"
-            Tags{"LightMode" = "ShadowCaster"}
+            Tags
+            {
+                "LightMode" = "ShadowCaster"
+            }
 
             ZWrite On
             ColorMask 0
@@ -145,13 +184,22 @@
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
 
+            // -------------------------------------
+            // Material Keywords
+            #pragma multi_compile __ _ALPHATEST_ON
+
+            //--------------------------------------
+            // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options assumeuniformscaling nomatrices nolightprobe nolightmap
 
-            #pragma multi_compile __ _ALPHATEST_ON
-
             // -------------------------------------
             // Universal Pipeline keywords
+
+            // -------------------------------------
+            // Unity defined keywords
+            // #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
             #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
 
             #include "Includes/TerrainLitInput.hlsl"
@@ -162,11 +210,14 @@
         Pass
         {
             Name "GBuffer"
-            Tags{"LightMode" = "UniversalGBuffer"}
+            Tags
+            {
+                "LightMode" = "UniversalGBuffer"
+            }
 
             HLSLPROGRAM
-            #pragma exclude_renderers gles
-            #pragma target 3.0
+            #pragma exclude_renderers gles3 glcore
+            #pragma target 4.5
             
             #pragma vertex SplatmapVert
             #pragma fragment SplatmapFragment
@@ -174,38 +225,8 @@
             #define _METALLICSPECGLOSSMAP 1
             #define _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A 1
 
-
-//does not help
-//#pragma shader_feature_local _RECEIVE_SHADOWS_OFF
-
-
             // -------------------------------------
-            // Universal Pipeline keywords
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
-            //#pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-            //#pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
-            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
-            #pragma multi_compile_fragment _ _SHADOWS_SOFT
-            #pragma multi_compile _ _MIXED_LIGHTING_SUBTRACTIVE
-            #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
-
-
-            // -------------------------------------
-            // Unity defined keywords
-
-#pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
-#pragma multi_compile _ SHADOWS_SHADOWMASK
-            #pragma multi_compile _ DIRLIGHTMAP_COMBINED
-            #pragma multi_compile _ LIGHTMAP_ON
-            #pragma multi_compile _ DYNAMICLIGHTMAP_ON
-            #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
-            #pragma multi_compile_fragment _ _RENDER_PASS_ENABLED
-
-            #pragma multi_compile_instancing
-            #pragma instancing_options norenderinglayer assumeuniformscaling nomatrices nolightprobe nolightmap
-
-
+            // Material Keywords
             #pragma shader_feature_local _TERRAIN_BLEND_HEIGHT
             #pragma shader_feature_local _NORMALMAP
             //#pragma shader_feature_local _MASKMAP
@@ -213,8 +234,34 @@
             #pragma shader_feature_local _TERRAIN_INSTANCED_PERPIXEL_NORMAL
             #pragma shader_feature_local _PARALLAX
             #pragma shader_feature_local _PROCEDURALTEXTURING
-
             #pragma multi_compile __ _ALPHATEST_ON
+
+            // -------------------------------------
+            // Universal Pipeline keywords
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
+            //#pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+            //#pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
+            #pragma multi_compile _ _MIXED_LIGHTING_SUBTRACTIVE
+            #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile _ DIRLIGHTMAP_COMBINED
+            #pragma multi_compile _ LIGHTMAP_ON
+            #pragma multi_compile _ DYNAMICLIGHTMAP_ON
+            #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
+            #pragma multi_compile_fragment _ _RENDER_PASS_ENABLED
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ProbeVolumeVariants.hlsl"
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma instancing_options assumeuniformscaling nomatrices nolightprobe nolightmap
 
             #define TERRAIN_GBUFFER 1
 
@@ -226,7 +273,10 @@
         Pass
         {
             Name "DepthOnly"
-            Tags{"LightMode" = "DepthOnly"}
+            Tags
+            {
+                "LightMode" = "DepthOnly"
+            }
 
             ZWrite On
             ColorMask R
@@ -237,10 +287,14 @@
             #pragma vertex DepthOnlyVertex
             #pragma fragment DepthOnlyFragment
 
+            // -------------------------------------
+            // Material Keywords
+            #pragma multi_compile __ _ALPHATEST_ON
+
+            //--------------------------------------
+            // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options assumeuniformscaling nomatrices nolightprobe nolightmap
-
-            #pragma multi_compile __ _ALPHATEST_ON
 
             #include "Includes/TerrainLitInput.hlsl"
             #include "Includes/TerrainLitPasses.hlsl"
@@ -251,7 +305,10 @@
         Pass
         {
             Name "DepthNormals"
-            Tags{"LightMode" = "DepthNormals"}
+            Tags
+            {
+                "LightMode" = "DepthNormals"
+            }
 
             ZWrite On
 
@@ -261,6 +318,8 @@
             #pragma vertex DepthNormalOnlyVertex
             #pragma fragment DepthNormalOnlyFragment
 
+            // -------------------------------------
+            // Material Keywords
             #pragma shader_feature_local _NORMALMAP
             #pragma shader_feature_local _NORMALINDEPTHNORMALPASS
             #pragma multi_compile __ _ALPHATEST_ON
@@ -268,11 +327,18 @@
             // Sample normal in pixel shader when doing instancing
             #pragma shader_feature_local _TERRAIN_INSTANCED_PERPIXEL_NORMAL
 
+            #pragma shader_feature_local_fragment _TERRAIN_BLEND_HEIGHT
+            #pragma shader_feature_local _PARALLAX
+            #pragma shader_feature_local _PROCEDURALTEXTURING
+
+            // -------------------------------------
+            // Universal Pipeline keywords
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
+            
+            //--------------------------------------
+            // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options assumeuniformscaling nomatrices nolightprobe nolightmap
-
-            #pragma multi_compile __ _ALPHATEST_ON
 
             #include "Includes/TerrainLitInput.hlsl"
             #include "Includes/TerrainLitPasses.hlsl"
@@ -283,7 +349,10 @@
         Pass
         {
             Name "Meta"
-            Tags{"LightMode" = "Meta"}
+            Tags
+            {
+                "LightMode" = "Meta"
+            }
 
             Cull Off
 
@@ -293,10 +362,16 @@
 
             #pragma multi_compile_instancing
             #pragma instancing_options assumeuniformscaling nomatrices nolightprobe nolightmap
+            
+            // -------------------------------------
+            // Material Keywords
             #pragma shader_feature EDITOR_VISUALIZATION
             #define _METALLICSPECGLOSSMAP 1
             #define _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A 1
 
+            // #pragma multi_compile_instancing
+            // #pragma instancing_options assumeuniformscaling nomatrices nolightprobe nolightmap
+            
             #include "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/TerrainLitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/TerrainLitMetaPass.hlsl"
 

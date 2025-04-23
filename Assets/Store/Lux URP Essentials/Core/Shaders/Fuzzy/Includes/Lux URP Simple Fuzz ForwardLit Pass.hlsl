@@ -23,7 +23,7 @@ struct Varyings {
     //#if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
         float3 positionWS               : TEXCOORD1;
     //#endif
-    half3 normalWS                      : TEXCOORD2;
+    float3 normalWS                     : TEXCOORD2; // float3 to avoid bending artifacts on TBDRs
     //#if defined(REQUIRES_WORLD_SPACE_TANGENT_INTERPOLATOR)
     #ifdef _NORMALMAP
         half4 tangentWS                 : TEXCOORD3;    
@@ -42,6 +42,10 @@ struct Varyings {
     DECLARE_LIGHTMAP_OR_SH(staticLightmapUV, vertexSH, 7);
     #ifdef DYNAMICLIGHTMAP_ON
         float2  dynamicLightmapUV       : TEXCOORD8;
+    #endif
+
+    #ifdef USE_APV_PROBE_OCCLUSION
+        float4 probeOcclusion           : TEXCOORD10;
     #endif
 
     float4 positionCS                   : SV_POSITION;
@@ -87,7 +91,9 @@ Varyings LitPassVertex(Attributes input)
     #ifdef DYNAMICLIGHTMAP_ON
         output.dynamicLightmapUV = input.dynamicLightmapUV.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
     #endif
-    OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
+    
+    OUTPUT_SH4(vertexInput.positionWS, output.normalWS.xyz, GetWorldSpaceNormalizeViewDir(vertexInput.positionWS), output.vertexSH, output.probeOcclusion);
+
     #ifdef _ADDITIONAL_LIGHTS_VERTEX
         output.fogFactorAndVertexLight = half4(fogFactor, vertexLight);
     #else
@@ -151,12 +157,21 @@ void InitializeInputData(Varyings input, half3 normalTS, half facing, out InputD
     #endif
     #if defined(DYNAMICLIGHTMAP_ON)
         inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.dynamicLightmapUV, input.vertexSH, inputData.normalWS);
+        inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
+    #elif !defined(LIGHTMAP_ON) && (defined(PROBE_VOLUMES_L1) || defined(PROBE_VOLUMES_L2))
+        inputData.bakedGI = SAMPLE_GI(input.vertexSH,
+            GetAbsolutePositionWS(inputData.positionWS),
+            inputData.normalWS,
+            inputData.viewDirectionWS,
+            input.positionCS.xy,
+            input.probeOcclusion,
+            inputData.shadowMask);
     #else
         inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.vertexSH, inputData.normalWS);
+        inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
     #endif
 
     inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
-    inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
 
     #if defined(DEBUG_DISPLAY)
     #if defined(DYNAMICLIGHTMAP_ON)
@@ -211,7 +226,7 @@ void LitPassFragment(
         #if defined(_SIMPLEFUZZ)
         //  Somehow mask fuzz lighting and transmission on decals
             //surfaceData.fuzzMask *= 1.0h - saturate( abs(albedo.g - surfaceData.albedo.g) * 256.0h );
-            half suppression = 1.0h - saturate( abs( dot(albedo, albedo) - dot(surfaceData.albedo, surfaceData.albedo) ) * 256.0h );
+            half suppression = 1.0 - saturate( abs( dot(albedo, albedo) - dot(surfaceData.albedo, surfaceData.albedo) ) * 256.0 );
             additionalSurfaceData.fuzzMask *= suppression;
             additionalSurfaceData.translucency *= lerp(suppression, 1, _DecalTransmission);
         #endif
@@ -219,11 +234,11 @@ void LitPassFragment(
 #endif
 
     #if defined(_RIMLIGHTING)
-        half rim = saturate(1.0h - saturate( dot(inputData.normalWS, inputData.viewDirectionWS) ) );
+        half rim = saturate(1.0 - saturate( dot(inputData.normalWS, inputData.viewDirectionWS) ) );
         half power = _RimPower;
         if(_RimFrequency > 0 ) {
-            half perPosition = lerp(0.0h, 1.0h, dot(1.0h, frac(UNITY_MATRIX_M._m03_m13_m23) * 2.0h - 1.0h ) * _RimPerPositionFrequency ) * 3.1416h;
-            power = lerp(power, _RimMinPower, (1.0h + sin(_Time.y * _RimFrequency + perPosition) ) * 0.5h );
+            half perPosition = lerp(0.0, 1.0, dot(1.0, frac(UNITY_MATRIX_M._m03_m13_m23) * 2.0 - 1.0 ) * _RimPerPositionFrequency ) * 3.1416;
+            power = lerp(power, _RimMinPower, (1.0 + sin(_Time.y * _RimFrequency + perPosition) ) * 0.5 );
         }
         surfaceData.emission += pow(rim, power) * _RimColor.rgb * _RimColor.a;
     #endif

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 7
+  version: 9
 --- !u!21 &2100000
 Material:
   serializedVersion: 8
@@ -21,18 +21,23 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M Challenger Beard SG
-  m_Shader: {fileID: -6465566751694194690, guid: 8fe3962787503844b988cbaad50c41de,
-    type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 60b4ff9c8c35d8645ba89bee9692d6a3, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _ALPHATEST_ON
+  - _SPECULAR_SETUP
+  - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 1
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
+  m_CustomRenderQueue: 3000
+  stringTagMap:
+    RenderType: Transparent
+  disabledShaderPasses:
+  - MOTIONVECTORS
+  - DepthOnly
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -96,19 +101,22 @@ Material:
     m_Ints: []
     m_Floats:
     - _AlphaClip: 1
+    - _AlphaToMask: 0
     - _AmbientReflection: 0.268
     - _ApplyNormal: 1
     - _ApplyNormalDepthNormal: 1
     - _ApplyNormalDiffuse: 0
     - _Bias: 3
     - _Blend: 0
+    - _BlendModePreserveSpecular: 0
     - _BumpScale: 0.5
+    - _CastShadows: 1
     - _Coverage: 0
     - _Cull: 0
     - _Culling: 0
     - _Curvature: 0.5
     - _Cutoff: 0.01
-    - _DstBlend: 0
+    - _DstBlend: 10
     - _EnableDistanceFade: 0
     - _EnableMaskMap: 0
     - _EnableSecondaryLobe: 1
@@ -143,7 +151,7 @@ Material:
     - _SpecularExponent: 0.6
     - _SpecularHighlights: 1
     - _SpecularShift: 0.115
-    - _SrcBlend: 1
+    - _SrcBlend: 5
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilFail: 0
@@ -151,13 +159,14 @@ Material:
     - _StencilRef: 0
     - _StencilZFail: 0
     - _StrandDir: 0
-    - _Surface: 0
+    - _Surface: 1
     - _TranslucencyPower: 6.29
     - _TranslucencyStrength: 1
-    - _WorkflowMode: 1
+    - _WorkflowMode: 0
     - _WriteMask: 255
     - _ZTest: 4
-    - _ZWrite: 1
+    - _ZWrite: 0
+    - _ZWriteControl: 0
     m_Colors:
     - _BaseColor: {r: 0.33962262, g: 0.28006345, b: 0.23549305, a: 1}
     - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
@@ -170,3 +179,4 @@ Material:
     - _SpecularTint: {r: 0.46226418, g: 0.45136172, b: 0.45136172, a: 1}
     - _SubsurfaceColor: {r: 1, g: 0.39999998, b: 0.24999997, a: 1}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1

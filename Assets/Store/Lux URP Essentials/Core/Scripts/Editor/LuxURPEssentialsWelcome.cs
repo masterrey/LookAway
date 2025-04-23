@@ -14,6 +14,7 @@ namespace LuxURPEssentials
 		public static void Init()
 		{
 			window = GetWindow<LuxURPEssentialsWelcome>(false, "Lux URP Essentials", true);
+			//window.minSize = window.maxSize = new Vector2(480, 270);
 			window.minSize = new Vector2(480, 270);
 		}
 
@@ -39,7 +40,7 @@ namespace LuxURPEssentials
 			GUILayout.BeginHorizontal();
 				GUILayout.Space(16);
 				EditorGUILayout.LabelField(
-					"Currently installed: Version 1.98 for Unity 2022.3 LTS and URP 14.0.7", _style_bodytxt);
+					"Currently installed: Version 2.0 for Unity 6.0.23f1 and URP 17.0.3. (October 11, 2024)", _style_bodytxt);
 				GUILayout.Space(16);
 			GUILayout.EndHorizontal();
 
@@ -56,7 +57,7 @@ namespace LuxURPEssentials
 			GUILayout.BeginHorizontal();
 				GUILayout.Space(16);
 				EditorGUILayout.LabelField(
-					"The package you have downloaded from the asset store installed shaders compatible with URP 14.0.7. " + 
+					"The package you have downloaded from the asset store installed shaders compatible with URP 17.0.3. " + 
 					"In case you got any compilation errors this most likely is caused by the fact that you are using a different version of URP.\n" + 
 					"If so please have a look at the included sub packages and install the one you need.", _style_bodytxt);
 				GUILayout.Space(16);

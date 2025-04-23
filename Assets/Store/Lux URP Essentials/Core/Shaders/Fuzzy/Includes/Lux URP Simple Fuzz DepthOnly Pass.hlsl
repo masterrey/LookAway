@@ -17,7 +17,7 @@ struct Varyings
     #if defined(_ALPHATEST_ON) && defined(_MASKMAP)
         float2 uv                   : TEXCOORD0;
     #endif
-    //UNITY_VERTEX_INPUT_INSTANCE_ID
+    UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
 };
 
@@ -25,7 +25,7 @@ Varyings DepthOnlyVertex(Attributes input)
 {
     Varyings output = (Varyings)0;
     UNITY_SETUP_INSTANCE_ID(input);
-    //UNITY_TRANSFER_INSTANCE_ID(input, output);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
     output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
@@ -39,7 +39,7 @@ Varyings DepthOnlyVertex(Attributes input)
 
 half4 DepthOnlyFragment(Varyings input) : SV_TARGET
 {
-    //UNITY_SETUP_INSTANCE_ID(input);
+    UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
     #ifdef LOD_FADE_CROSSFADE

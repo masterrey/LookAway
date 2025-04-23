@@ -1,4 +1,7 @@
-﻿// Shader uses custom editor to set double sided GI
+﻿// NOTE: Does not work with the GPU Resident Drawer, so DOTS instancing is disabled
+// Last checked woth Uniyt 6000.0.4f1
+
+// Shader uses custom editor to set double sided GI
 // Needs _Culling to be set properly
 
 Shader "Lux URP/Fast Outline AlphaTested Double Pass"
@@ -90,7 +93,7 @@ Shader "Lux URP/Fast Outline AlphaTested Double Pass"
 
             // -------------------------------------
             // Unity defined keywords
-            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
 
             //--------------------------------------
             // GPU Instancing
@@ -169,7 +172,7 @@ Shader "Lux URP/Fast Outline AlphaTested Double Pass"
             // -------------------------------------
             // Unity defined keywords
             #pragma multi_compile_fog
-            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
 
             //--------------------------------------
             // GPU Instancing
@@ -298,7 +301,7 @@ Shader "Lux URP/Fast Outline AlphaTested Double Pass"
 
             // -------------------------------------
             // Unity defined keywords
-            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
 
             //--------------------------------------
             // GPU Instancing

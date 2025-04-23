@@ -98,7 +98,7 @@
                     HeightBasedSplatModifyCombined(splatControl, heights, height);
                 #endif
           
-                SplatmapMix(IN.uvMainAndLM, IN.uvSplat01, IN.uvSplat23, splatControl, weight, mixedDiffuse, defaultSmoothness, normalTS);
+                SplatmapMix(IN.uvMainAndLM, IN.uvSplat01, IN.uvSplat23, splatControl, weight, mixedDiffuse, defaultSmoothness, normalTS, false);
                 half smoothness = dot(splatControl, defaultSmoothness);
                 return half4(mixedDiffuse.rgb, smoothness);
             }
@@ -154,7 +154,7 @@
                 float2 splatUV = (IN.uvMainAndLM.xy * (_Control_TexelSize.zw - 1.0f) + 0.5f) * _Control_TexelSize.xy;                
                 splatControl = SAMPLE_TEXTURE2D(_Control, sampler_Control, splatUV);
                 
-                SplatmapMix(IN.uvMainAndLM, IN.uvSplat01, IN.uvSplat23, splatControl, weight, mixedDiffuse, defaultSmoothness, normalTS);
+                SplatmapMix(IN.uvMainAndLM, IN.uvSplat01, IN.uvSplat23, splatControl, weight, mixedDiffuse, defaultSmoothness, normalTS, false);
                 
                 half4 defaultMetallic = half4(_Metallic0, _Metallic1, _Metallic2, _Metallic3);
                 half metallic = dot(splatControl, defaultMetallic);

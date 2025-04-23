@@ -24,7 +24,7 @@ struct Varyings
     #if defined(_NORMALINDEPTHNORMALPASS)
         half4 tangentWS             : TEXCOORD5;
     #endif
-    //UNITY_VERTEX_INPUT_INSTANCE_ID
+    UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
 };
 
@@ -35,7 +35,7 @@ Varyings DepthNormalsVertex(Attributes input)
 {
     Varyings output = (Varyings)0;
     UNITY_SETUP_INSTANCE_ID(input);
-    //UNITY_TRANSFER_INSTANCE_ID(input, output);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
     VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
@@ -74,7 +74,7 @@ void DepthNormalsFragment(
 #endif
 )
 {
-    //UNITY_SETUP_INSTANCE_ID(input);
+    UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
     
     // #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES)

@@ -36,7 +36,7 @@ CBUFFER_START(UnityPerMaterial)
 CBUFFER_END
 
 TEXTURE2D(_SpecGlossMap); SAMPLER(sampler_SpecGlossMap);
-float4 _CameraDepthTexture_TexelSize;
+//float4 _CameraDepthTexture_TexelSize;
 
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Particles.hlsl"
 

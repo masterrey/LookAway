@@ -60,6 +60,10 @@ struct VaryingsParticleLux
         half3 vertexLighting        : TEXCOORD9;
     #endif
 
+    #ifdef USE_APV_PROBE_OCCLUSION
+        float4 probeOcclusion       : TEXCOORD10;
+    #endif
+
     float4 positionCS               : SV_POSITION;
     UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
@@ -96,7 +100,20 @@ void InitializeInputData(VaryingsParticleLux input, half3 normalTS, out InputDat
     #else
         output.vertexLighting = half3(0.0h, 0.0h, 0.0h);
     #endif
-    output.bakedGI = SampleSHPixel(input.vertexSH, output.normalWS);
+    
+//  
+
+    #if (defined(PROBE_VOLUMES_L1) || defined(PROBE_VOLUMES_L2))
+        output.bakedGI = SAMPLE_GI(input.vertexSH,
+            GetAbsolutePositionWS(output.positionWS),
+            output.normalWS,
+            output.viewDirectionWS,
+            input.positionCS.xy,
+            input.probeOcclusion,
+            (half4)0 ); // //inputData.shadowMask);
+    #else
+        output.bakedGI = SampleSHPixel(input.vertexSH, output.normalWS);
+    #endif
 
 //  Forward+ needs normalizedScreenSpaceUV
     #if USE_FORWARD_PLUS
@@ -199,7 +216,7 @@ VaryingsParticleLux ParticlesLitVertex(AttributesParticleLux input)
         output.tangentWS = half4(normalInput.tangentWS.xyz, sign);
     #endif
 
-    OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
+    OUTPUT_SH4(vertexInput.positionWS, output.normalWS.xyz, GetWorldSpaceNormalizeViewDir(vertexInput.positionWS), output.vertexSH, output.probeOcclusion);
 
     output.positionWS.xyz = vertexInput.positionWS.xyz;
 //  NOTE: output.positionWS.w contains fog!

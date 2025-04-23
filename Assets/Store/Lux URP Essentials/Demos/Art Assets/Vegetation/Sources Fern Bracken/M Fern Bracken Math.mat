@@ -104,6 +104,7 @@ Material:
     - _HelpA: 0
     - _MaskByShadowStrength: 0
     - _Metallic: 0
+    - _MotionVectorsVA: 1
     - _NormalDisplacement: 1
     - _OcclusionStrength: 1
     - _OverrideTransmission: 0
@@ -121,8 +122,8 @@ Material:
     - _SrcBlend: 1
     - _Stretchiness: 0.1
     - _Surface: 0
-    - _TranslucencyPower: 7
-    - _TranslucencyStrength: 1
+    - _TranslucencyPower: 3
+    - _TranslucencyStrength: 2
     - _Turbulence: 4
     - _TurbulenceFrequency: 1
     - _TurbulenceMask: 0
@@ -138,3 +139,4 @@ Material:
     - _TransmissionColor: {r: 0.73, g: 0.85, b: 0.40999997, a: 1}
     - _WindMultiplier: {r: 2, g: 2, b: 0.3, a: 0}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1

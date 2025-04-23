@@ -135,7 +135,7 @@ half4 LuxURPSimpleFuzzFragmentPBR(
         addData.fuzz = Fuzz(NdotV, fuzzPower, fuzzBias);
         addData.fuzz *= additionalSurfaceData.fuzzMask * fuzzStrength;
         half3 diffuse = brdfData.diffuse;
-        brdfData.diffuse *= 1.0h + addData.fuzz * fuzzAmbient;
+        brdfData.diffuse *= 1.0 + addData.fuzz * fuzzAmbient;
     #endif
 
     //half3 color = GlobalIllumination(brdfData, inputData.bakedGI, occlusion, inputData.normalWS, inputData.viewDirectionWS);
@@ -173,7 +173,7 @@ half4 LuxURPSimpleFuzzFragmentPBR(
         half3 transLightDir = mainLight.direction + inputData.normalWS * translucency.w;
         half transDot = dot( transLightDir, -inputData.viewDirectionWS );
         transDot = exp2(saturate(transDot) * transPower - transPower);
-        lightingData.mainLightColor += brdfData.diffuse * transDot * (1.0h - NdotL) * mainLightColor * lerp(1.0h, mainLight.shadowAttenuation, translucency.z) * translucency.x * 4;
+        lightingData.mainLightColor += brdfData.diffuse * transDot * (1.0 - NdotL) * mainLightColor * lerp(1.0, mainLight.shadowAttenuation, translucency.z) * translucency.x * 4.0;
     #endif
     }
 
@@ -190,7 +190,7 @@ half4 LuxURPSimpleFuzzFragmentPBR(
             #endif
                 {
                     NdotL = saturate(dot(inputData.normalWS, light.direction ));
-                    lightingData.additionalLightsColor += 10 * LightingPhysicallyBased_LuxFuzz(brdfData,
+                    lightingData.additionalLightsColor += 10.0 * LightingPhysicallyBased_LuxFuzz(brdfData,
                         #if defined(_SIMPLEFUZZ) 
                             addData,
                         #endif
@@ -201,7 +201,7 @@ half4 LuxURPSimpleFuzzFragmentPBR(
                         half3 transLightDir = light.direction + inputData.normalWS * translucency.w;
                         half transDot = dot( transLightDir, -inputData.viewDirectionWS );
                         transDot = exp2(saturate(transDot) * transPower - transPower);
-                        lightingData.additionalLightsColor += brdfData.diffuse * transDot * (1.0h - NdotL) * light.color * lerp(1.0h, light.shadowAttenuation, translucency.z) * light.distanceAttenuation  * translucency.x * 4;
+                        lightingData.additionalLightsColor += brdfData.diffuse * transDot * (1.0 - NdotL) * light.color * lerp(1.0, light.shadowAttenuation, translucency.z) * light.distanceAttenuation  * translucency.x * 4.0;
                     #endif
                 }
             }
@@ -225,7 +225,7 @@ half4 LuxURPSimpleFuzzFragmentPBR(
                     half3 transLightDir = light.direction + inputData.normalWS * translucency.w;
                     half transDot = dot( transLightDir, -inputData.viewDirectionWS );
                     transDot = exp2(saturate(transDot) * transPower - transPower);
-                    lightingData.additionalLightsColor += brdfData.diffuse * transDot * (1.0h - NdotL) * light.color * lerp(1.0h, light.shadowAttenuation, translucency.z) * light.distanceAttenuation  * translucency.x * 4;
+                    lightingData.additionalLightsColor += brdfData.diffuse * transDot * (1.0 - NdotL) * light.color * lerp(1.0, light.shadowAttenuation, translucency.z) * light.distanceAttenuation  * translucency.x * 4.0;
                 #endif
                 }
         LIGHT_LOOP_END

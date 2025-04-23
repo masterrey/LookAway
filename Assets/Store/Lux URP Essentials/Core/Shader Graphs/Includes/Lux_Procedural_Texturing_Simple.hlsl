@@ -40,10 +40,10 @@ void StochasticSampleSimple_half (
     int2 baseId = int2(floor(skewedCoord));
     float3 temp = float3(frac(skewedCoord), 0);
     temp.z = 1.0 - temp.x - temp.y;
-    
+
 //  Needs to be float
     float w1, w2, w3;
-    
+
     int2 vertex1, vertex2, vertex3;
     if (temp.z > 0.0) {
         w1 = temp.z;
@@ -69,7 +69,7 @@ void StochasticSampleSimple_half (
     float2 uv3 = uv + frac(sin(mul(hashMatrix, (float2)vertex3)) * hashFactor);
 
 //  Use a hash function which does not include sin
-//  Adds a little bit visible tiling...   
+//  Adds a little bit visible tiling... and is slower!   
     // float2 uv1 = uv + hash22( (float2)vertex1 );
     // float2 uv2 = uv + hash22( (float2)vertex2 );
     // float2 uv3 = uv + hash22( (float2)vertex3 );
@@ -87,34 +87,26 @@ void StochasticSampleSimple_half (
     w2 *= Luminance(G2.rgb);
     w3 *= Luminance(G3.rgb);
     
-//  Get weights
-//     half exponent = 1.0h + Blend * 15.0h;
-// #pragma warning (disable : 3571)
-//     w1 = pow(w1, exponent);
-//     w2 = pow(w2, exponent);
-//     w3 = pow(w3, exponent);
-// #pragma warning (enable : 3571)
-
-// //  Lets help the compiler here:
-//     half sum = rcp(w1 + w2 + w3);
-//     w1 = w1 * sum;
-//     w2 = w2 * sum;
-//     w3 = w3 * sum;
-
-//  Get weights using float!
+//  Get weights - using floats!
     float exponent = 1.0f + Blend * 15.0f;
 #pragma warning (disable : 3571)
     w1 = pow(w1, exponent);
     w2 = pow(w2, exponent);
     w3 = pow(w3, exponent);
 #pragma warning (enable : 3571)
-    //float sum = 1.0f / (max(0.0001, fw1 + fw2 + fw3));
+
+    // this actually saves roughly 4% but results in a different blendcontrast
+    // exponent = exponent * 1.4427f + 1.4427f;
+    // w1 = exp2(w1 * exponent - exponent);
+    // w2 = exp2(w2 * exponent - exponent);
+    // w3 = exp2(w3 * exponent - exponent);
+
     float sum = saturate(w1 + w2 + w3);
-    sum = (sum == 0.0f) ? 0.0f : 1.0f / sum;
+    sum = (sum == 0.0f) ? 0.0f : rcp(sum);
 
     w1 = w1 * sum;
     w2 = w2 * sum;
-    w3 = w3 * sum;
+    w3 = w3 * sum;   
     
 //  Albedo
     half4 G = w1 * G1 + w2 * G2 + w3 * G3;
@@ -125,7 +117,8 @@ void StochasticSampleSimple_half (
     half4 MS;
     half4 M;
 
-    UNITY_BRANCH if(w1 > 0.95) {
+    UNITY_BRANCH
+    if (w1 > 0.95) {
         N = SAMPLE_TEXTURE2D_GRAD(textureNormal, samplerTex, uv1, duvdx, duvdy);
         MS = SAMPLE_TEXTURE2D_GRAD(textureMetallicSpec, samplerTex, uv1, duvdx, duvdy);
         M = SAMPLE_TEXTURE2D_GRAD(textureMask, samplerTex, uv1, duvdx, duvdy);
@@ -159,11 +152,8 @@ void StochasticSampleSimple_half (
     }
 
 //  Normal is either BC5 or DXT5nm – what is about mobile?
-    #if defined(UNITY_NO_DXT5nm)
-        FinalNormal = UnpackNormalRGBNoScale(N);
-    #else
-        FinalNormal = UnpackNormalmapRGorAG(N, normalScale);
-    #endif
+    FinalNormal = UnpackNormalScale(N, normalScale);
+    
     FinalMetallicSpecular = MS;
     FinalMask = M;
 }

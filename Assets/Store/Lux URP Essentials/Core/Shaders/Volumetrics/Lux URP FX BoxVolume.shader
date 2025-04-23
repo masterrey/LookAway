@@ -64,7 +64,7 @@
             #pragma shader_feature_local ORTHO_SUPPORT
 
             // -------------------------------------
-            // Lightweight Pipeline keywords
+            // Universal Pipeline keywords
 
             // -------------------------------------
             // Unity defined keywords
@@ -72,12 +72,13 @@
                 #pragma multi_compile_fog
                 #pragma shader_feature_local _HQFOG
             #endif
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-            
             
             #pragma vertex vert
             #pragma fragment frag

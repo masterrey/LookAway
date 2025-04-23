@@ -112,12 +112,13 @@ Shader "Lux URP/Water"
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
-            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
             #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
             //#pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
-            #pragma multi_compile_fragment _ _LIGHT_LAYERS
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
+            #pragma multi_compile _ _LIGHT_LAYERS
             #pragma multi_compile _ _FORWARD_PLUS
+            #include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
 
 
@@ -131,14 +132,13 @@ Shader "Lux URP/Water"
             //#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fog
             #pragma multi_compile_fragment _ DEBUG_DISPLAY
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ProbeVolumeVariants.hlsl"
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-            
-
 
             #define _SPECULAR_SETUP 1
             #define _NORMALMAP 1
@@ -184,11 +184,11 @@ Shader "Lux URP/Water"
                 float3 positionWS               : TEXCOORD2;
                 
                 #ifdef _NORMALMAP
-                    half4 normalWS              : TEXCOORD3;    // xyz: normal, w: viewDir.x
+                    float4 normalWS             : TEXCOORD3;    // xyz: normal, w: viewDir.x
                     half4 tangentWS             : TEXCOORD4;    // xyz: tangent, w: viewDir.y
                     half4 bitangentWS           : TEXCOORD5;    // xyz: bitangent, w: viewDir.z
                 #else
-                    half3 normalWS              : TEXCOORD3;
+                    float3 normalWS             : TEXCOORD3;
                     half3 viewDirWS             : TEXCOORD4;
                 #endif
 
@@ -196,6 +196,11 @@ Shader "Lux URP/Water"
                 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
                     float4 shadowCoord          : TEXCOORD7;
                 #endif
+
+                #ifdef USE_APV_PROBE_OCCLUSION
+                    float4 probeOcclusion       : TEXCOORD10;
+                #endif
+
                 //UNITY_VERTEX_INPUT_INSTANCE_ID
                 UNITY_VERTEX_OUTPUT_STEREO
             };
@@ -229,11 +234,9 @@ Shader "Lux URP/Water"
             
             #if defined(SHADER_API_GLES)
                 TEXTURE2D(_CameraDepthTexture); SAMPLER(sampler_CameraDepthTexture);
-                //TEXTURE2D(_CameraOpaqueTexture); SAMPLER(sampler_CameraOpaqueTexture);
             #else
-                // URP 7.1.5.
                 TEXTURE2D_X_FLOAT(_CameraDepthTexture);
-                //SAMPLER(sampler_PointClamp); // Using Load means no sampling or filtering anyway
+TEXTURE2D_X_FLOAT(_MotionVectorDepthTexture);
             #endif
             TEXTURE2D_X(_CameraOpaqueTexture);
             
@@ -287,15 +290,15 @@ Shader "Lux URP/Water"
                     output.dynamicLightmapUV = input.dynamicLightmapUV.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
                 #endif
                 
-                OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
+                OUTPUT_SH4(vertexInput.positionWS, output.normalWS.xyz, GetWorldSpaceNormalizeViewDir(vertexInput.positionWS), output.vertexSH, output.probeOcclusion);
+
                 output.fogFactorAndVertexLight = half4(fogFactor, vertexLight);
 
                 output.uv.xy = TRANSFORM_TEX(input.texcoord, _BumpMap) + _Time.xx * _Speed;
 
             //  Water
-            //  see: ComputeGrabScreenPos
                 float4 screenUV = ComputeScreenPos(output.positionCS);
-                output.uv.zw = screenUV.xy; //waterDepth.xx;
+                output.uv.zw = screenUV.xy;
 
                 return output;
             }
@@ -416,7 +419,7 @@ Shader "Lux URP/Water"
                     float refractedSceneDepth = SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, sampler_CameraDepthTexture, screenUV + offset, 0);
                 #else
                     float refractedSceneDepth = LOAD_TEXTURE2D_X(_CameraDepthTexture, _ScaledScreenParams.xy * saturate(screenUV + offset) * 0.9999f ).x;
-                    //float refractedSceneDepth = SAMPLE_TEXTURE2D_X(_CameraDepthTexture, sampler_PointClamp, saturate(screenUV + offset)).x;
+//refractedSceneDepth = LOAD_TEXTURE2D_X(_MotionVectorDepthTexture, _ScaledScreenParams.xy * saturate(screenUV + offset) * 0.9999f ).x;
                 #endif
                 refractedSceneDepth = GetProperEyeDepth(refractedSceneDepth);
                 float viewDepth = refractedSceneDepth - surfaceEyeDepth;
@@ -429,7 +432,7 @@ Shader "Lux URP/Water"
                         refractedSceneDepth = SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, sampler_CameraDepthTexture, offset, 0);   
                     #else
                         refractedSceneDepth = LOAD_TEXTURE2D_X(_CameraDepthTexture, (_ScaledScreenParams.xy * saturate(offset) * 0.9999f  )).x;
-                        //refractedSceneDepth = SAMPLE_TEXTURE2D_X(_CameraDepthTexture, sampler_PointClamp, saturate(offset)).x;
+//refractedSceneDepth = LOAD_TEXTURE2D_X(_MotionVectorDepthTexture, _ScaledScreenParams.xy * saturate(screenUV + offset) * 0.9999f ).x;
                     #endif
                     refractedSceneDepth = GetProperEyeDepth(refractedSceneDepth);
                     refraction = SAMPLE_TEXTURE2D_X(_CameraOpaqueTexture, sampler_LinearClamp, saturate(offset)).rgb;
@@ -540,12 +543,21 @@ Shader "Lux URP/Water"
                 
                 #if defined(DYNAMICLIGHTMAP_ON)
                     inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.dynamicLightmapUV, input.vertexSH, inputData.normalWS);
+                    inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
+                #elif !defined(LIGHTMAP_ON) && (defined(PROBE_VOLUMES_L1) || defined(PROBE_VOLUMES_L2))
+                    inputData.bakedGI = SAMPLE_GI(input.vertexSH,
+                        GetAbsolutePositionWS(inputData.positionWS),
+                        inputData.normalWS,
+                        inputData.viewDirectionWS,
+                        input.positionCS.xy,
+                        input.probeOcclusion,
+                        inputData.shadowMask);
                 #else
                     inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.vertexSH, inputData.normalWS);
+                    inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
                 #endif
 
-                inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
-
+                
             //  /////////
             //  Apply lighting
                 half4 color = 1;

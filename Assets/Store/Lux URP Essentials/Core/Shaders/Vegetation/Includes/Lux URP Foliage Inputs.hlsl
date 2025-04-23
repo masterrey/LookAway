@@ -62,6 +62,8 @@
         half    _DisplacementStrengthVertical;
         half    _NormalDisplacement;
 
+        half    _MotionVectorsVA;
+
     CBUFFER_END
 
     #include "../../Includes/Lux URP Translucent Lighting.hlsl"
@@ -69,6 +71,7 @@
 //  Additional textures
     TEXTURE2D(_BumpSpecMap); SAMPLER(sampler_BumpSpecMap); float4 _BumpSpecMap_TexelSize;
     TEXTURE2D(_LuxURPWindRT); SAMPLER(sampler_LuxURPWindRT);
+    TEXTURE2D(_LuxURPWindRTPrevious); SAMPLER(sampler_LuxURPWindRTPrevious);
 
 //  Displacement
     #if defined(_DISPLACEMENT)
@@ -79,7 +82,10 @@
 //  Global Inputs
     float4 _LuxURPWindDirSize;
     float4 _LuxURPWindStrengthMultipliers;
+    
     float4 _LuxURPSinTime;
+    float4 _LuxURPSinTimePrevious;
+    
     float2 _LuxURPGust;
     float  _LuxURPBendFrequency;
 
@@ -127,22 +133,25 @@
     #define vEdgeFlutter animParams.g
 
 
-    void animateVertex(half4 animParams, half3 normalOS, inout float3 positionOS) {
+
+
+//  New signature - which takes time as input
+    void animateVertexReal(half4 animParams, half3 normalOS, inout float3 positionOS, float4 timeParameters, Texture2D windTex, SamplerState windTexSampler ) {
 
         float origLength = length(positionOS.xyz);
         float3 windDir = TransformWorldToObjectDir(_LuxURPWindDirSize.xyz);
     //  In case we have no Wind Prefab foliage will vanish otherwise.
         windDir = clamp(windDir, -1, 1);
 
-        const half fDetailAmp = 0.1h;
-        const half fBranchAmp = 0.3h;
+        const half fDetailAmp = 0.1;
+        const half fBranchAmp = 0.3;
 
     //  Cache anim params for turbulence
         half vTurbulence = vBranchBending;
         half vTurbulenceMask = vEdgeFlutter;
 
-half bendAmount = vMainBending;
-float3 cachedPositionWS = TransformObjectToWorld(positionOS);
+        half bendAmount = vMainBending;
+        float3 cachedPositionWS = TransformObjectToWorld(positionOS);
         
     #if !defined(_WIND_MATH)
 
@@ -154,7 +163,7 @@ float3 cachedPositionWS = TransformObjectToWorld(positionOS);
 
     //  Sample main wind. Mind locality!
         float2 samplePos = (TransformObjectToWorld(positionOS.xyz * _SampleSize).xz - fracObjPhase.xx * _PerInstanceVariation) * _LuxURPWindDirSize.ww;
-        float4 wind = SAMPLE_TEXTURE2D_LOD(_LuxURPWindRT, sampler_LuxURPWindRT, samplePos.xy, _WindMultiplier.w);
+        float4 wind = SAMPLE_TEXTURE2D_LOD(windTex, windTexSampler, samplePos.xy, _WindMultiplier.w);
 
     //  Factor in bending params from Material
         animParams.abg *= _WindMultiplier.xyz;
@@ -166,22 +175,16 @@ float3 cachedPositionWS = TransformObjectToWorld(positionOS);
         windDir = normalize(windDir);
 
     //  Primary bending
-                //positionOS.xz += vMainBending   *   windDir.xz * foliageMainWindStrengthFromZone * smoothstep(-1.5h, 1.0h, wind.r * (wind.g * 1.0h - 0.243h));
+        //positionOS.xz += vMainBending   *   windDir.xz * foliageMainWindStrengthFromZone * smoothstep(-1.5h, 1.0h, wind.r * (wind.g * 1.0h - 0.243h));
         positionOS.xz += vMainBending * windDir.xz * foliageMainWindStrengthFromZone * wind.r * wind.g;
 
     //  Second texture sample taking phase into account. Mind locality!
-        wind = SAMPLE_TEXTURE2D_LOD(_LuxURPWindRT, sampler_LuxURPWindRT, samplePos.xy - fBranchPhase * _LuxURPWindDirSize.ww, _WindMultiplier.w);
-            //  Edge Flutter
-                //float3 bend = normalOS.xyz * (animParams.g * fDetailAmp * lerp(_LuxURPSinTime.y, _LuxURPSinTime.z, wind.r));
-                //bend.y = animParams.b * fBranchAmp;
-            //  Edge Flutter and Secondary Bending
-                //positionOS.xyz += ( bend + ( animParams.b  *  windDir * wind.r * (wind.g * 2.0h - 0.243h) ) ) * foliageMainWindStrengthFromZone;
-
-                //float windSecondary = wind.r * (wind.g * 2.0h - 0.243h);
+        wind = SAMPLE_TEXTURE2D_LOD(windTex, windTexSampler, samplePos.xy - fBranchPhase * _LuxURPWindDirSize.ww, _WindMultiplier.w);
+        //float windSecondary = wind.r * (wind.g * 2.0h - 0.243h);
         float windSecondary = wind.r * wind.g;
     
     //  Edge Flutter
-        float3 bend = normalOS.xyz * vEdgeFlutter * fDetailAmp * lerp(_LuxURPSinTime.y, _LuxURPSinTime.z, wind.r);
+        float3 bend = normalOS.xyz * vEdgeFlutter * fDetailAmp; // * lerp(_LuxURPSinTime.y, _LuxURPSinTime.z, wind.r);
     //  Secondary Bending - up and down which did not exist before.
         bend.y = vTurbulence * fBranchAmp * _SecondaryUp;
     //  Secondary Bending - along wind dir
@@ -192,27 +195,27 @@ float3 cachedPositionWS = TransformObjectToWorld(positionOS);
         float3 objectWorldPos = UNITY_MATRIX_M._m03_m13_m23;
 
     //  Animate incoming wind
-        float3 absObjectWorldPos = abs(objectWorldPos.xyz * 0.125h);
-        float sinuswave = _SinTime.z;
-        half2 vOscillations = SmoothTriangleWave( half2(absObjectWorldPos.x + sinuswave, absObjectWorldPos.z + sinuswave * 0.7h) );
+        float3 absObjectWorldPos = abs(objectWorldPos.xyz * 0.125);
+        float sinuswave = timeParameters.y;
+        
+        half2 vOscillations = SmoothTriangleWave( half2(absObjectWorldPos.x + sinuswave, absObjectWorldPos.z + sinuswave * 0.7) );
         // x used for main wind bending / y used for tumbling
         half2 fOsc = (vOscillations.xy * vOscillations.xy);
-            //fOsc = 0.75h + (fOsc + 3.33h) * 0.33h;
-        fOsc = (fOsc + 3.33h) * 0.33h;
+        fOsc = (fOsc + 3.33) * 0.33;
 
-        half fObjPhase = dot(objectWorldPos, 2);
-        half fBranchPhase = fObjPhase + vPhase;
-        half fVtxPhase = dot(positionOS.xyz, vEdgeFlutter + fBranchPhase);
+        float fObjPhase = dot(objectWorldPos, 2.0);
+        float fBranchPhase = fObjPhase + vPhase;
+        float fVtxPhase = dot(positionOS.xyz, vEdgeFlutter + fBranchPhase);
 
     //  Factor in bending params from Material
         animParams.abg *= _WindMultiplier.xyz;
 
         // x is used for edges; y is used for branches
-        float2 vWavesIn = _Time.yy + half2(fVtxPhase, fBranchPhase); // changed to float (android issues)
+        float2 vWavesIn = timeParameters.xx + float2(fVtxPhase, fBranchPhase); // changed to float (android issues)
         // 1.975, 0.793, 0.375, 0.193 are good frequencies
-        half4 vWaves = frac( vWavesIn.xxyy * float4(1.975f, 0.793f, 0.375f, 0.193f) ) * 2.0f - 1.0f; // changed to float (android issues)
-        vWaves = SmoothTriangleWave( vWaves );
-        half2 vWavesSum = vWaves.xz + vWaves.yw;
+        half4 vWaves = half4(frac( vWavesIn.xxyy * float4(1.975f, 0.793f, 0.375f, 0.193f) )) * 2.0 - 1.0; // changed to float (android issues)
+        vWaves = SmoothTriangleWave(vWaves);
+        float2 vWavesSum = (float2)(vWaves.xz + vWaves.yw);
 
     //  Primary bending / animated by * fOsc.x
         positionOS.xz += animParams.a * windDir.xz * foliageMainWindStrengthFromZone * fOsc.x;
@@ -220,7 +223,7 @@ float3 cachedPositionWS = TransformObjectToWorld(positionOS);
         float3 bend = normalOS.xyz * (animParams.g * fDetailAmp);
         bend.y = vTurbulence * fBranchAmp * _SecondaryUp;
 
-        positionOS.xyz += ( (vWavesSum.xyx * bend) + (animParams.b * fBranchAmp * windDir * fOsc.y * vWavesSum.y) ) * foliageMainWindStrengthFromZone;
+        positionOS.xyz += ( (vWavesSum.xyx * bend) + (animParams.b * fBranchAmp * fOsc.y * vWavesSum.y * windDir) ) * foliageMainWindStrengthFromZone;
 
         float4 wind = float4(1, foliageMainWindStrengthFromZone * fOsc.x * 0.2, 0, 0);
     #endif
@@ -262,7 +265,7 @@ float3 cachedPositionWS = TransformObjectToWorld(positionOS);
             float Turbulence = _Turbulence * lerp(1, vTurbulenceMask, _TurbulenceMask);
         #endif
 
-        if(Turbulence > 0) {
+        if (Turbulence > 0) {
             float tOffset = (vTurbulence + vPhase) * 4;
         //  Get a unique frequency per object and phase
             float tFrequency = _TurbulenceFrequency * (localTime.x + fObjPhase * 8 + vPhase);
@@ -272,34 +275,29 @@ float3 cachedPositionWS = TransformObjectToWorld(positionOS);
             positionOS.xyz += normalOS.xyz * noiseSum * vTurbulence * Turbulence * fDetailAmp * max(wind.r, wind.g) * foliageMainWindStrengthFromZone;
         }
 
-        //positionOS.xyz = lerp( normalize(positionOS.xyz) * origLength, positionOS.xyz, _Stretchiness.xxx);
-
-
-//  Displacement
-    
-
-//float2 samplePosD = objectWorldPos.xz - _Lux_DisplacementPosition.xy;
-
-    
-
+    //  Displacement
         #if defined(_DISPLACEMENT)
             if (finalMask > 0) {
                 half3 disp;
                 disp.xz = push.xy * _DisplacementStrength;
                 disp.y = -(abs(push.x) + abs(push.y) - push.z) * _DisplacementStrengthVertical;
-// positionWS = lerp(positionWS, cachedPositionWS + disp, saturate(dot(disp, disp)*16) );
-positionOS +=  disp * saturate(dot(disp, disp)*16);
-
+                // positionWS = lerp(positionWS, cachedPositionWS + disp, saturate(dot(disp, disp)*16) );
+                positionOS +=  disp * saturate(dot(disp, disp)*16);
             //  Do something to the normal. Sign looks fine (reversed).
                 normalOS = normalOS + disp * PI * _NormalDisplacement;
             }
         #endif
 
-
-     
         positionOS.xyz = lerp( normalize(positionOS.xyz) * origLength, positionOS.xyz, _Stretchiness.xxx);
 
-        
-        
     }
+
+
+
+//  Old signature - but we have to add time as input
+    void animateVertex(half4 animParams, half3 normalOS, inout float3 positionOS) {
+        animateVertexReal(animParams, normalOS, positionOS, _TimeParameters, _LuxURPWindRT, sampler_LuxURPWindRT);
+    }
+
+
 #endif

@@ -1,0 +1,166 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-1908465833362925674
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 9
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: M Stairs terrain blended with Terrain
+  m_Shader: {fileID: -6465566751694194690, guid: 080789b75be1cc14ca90a5745ac2cd7b, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses:
+  - MOTIONVECTORS
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 6, y: 6}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MaskMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TerrainAlbedoMap:
+        m_Texture: {fileID: 2800000, guid: bdf2043f07b1b4a52bc65bf3da06f84e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TerrainHeightNormal:
+        m_Texture: {fileID: 2800000, guid: 08fdf5f367b584b9d973e95e5c24c2f0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TerrainMaskMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TerrainNormalMap:
+        m_Texture: {fileID: 2800000, guid: b4aba483e2fb048bf9b20ae1e3ad2234, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - : 0
+    - _AlphaClip: 0
+    - _AlphaShift: 0.04
+    - _AlphaWidth: 8
+    - _ApplyDetailTexture: 0
+    - _ApplyMask: 0
+    - _ApplyNormal: 0
+    - _BlendPerPixel: 1
+    - _BlendSharpness: 1
+    - _BlendThresholdPixel: 1
+    - _BlendThresholdVertex: 2
+    - _BreakUpBlending: 1
+    - _BreakUpOcclusionInfluence: 1
+    - _BreakUpStretching: 0
+    - _BumpScale: 1
+    - _Cull: 2
+    - _Culling: 0
+    - _Cutoff: 0.5
+    - _DetailAlbedoStrength: 0.5
+    - _DetailNormalStrength: 0.5
+    - _DetailSmoothnessStrength: 0.5
+    - _EnableBaseMap: 0
+    - _EnableDetailTexturing: 0
+    - _EnableTerrainMaskMap: 0
+    - _EnvironmentReflections: 1
+    - _ExtrudeAlongNormal: 0
+    - _Help: 0
+    - _NormalBlendContraction: 6
+    - _NormalBlendHeight: 0.1
+    - _NormalBlendSteepness: 0
+    - _NormalShift: 0
+    - _NormalThreshold: 0.2
+    - _NormalWidth: 0
+    - _OcclusionStrength: 1
+    - _Offset: 0
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _ReadMask: 255
+    - _ReceiveShadows: 1
+    - _RenderInDeferred: 1
+    - _Rim: 0
+    - _RimFrequency: 0
+    - _RimMinPower: 1
+    - _RimPerPositionFrequency: 1
+    - _RimPower: 2
+    - _ShadowShift: 0.493
+    - _ShadowShiftThreshold: 0.05
+    - _ShadowShiftView: 0
+    - _Shadows: 0
+    - _Shift: 0.008
+    - _Smoothness: 0.5
+    - _SmoothnessTextureChannel: 0
+    - _SpecularHighlights: 1
+    - _Stencil: 127
+    - _StencilComp: 3
+    - _StencilFail: 0
+    - _StencilOp: 0
+    - _StencilZFail: 0
+    - _TerrainNormalStrength: 0.85
+    - _TerrainTexTiling: 0.25
+    - _TextureBlendContraction: 1.78
+    - _TextureBlendHeight: 0.3
+    - _TextureBlendSteepness: -0.28
+    - _WriteMask: 255
+    - _ZTest: 4
+    - _ZWrite: 0
+    m_Colors:
+    - _BaseColor: {r: 0.6792453, g: 0.6792453, b: 0.6792453, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _DetailTiling: {r: 2, g: 2, b: 0, a: 0}
+    - _RimColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _TerrainPos: {r: 0, g: 0, b: 0, a: 0}
+    - _TerrainSize: {r: 500, g: 160, b: 500, a: 0}
+    - _TerrainTint: {r: 1, g: 1, b: 1, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

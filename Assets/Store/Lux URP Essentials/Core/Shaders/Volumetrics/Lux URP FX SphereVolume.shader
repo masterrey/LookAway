@@ -50,7 +50,11 @@ Shader "Lux URP/FX/Sphere Volume"
 		Pass
 		{
 			Name "StandardUnlit"
-            Tags{"LightMode" = "UniversalForward"}
+            Tags
+            {
+            	"LightMode" = "UniversalForward"
+            }
+
 			Blend SrcAlpha OneMinusSrcAlpha
 			
 		//  As we want to be able to enter the volume we have to draw the back faces
@@ -73,12 +77,13 @@ Shader "Lux URP/FX/Sphere Volume"
             	#pragma multi_compile_fog
             	#pragma shader_feature_local _HQFOG
             #endif
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-            
 
 			#pragma vertex vert
 			#pragma fragment frag

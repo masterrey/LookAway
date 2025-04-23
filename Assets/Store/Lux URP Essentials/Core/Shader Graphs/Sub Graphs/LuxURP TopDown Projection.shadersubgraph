@@ -59,6 +59,9 @@
         },
         {
             "m_Id": "5688caf88a614fcb9ae68c66571a2e1e"
+        },
+        {
+            "m_Id": "8e7fe6bc7c6046e5b6aa97dad93a3678"
         }
     ],
     "m_Keywords": [],
@@ -146,6 +149,9 @@
         },
         {
             "m_Id": "3a487682754a43b3900c3e649307d6ef"
+        },
+        {
+            "m_Id": "e43194928fdb4179a1b82ced35755723"
         }
     ],
     "m_GroupDatas": [],
@@ -570,6 +576,20 @@
                 },
                 "m_SlotId": 5
             }
+        },
+        {
+            "m_OutputSlot": {
+                "m_Node": {
+                    "m_Id": "e43194928fdb4179a1b82ced35755723"
+                },
+                "m_SlotId": 0
+            },
+            "m_InputSlot": {
+                "m_Node": {
+                    "m_Id": "d3fd30d8c11148988b248848f89bc2a7"
+                },
+                "m_SlotId": 35
+            }
         }
     ],
     "m_VertexContext": {
@@ -599,6 +619,7 @@
     "m_OutputNode": {
         "m_Id": "42a96abbc19441e6802184180477c69c"
     },
+    "m_SubDatas": [],
     "m_ActiveTargets": []
 }
 
@@ -679,6 +700,9 @@
         },
         {
             "m_Id": "5a96d3ff0d9947a2be60f53cbd29ef5a"
+        },
+        {
+            "m_Id": "8e7fe6bc7c6046e5b6aa97dad93a3678"
         }
     ]
 }
@@ -993,6 +1017,21 @@
     "m_SlotType": 0,
     "m_Hidden": false,
     "m_ShaderOutputName": "Smoothness",
+    "m_StageCapability": 3,
+    "m_Value": 0.0,
+    "m_DefaultValue": 0.0,
+    "m_Labels": []
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
+    "m_ObjectId": "2a0885b3221e4e928d45c19d449d7de2",
+    "m_Id": 0,
+    "m_DisplayName": "Top Down Fuzz Ambient",
+    "m_SlotType": 1,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
     "m_Value": 0.0,
     "m_DefaultValue": 0.0,
@@ -1601,7 +1640,7 @@
     "m_DefaultValue": {
         "x": 0.0,
         "y": 0.0,
-        "z": 0.0
+        "z": 1.0
     },
     "m_Labels": []
 }
@@ -1791,7 +1830,7 @@
     "synonyms": [
         "eye direction"
     ],
-    "m_Precision": 0,
+    "m_Precision": 2,
     "m_PreviewExpanded": false,
     "m_DismissedVersion": 0,
     "m_PreviewMode": 2,
@@ -2016,7 +2055,7 @@
     "synonyms": [
         "surface direction"
     ],
-    "m_Precision": 0,
+    "m_Precision": 2,
     "m_PreviewExpanded": false,
     "m_DismissedVersion": 0,
     "m_PreviewMode": 2,
@@ -2024,6 +2063,34 @@
         "m_SerializableColors": []
     },
     "m_Space": 2
+}
+
+{
+    "m_SGVersion": 1,
+    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
+    "m_ObjectId": "8e7fe6bc7c6046e5b6aa97dad93a3678",
+    "m_Guid": {
+        "m_GuidSerialized": "cfd57c56-b877-4986-ba02-803d2b0af17a"
+    },
+    "m_Name": "Top Down Fuzz Ambient",
+    "m_DefaultRefNameVersion": 1,
+    "m_RefNameGeneratedByDisplayName": "Top Down Fuzz Ambient",
+    "m_DefaultReferenceName": "_Top_Down_Fuzz_Ambient",
+    "m_OverrideReferenceName": "",
+    "m_GeneratePropertyBlock": true,
+    "m_UseCustomSlotLabel": false,
+    "m_CustomSlotLabel": "",
+    "m_DismissedVersion": 0,
+    "m_Precision": 0,
+    "overrideHLSLDeclaration": false,
+    "hlslDeclarationOverride": 0,
+    "m_Hidden": false,
+    "m_Value": 0.0,
+    "m_FloatType": 0,
+    "m_RangeValues": {
+        "x": 0.0,
+        "y": 1.0
+    }
 }
 
 {
@@ -2304,7 +2371,7 @@
     "synonyms": [
         "binormal"
     ],
-    "m_Precision": 0,
+    "m_Precision": 2,
     "m_PreviewExpanded": false,
     "m_DismissedVersion": 0,
     "m_PreviewMode": 2,
@@ -2398,7 +2465,7 @@
     "m_DefaultValue": {
         "x": 0.0,
         "y": 0.0,
-        "z": 0.0
+        "z": 1.0
     },
     "m_Labels": []
 }
@@ -2568,6 +2635,21 @@
         "y": 0.0,
         "z": 0.0
     },
+    "m_Labels": []
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
+    "m_ObjectId": "c6f33e0bec4140c393bdea9b1befa6ed",
+    "m_Id": 35,
+    "m_DisplayName": "TopDownFuzzAmbient",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "TopDownFuzzAmbient",
+    "m_StageCapability": 3,
+    "m_Value": 0.0,
+    "m_DefaultValue": 0.0,
     "m_Labels": []
 }
 
@@ -2788,6 +2870,9 @@
             "m_Id": "97de6adedb924776af5f96e6a4d251f3"
         },
         {
+            "m_Id": "c6f33e0bec4140c393bdea9b1befa6ed"
+        },
+        {
             "m_Id": "93357f5307a54ee4b84313377d1012f8"
         },
         {
@@ -2870,7 +2955,7 @@
         }
     ],
     "synonyms": [],
-    "m_Precision": 0,
+    "m_Precision": 2,
     "m_PreviewExpanded": false,
     "m_DismissedVersion": 0,
     "m_PreviewMode": 2,
@@ -2921,7 +3006,7 @@
     "m_DefaultValue": {
         "x": 0.0,
         "y": 0.0,
-        "z": 0.0
+        "z": 1.0
     },
     "m_Labels": []
 }
@@ -3048,6 +3133,42 @@
     "m_Value": 0.0,
     "m_DefaultValue": 0.0,
     "m_Labels": []
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.PropertyNode",
+    "m_ObjectId": "e43194928fdb4179a1b82ced35755723",
+    "m_Group": {
+        "m_Id": ""
+    },
+    "m_Name": "Property",
+    "m_DrawState": {
+        "m_Expanded": true,
+        "m_Position": {
+            "serializedVersion": "2",
+            "x": -585.0,
+            "y": 742.0000610351563,
+            "width": 202.0,
+            "height": 34.0
+        }
+    },
+    "m_Slots": [
+        {
+            "m_Id": "2a0885b3221e4e928d45c19d449d7de2"
+        }
+    ],
+    "synonyms": [],
+    "m_Precision": 0,
+    "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
+    "m_PreviewMode": 0,
+    "m_CustomColors": {
+        "m_SerializableColors": []
+    },
+    "m_Property": {
+        "m_Id": "8e7fe6bc7c6046e5b6aa97dad93a3678"
+    }
 }
 
 {

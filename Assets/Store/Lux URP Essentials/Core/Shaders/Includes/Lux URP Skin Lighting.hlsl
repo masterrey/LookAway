@@ -77,9 +77,23 @@ half4 LuxURPSkinFragmentPBR(InputData inputData, SurfaceData surfaceData,
         brdfData, inputData.bakedGI, aoFactor.indirectAmbientOcclusion,
         inputData.positionWS, inputData.normalWS, inputData.viewDirectionWS, inputData.normalizedScreenSpaceUV, AmbientReflection
     );
+
 //  Backscattering
     #if defined(_BACKSCATTER) && !defined(DEBUG_DISPLAY)
-        lightingData.giColor += backScatter * SampleSH(-diffuseNormalWS) * surfaceData.albedo * aoFactor.indirectAmbientOcclusion * translucency.x * subsurfaceColor * skinMask;
+        
+        #if defined(PROBE_VOLUMES_L1) || defined(PROBE_VOLUMES_L2)
+            half3 ambient = SampleProbeVolumePixel (
+                (half3) 0,
+                GetAbsolutePositionWS(inputData.positionWS),
+                -diffuseNormalWS,
+                inputData.viewDirectionWS,
+                inputData.normalizedScreenSpaceUV.xy
+            );
+        #else 
+            half3 ambient = SampleSH(-diffuseNormalWS);
+        #endif
+
+        lightingData.giColor += backScatter * ambient * surfaceData.albedo * aoFactor.indirectAmbientOcclusion * translucency.x * subsurfaceColor * skinMask;
     #endif
     
     #if defined(_LIGHT_LAYERS)

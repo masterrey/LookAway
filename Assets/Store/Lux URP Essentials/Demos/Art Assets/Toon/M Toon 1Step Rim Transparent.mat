@@ -2,14 +2,24 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M Toon 1Step Rim Transparent
   m_Shader: {fileID: 4800000, guid: da8cbf846d45f7545928653e272925c0, type: 3}
-  m_ShaderKeywords: _NORMALINDEPTHNORMALPASS _RECEIVEDECALS _SSAO_ENABLED _TOONRIM
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _ALPHAPREMULTIPLY_ON
+  - _NORMALINDEPTHNORMALPASS
+  - _RECEIVEDECALS
+  - _SSAO_ENABLED
+  - _TOONRIM
+  m_InvalidKeywords:
+  - _RAMP_OFF
+  - _TEXMODE_OFF
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -18,6 +28,7 @@ Material:
     RenderType: Transparent
   disabledShaderPasses:
   - SHADOWCASTER
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -26,7 +37,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
-        m_Texture: {fileID: 2800000, guid: db17334dfe5991a4bbe241ee9a728c38, type: 3}
+        m_Texture: {fileID: 2800000, guid: c3bb1d5298b924d80959c9f822ffe414, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
@@ -102,6 +113,7 @@ Material:
     - _DiffuseFallOff: 0
     - _DiffuseStep: 0.36
     - _DstBlend: 10
+    - _DstBlendAlpha: 10
     - _EnableMaskMap: 0
     - _EnableNormalMap: 0
     - _EnableRim: 0
@@ -147,6 +159,7 @@ Material:
     - _SpecularHighlights: 1
     - _SpecularStep: 0.4597
     - _SrcBlend: 1
+    - _SrcBlendAlpha: 1
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilFail: 0
@@ -174,6 +187,7 @@ Material:
     - _Specular: {r: 4, g: 4, b: 4, a: 0}
     - _ToonRimColor: {r: 1, g: 0.9858491, b: 0.9858491, a: 1}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!114 &1292651858282865764
 MonoBehaviour:
   m_ObjectHideFlags: 11

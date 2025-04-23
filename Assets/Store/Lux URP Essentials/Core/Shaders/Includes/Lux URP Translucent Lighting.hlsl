@@ -15,16 +15,28 @@ half3 GlobalIllumination_Lux(BRDFData brdfData, half3 bakedGI, half occlusion, h
 }
 
 
-half3 LightingPhysicallyBasedWrapped(BRDFData brdfData, half3 lightColor, half3 lightDirectionWS, half lightAttenuation, half3 normalWS, half3 viewDirectionWS, half NdotL)
+half3 LightingPhysicallyBasedWrapped(BRDFData brdfData, half3 lightColor, half3 lightDirectionWS, half lightAttenuation, half3 normalWS, half3 viewDirectionWS, half NdotL, bool specularHighlightsOff)
 {
 //  NdotL is wrapped... not correct for specular
     half3 radiance = lightColor * (lightAttenuation * NdotL);
-    return DirectBDRF(brdfData, normalWS, lightDirectionWS, viewDirectionWS) * radiance;
+    
+    #if UNITY_VERSION >= 202310
+        half3 brdf = brdfData.diffuse;
+        #ifndef _SPECULARHIGHLIGHTS_OFF
+            [branch] if (!specularHighlightsOff)
+            {
+                brdf += brdfData.specular * DirectBRDFSpecular(brdfData, normalWS, lightDirectionWS, viewDirectionWS);
+            }
+        #endif
+        return brdf * radiance;
+    #else 
+        return DirectBDRF(brdfData, normalWS, lightDirectionWS, viewDirectionWS) * radiance;
+    #endif
 }
 
-half3 LightingPhysicallyBasedWrapped(BRDFData brdfData, Light light, half3 normalWS, half3 viewDirectionWS, half NdotL)
+half3 LightingPhysicallyBasedWrapped(BRDFData brdfData, Light light, half3 normalWS, half3 viewDirectionWS, half NdotL, bool specularHighlightsOff)
 {
-    return LightingPhysicallyBasedWrapped(brdfData, light.color, light.direction, light.distanceAttenuation * light.shadowAttenuation, normalWS, viewDirectionWS, NdotL);
+    return LightingPhysicallyBasedWrapped(brdfData, light.color, light.direction, light.distanceAttenuation * light.shadowAttenuation, normalWS, viewDirectionWS, NdotL, specularHighlightsOff);
 }
 
 half4 LuxURPTranslucentFragmentPBR(InputData inputData, SurfaceData surfaceData,
@@ -39,6 +51,12 @@ half4 LuxURPTranslucentFragmentPBR(InputData inputData, SurfaceData surfaceData,
 )
 {
     
+    #if defined(_SPECULARHIGHLIGHTS_OFF)
+        bool specularHighlightsOff = true;
+    #else
+        bool specularHighlightsOff = false;
+    #endif
+
     BRDFData brdfData;
     InitializeBRDFData(surfaceData, brdfData);
 
@@ -86,7 +104,6 @@ half4 LuxURPTranslucentFragmentPBR(InputData inputData, SurfaceData surfaceData,
     half WrappedNormalization = rcp((1.0h + w) * (1.0h + w));
     half NdotL;
 
-
     half3 translucencyColor = (_OverrideTransmission) ? _TransmissionColor.xyz : brdfData.diffuse;
 
     #if defined(_LIGHT_LAYERS)
@@ -96,7 +113,7 @@ half4 LuxURPTranslucentFragmentPBR(InputData inputData, SurfaceData surfaceData,
     
         //  Wrapped Diffuse   
             NdotL = saturate((dot(inputData.normalWS, mainLight.direction) + w) * WrappedNormalization );
-            lightingData.mainLightColor = LightingPhysicallyBasedWrapped(brdfData, mainLight, inputData.normalWS, inputData.viewDirectionWS, NdotL);
+            lightingData.mainLightColor = LightingPhysicallyBasedWrapped(brdfData, mainLight, inputData.normalWS, inputData.viewDirectionWS, NdotL, specularHighlightsOff);
         
         //  Translucency
             half transPower = translucency.y;
@@ -125,7 +142,7 @@ half4 LuxURPTranslucentFragmentPBR(InputData inputData, SurfaceData surfaceData,
                 //  Wrapped Diffuse
                     NdotL = saturate((dot(inputData.normalWS, light.direction) + w) * WrappedNormalization );
                     lightingData.additionalLightsColor += LightingPhysicallyBasedWrapped(
-                        brdfData, light, inputData.normalWS, inputData.viewDirectionWS, NdotL);
+                        brdfData, light, inputData.normalWS, inputData.viewDirectionWS, NdotL, specularHighlightsOff);
                 //  Translucency
                     half3 lightColor = light.color;
                 //  Mask by incoming shadow strength
@@ -161,17 +178,18 @@ half4 LuxURPTranslucentFragmentPBR(InputData inputData, SurfaceData surfaceData,
                 //  Wrapped Diffuse
                     NdotL = saturate((dot(inputData.normalWS, light.direction) + w) * WrappedNormalization );
                     lightingData.additionalLightsColor += LightingPhysicallyBasedWrapped(
-                        brdfData, light, inputData.normalWS, inputData.viewDirectionWS, NdotL);
+                        brdfData, light, inputData.normalWS, inputData.viewDirectionWS, NdotL, specularHighlightsOff);
                 
                 //  Translucency
                     half3 lightColor = light.color;
+                
                 //  Mask by incoming shadow strength
                     #if USE_FORWARD_PLUS
                         int index = lightIndex;
                     #else
                         int index = GetPerObjectLightIndex(lightIndex);
                     #endif
-                    
+
                     half4 shadowParams = GetAdditionalLightShadowParams(index);
                     #if !defined(ADDITIONAL_LIGHT_CALCULATE_SHADOWS)
                         lightColor *= lerp(1, 0, maskbyshadowstrength);
@@ -179,6 +197,7 @@ half4 LuxURPTranslucentFragmentPBR(InputData inputData, SurfaceData surfaceData,
                     //  half isPointLight = shadowParams.z;
                         lightColor *= lerp(1, shadowParams.x, maskbyshadowstrength);
                     #endif
+                
                 //  Apply Translucency
                     half transPower = translucency.y;
                     half3 transLightDir = light.direction + inputData.normalWS * translucency.w;

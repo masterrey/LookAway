@@ -51,7 +51,10 @@
 //  Additional textures
     //TEXTURE2D(_TopDownBaseMap); SAMPLER(sampler_TopDownBaseMap);
     //TEXTURE2D(_TopDownNormalMap); SAMPLER(sampler_TopDownNormalMap);
-    TEXTURE2D(_TerrainHeightNormal); SAMPLER(sampler_TerrainHeightNormal);
+    
+    TEXTURE2D_FLOAT(_TerrainHeightNormal); SAMPLER(sampler_TerrainHeightNormal);
+
+    SAMPLER(lux_linear_clamp_sampler);
 
 
 //  Global Inputs
@@ -79,14 +82,18 @@
                 float3 positionWS           : TEXCOORD2;
             //#endif
             float3 normalWS                 : TEXCOORD3;
-            float3 viewDirWS                : TEXCOORD4;
+            half3 viewDirWS                 : TEXCOORD4;
             #if defined(_NORMALMAP)
-                float4 tangentWS            : TEXCOORD5;
+                half4 tangentWS             : TEXCOORD5;
             #endif
             half4 fogFactorAndVertexLight   : TEXCOORD6;
             #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
                 float4 shadowCoord          : TEXCOORD7;
             #endif
+        #endif
+
+        #ifdef USE_APV_PROBE_OCCLUSION
+            float4 probeOcclusion           : TEXCOORD10;
         #endif
 
         UNITY_VERTEX_INPUT_INSTANCE_ID

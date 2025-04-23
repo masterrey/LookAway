@@ -41,8 +41,17 @@
         
         Pass
         {
-            Name "StandardUnlit"
-            Tags{"LightMode" = "UniversalForwardOnly"}
+            // Name "StandardUnlit"
+            // Tags
+            // {
+            //     "LightMode" = "UniversalForwardOnly"
+            // }
+
+            Name "LuxOutline"
+            Tags
+            {
+                "LightMode" = "LuxOutline"
+            }
 
             Blend SrcAlpha OneMinusSrcAlpha
             Cull [_Cull]
@@ -72,8 +81,9 @@
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-            
+
             
             #pragma vertex vert
             #pragma fragment frag
@@ -89,7 +99,10 @@
         Pass
         {
             Name "DepthOnly"
-            Tags{"LightMode" = "DepthOnly"}
+            Tags
+            {
+                "LightMode" = "DepthOnly"
+            }
 
             ZWrite On
             ColorMask R
@@ -114,7 +127,7 @@
             // GPU Instancing
             #pragma multi_compile_instancing
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-            
+
 
             #pragma vertex vert
             #pragma fragment frag
@@ -145,7 +158,7 @@
 
             // -------------------------------------
             // Universal Pipeline keywords
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
+            #pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
 
             #define DEPTHNORMALSPASS
 
@@ -157,7 +170,7 @@
             // GPU Instancing
             #pragma multi_compile_instancing
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-            
+
 
             #pragma vertex vert
             #pragma fragment frag

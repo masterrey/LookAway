@@ -83,7 +83,7 @@ Shader "Lux URP/Projection/Decal Unlit"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-            // #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl" // needs shader target 4.5
+            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
             
             #pragma vertex vert
             #pragma fragment frag

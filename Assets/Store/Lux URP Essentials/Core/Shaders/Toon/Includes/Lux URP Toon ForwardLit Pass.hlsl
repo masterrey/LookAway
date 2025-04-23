@@ -28,7 +28,7 @@ struct Varyings
         float2 uv                       : TEXCOORD0;
     #endif
     float3 positionWS                   : TEXCOORD1;
-    half3 normalWS                      : TEXCOORD2;
+    float3 normalWS                     : TEXCOORD2; // float3 to avoid bending artifacts on TBDRs
     #if defined(_NORMALMAP) || (defined(_ANISOTROPIC) && !defined(_SPECULARHIGHLIGHTS_OFF))
         half4 tangentWS                 : TEXCOORD3;
     #endif
@@ -43,6 +43,10 @@ struct Varyings
     DECLARE_LIGHTMAP_OR_SH(staticLightmapUV, vertexSH, 6);
     #ifdef DYNAMICLIGHTMAP_ON
         float2  dynamicLightmapUV       : TEXCOORD7;
+    #endif
+
+    #ifdef USE_APV_PROBE_OCCLUSION
+        float4 probeOcclusion           : TEXCOORD10;
     #endif
 
     float4 positionCS                   : SV_POSITION;
@@ -92,7 +96,9 @@ Varyings LitPassVertex(Attributes input)
     #ifdef DYNAMICLIGHTMAP_ON
         output.dynamicLightmapUV = input.dynamicLightmapUV.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
     #endif
-    OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
+    
+    OUTPUT_SH4(vertexInput.positionWS, output.normalWS.xyz, GetWorldSpaceNormalizeViewDir(vertexInput.positionWS), output.vertexSH, output.probeOcclusion);
+
     #ifdef _ADDITIONAL_LIGHTS_VERTEX
         output.fogFactorAndVertexLight = half4(fogFactor, vertexLight);
     #else
@@ -117,8 +123,13 @@ Varyings LitPassVertex(Attributes input)
 void InitializeInputData(Varyings input, half3 normalTS, half facing, out InputData inputData)
 {
     inputData = (InputData)0;
+    
     #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
         inputData.positionWS = input.positionWS;
+    #endif
+
+    #if defined(DEBUG_DISPLAY)
+        inputData.positionCS = input.positionCS;
     #endif
 
     half3 viewDirWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
@@ -126,7 +137,12 @@ void InitializeInputData(Varyings input, half3 normalTS, half facing, out InputD
         normalTS.z *= facing;
         float sgn = input.tangentWS.w;      // should be either +1 or -1
         float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
-        inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, bitangent.xyz, input.normalWS.xyz));
+        half3x3 tangentToWorld = half3x3(input.tangentWS.xyz, bitangent.xyz, input.normalWS.xyz);
+
+        #if defined(_NORMALMAP)
+            inputData.tangentToWorld = tangentToWorld;
+        #endif
+        inputData.normalWS = TransformTangentToWorld(normalTS, tangentToWorld);
     #else
         inputData.normalWS = input.normalWS * facing;
     #endif
@@ -155,13 +171,22 @@ void InitializeInputData(Varyings input, half3 normalTS, half facing, out InputD
 
     #if defined(DYNAMICLIGHTMAP_ON)
         inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.dynamicLightmapUV, input.vertexSH, inputData.normalWS);
+        inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
+    #elif !defined(LIGHTMAP_ON) && (defined(PROBE_VOLUMES_L1) || defined(PROBE_VOLUMES_L2))
+        inputData.bakedGI = SAMPLE_GI(input.vertexSH,
+            GetAbsolutePositionWS(inputData.positionWS),
+            inputData.normalWS,
+            inputData.viewDirectionWS,
+            input.positionCS.xy,
+            input.probeOcclusion,
+            inputData.shadowMask);
     #else
         inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.vertexSH, inputData.normalWS);
+        inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
     #endif
 
     inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
-    inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
-
+    
     #if defined(DEBUG_DISPLAY)
     #if defined(DYNAMICLIGHTMAP_ON)
     inputData.dynamicLightmapUV = input.dynamicLightmapUV;

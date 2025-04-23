@@ -35,14 +35,14 @@ Varyings ShadowPassVertex(Attributes input)
         float3 lightDirectionWS = normalize(_LightPosition - positionWS);
     #else
         float3 lightDirectionWS = _LightDirection;
-    //  Distinguish between Directional (true) and Spot loght (false)
+    //  Distinguish between Directional (true) and Spot light (false)
         //float3 viewDirWS = UNITY_MATRIX_VP[3].w == 1.0f ? UNITY_MATRIX_I_V[2].xyz : normalize(_LightPosition - positionWS);
         //float3 viewDirWS = UNITY_MATRIX_I_V[2].xyz; // cam forward
     #endif
 //  UNITY_MATRIX_I_V._14_24_34 mostly matches unity_BillboardCameraPosition - but i am not sure if unity_BillboardCameraPosition is always available.
 //  In case we deal with a directional light we have to use the camera's forward vector tho.
     #define cameraForward UNITY_MATRIX_V[2].xyz 
-    float3 viewDirWS = UNITY_MATRIX_VP[3].w == 1.0f ? cameraForward : normalize(UNITY_MATRIX_I_V._14_24_34 - positionWS);
+    float3 viewDirWS = UNITY_MATRIX_VP[3].w == 1.0 ? cameraForward : normalize(UNITY_MATRIX_I_V._14_24_34 - positionWS);
 
 //  #if !defined(_UPRIGHT)
 //  It does not make sense to calculate screen space aligned shadows.
@@ -52,11 +52,11 @@ Varyings ShadowPassVertex(Attributes input)
     half3 billboardNormalWS = float3(billboardTangentWS.z, 0, -billboardTangentWS.x);
 //  Expand Billboard
     float2 percent = input.texcoord.xy;
-    float3 billboardPos = (percent.x - 0.5f) * _Shrink * billboardTangentWS;
+    float3 billboardPos = (percent.x - 0.5) * _Shrink * billboardTangentWS;
     #if defined(_PIVOTTOBOTTOM)
         billboardPos.y += percent.y;
     #else
-        billboardPos.y += percent.y - 0.5f;
+        billboardPos.y += percent.y - 0.5;
     #endif
     positionWS = TransformObjectToWorld(billboardPos).xyz;
     positionWS -= viewDirWS * _ShadowOffset;
@@ -64,7 +64,7 @@ Varyings ShadowPassVertex(Attributes input)
     half3 normalWS = billboardNormalWS;
 
     output.uv = input.texcoord;
-    output.uv.x = (output.uv.x - 0.5f) * _Shrink + 0.5f;
+    output.uv.x = (output.uv.x - 0.5) * _Shrink + 0.5;
 
     output.positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, lightDirectionWS));
 

@@ -12,7 +12,8 @@ struct Attributes
 struct Varyings
 {
     float4 positionCS               : SV_POSITION;
-    //UNITY_VERTEX_INPUT_INSTANCE_ID
+    
+    UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
 //  Shadow caster specific input
@@ -23,6 +24,7 @@ Varyings ShadowPassVertex(Attributes input)
 {
     Varyings output = (Varyings)0;
     UNITY_SETUP_INSTANCE_ID(input);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
 
     float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
     float3 normalWS = TransformObjectToWorldDir(input.normalOS);
@@ -44,6 +46,8 @@ Varyings ShadowPassVertex(Attributes input)
 
 half4 ShadowPassFragment(Varyings input) : SV_TARGET
 {
+    UNITY_SETUP_INSTANCE_ID(input);
+
     // #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES)
     //     LODDitheringTransition(input.positionCS.xyz, unity_LODFade.x);
     // #endif

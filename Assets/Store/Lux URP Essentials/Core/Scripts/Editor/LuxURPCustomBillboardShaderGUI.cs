@@ -11,7 +11,7 @@ public class LuxURPCustomBillboardShaderGUI : ShaderGUI
 
         var _Surface = ShaderGUI.FindProperty("_Surface", properties);
         int QueueOffset = material.GetInt("_QueueOffset");
-
+    
     //  Alpha Testing
         if(_Surface.floatValue == 0.0f) {
             material.EnableKeyword("_ALPHATEST_ON");

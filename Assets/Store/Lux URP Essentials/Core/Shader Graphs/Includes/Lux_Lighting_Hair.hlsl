@@ -161,7 +161,6 @@ void Lighting_half(
 
 //  Base inputs
     float3 positionWS,
-    float4 positionSP,
     half3 viewDirectionWS,
 
 //  Normal inputs    
@@ -195,8 +194,11 @@ void Lighting_half(
     bool isFrontFace,
 
 //  Lightmapping
-    float2 lightMapUV,
+    float2 staticLightmapUV,
     float2 dynamicLightMapUV,
+
+    half3 vertexSH,
+    float4 ProbeOcclusion,
 
 //  Final lit color
     out half3 MetaAlbedo,
@@ -209,7 +211,7 @@ void Lighting_half(
 {
 
 
-#if defined(SHADERGRAPH_PREVIEW) || ( !defined(LIGHTWEIGHT_LIGHTING_INCLUDED) && !defined(UNIVERSAL_LIGHTING_INCLUDED) )
+#if defined(SHADERGRAPH_PREVIEW)
     FinalLighting = albedo;
     MetaAlbedo = half3(0,0,0);
     MetaSpecular = half3(0,0,0);
@@ -227,24 +229,52 @@ void Lighting_half(
         normalTS.z *= isFrontFace ? 1.0h : -1.0h;
     }
 
-    if (enableNormalMapping) {
-        normalWS = TransformTangentToWorld(normalTS, half3x3(tangentWS.xyz, bitangentWS.xyz, normalWS.xyz));
+//  Has to be zero initialized    
+    half3x3 tangentToWorld = (half3x3)0;
+
+    if (enableNormalMapping)
+    {
+        tangentToWorld = half3x3(tangentWS.xyz, bitangentWS.xyz, normalWS.xyz);
+        normalWS = TransformTangentToWorld(normalTS, tangentToWorld);
     }
     normalWS = NormalizeNormalPerPixel(normalWS);
+    viewDirectionWS = SafeNormalize(viewDirectionWS);
+
+//  Reconstruct positionCS somehow...
+    float4 positionCS = TransformWorldToHClip(positionWS);
+    
+    float2 normalizedScreenSpaceUV = positionCS.xy;
+    normalizedScreenSpaceUV /= positionCS.w;
+    normalizedScreenSpaceUV = normalizedScreenSpaceUV * 0.5f + 0.5f;
+    #if UNITY_UV_STARTS_AT_TOP
+        normalizedScreenSpaceUV.y = 1.0 - normalizedScreenSpaceUV.y;
+    #endif
 
 //  GI Lighting
-//  We are using the base normalWS here. So decal normals will not affect GI like in all other shaders.
-    half3 bakedGI;
-    #ifdef LIGHTMAP_ON
-        lightMapUV = lightMapUV * unity_LightmapST.xy + unity_LightmapST.zw;
-        #if defined(DYNAMICLIGHTMAP_ON)
-            dynamicLightMapUV = dynamicLightMapUV * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
-            bakedGI = SAMPLE_GI(lightMapUV, dynamicLightMapUV, half3(0,0,0), normalWS);
-        #else
-            bakedGI = SAMPLE_GI(lightMapUV, half3(0,0,0), normalWS);
-        #endif
+
+//  These have to be zero initialized, otherwise decals and debug error!
+    half3 bakedGI = (half3)0.0;
+    half4 t_shadowMask = (half4)0.0;
+
+    #if defined(DYNAMICLIGHTMAP_ON)
+        dynamicLightMapUV = dynamicLightMapUV * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+        bakedGI = SAMPLE_GI(staticLightmapUV, dynamicLightmapUV, vertexSH, diffuseNormalWS);
+        staticLightmapUV = staticLightmapUV * unity_LightmapST.xy + unity_LightmapST.zw;
+        t_shadowMask = SAMPLE_SHADOWMASK(staticLightmapUV);
+    #elif !defined(LIGHTMAP_ON) && (defined(PROBE_VOLUMES_L1) || defined(PROBE_VOLUMES_L2))
+        bakedGI = SAMPLE_GI(
+            vertexSH,                                               
+            GetAbsolutePositionWS(positionWS),
+            normalWS,
+            viewDirectionWS,
+            normalizedScreenSpaceUV * _ScreenSize.xy,           //positionSPRaw.xy * rcp(positionSPRaw.w) * GetScaledScreenParams().xy, // not bad, but not stable
+            ProbeOcclusion, 
+            t_shadowMask
+        );
     #else
-        bakedGI = SampleSH(normalWS); 
+        staticLightmapUV = staticLightmapUV * unity_LightmapST.xy + unity_LightmapST.zw;
+        bakedGI = SAMPLE_GI(staticLightmapUV, vertexSH, normalWS);
+        t_shadowMask = SAMPLE_SHADOWMASK(staticLightmapUV);
     #endif
 
 //  Fill standard URP structs so we can use the built in functions
@@ -255,15 +285,26 @@ void Lighting_half(
         inputData.viewDirectionWS = viewDirectionWS;
         inputData.bakedGI = bakedGI;
         #if _MAIN_LIGHT_SHADOWS_SCREEN
-        //  Here we need raw
-            inputData.shadowCoord = positionSP;
+            inputData.shadowCoord = ComputeScreenPos(positionCS); //Here we needed raw: inputData.shadowCoord = positionSPRaw;
         #else
             inputData.shadowCoord = TransformWorldToShadowCoord(inputData.positionWS);
         #endif
-        //  Apply perspective division
-        inputData.normalizedScreenSpaceUV = positionSP.xy * rcp(positionSP.w);
-        inputData.shadowMask = SAMPLE_SHADOWMASK(lightMapUV);
+        inputData.normalizedScreenSpaceUV = normalizedScreenSpaceUV;
+        inputData.shadowMask = t_shadowMask;
+
+        #if defined(DEBUG_DISPLAY)
+            inputData.positionCS = positionCS; //?
+            #if defined(DYNAMICLIGHTMAP_ON)
+                inputData.dynamicLightmapUV = dynamicLightmapUV;
+            #endif
+            #if defined(LIGHTMAP_ON)
+                inputData.staticLightmapUV = staticLightmapUV;
+            #else
+                inputData.vertexSH = vertexSH;
+            #endif
+        #endif
     }
+    
     SurfaceData surfaceData = (SurfaceData)0;
     {
         surfaceData.alpha = alpha;
@@ -284,29 +325,33 @@ void Lighting_half(
 
 //  Decals
     #if defined(_CUSTOMDBUFFER)
-        float2 positionCS = inputData.normalizedScreenSpaceUV * _ScreenSize.xy;
-        ApplyDecalToSurfaceData(float4(positionCS, 0, 0), surfaceData, inputData);
+        float2 positionDS = inputData.normalizedScreenSpaceUV * _ScreenSize.xy;
+        ApplyDecalToSurfaceData(float4(positionDS, 0, 0), surfaceData, inputData);
     #endif
 
-
-//  From here on we rely on surfaceData and inputData only! (except debug which outputs the original values)
+//  From here on we rely on surfaceData and inputData only!
 
     BRDFData brdfData;
     InitializeBRDFData(surfaceData, brdfData);
 
 //  Debugging
     #if defined(DEBUG_DISPLAY)
-        half4 debugColor;
-        if (CanDebugOverrideOutputColor(inputData, surfaceData, brdfData, debugColor))
-        {
-            //return debugColor;
-            FinalLighting = debugColor.rgb;
-            MetaAlbedo = debugColor.rgb;
-            MetaSpecular = surfaceData.specular;
-            MetaSmoothness = surfaceData.smoothness;
-            MetaOcclusion = occlusion;
-            MetaNormal = normalTS;
-        }
+        // half4 debugColor;
+        // if (CanDebugOverrideOutputColor(inputData, surfaceData, brdfData, debugColor))
+        // {
+        //     FinalLighting = debugColor.rgb;
+        //     MetaAlbedo = debugColor.rgb;
+        //     MetaSpecular = surfaceData.specular;
+        //     MetaSmoothness = surfaceData.smoothness;
+        //     MetaOcclusion = occlusion;
+        //     MetaNormal = normalTS;
+        // }
+        FinalLighting = 0;
+        MetaAlbedo = albedo;
+        MetaSpecular = specular;
+        MetaSmoothness = smoothness;
+        MetaOcclusion = occlusion;
+        MetaNormal = normalTS;
     #else
 
     //  Do not apply energy conservation - we have to use surfaceData as it may contain decal data.
@@ -461,7 +506,6 @@ void Lighting_float(
 
 //  Base inputs
     float3 positionWS,
-    float4 positionSP,
     half3 viewDirectionWS,
 
 //  Normal inputs    
@@ -494,8 +538,11 @@ void Lighting_float(
     bool isFrontFace,
 
 //  Lightmapping
-    float2 lightMapUV,
+    float2 staticLightmapUV,
     float2 dynamicLightMapUV,
+
+    half3 vertexSH,
+    float4 ProbeOcclusion,
 
 //  Final lit color
     out half3 MetaAlbedo,
@@ -507,9 +554,11 @@ void Lighting_float(
 )
 {
     Lighting_half(
-        positionWS, positionSP, viewDirectionWS, normalWS, tangentWS, bitangentWS, enableNormalMapping, normalTS, 
+        positionWS, viewDirectionWS, normalWS, tangentWS, bitangentWS, enableNormalMapping, normalTS, 
         albedo, metallic, specular, smoothness, occlusion, alpha,
         strandirection, specularShift, specularTint, primarySmoothness, enableSecondaryLobe, secondarySpecularShift, secondarySpecularTint, secondarySmoothness, rimTransmissionIntensity,
         enableVFACE, isFrontFace,
-        lightMapUV, dynamicLightMapUV, MetaAlbedo, FinalLighting, MetaSpecular, MetaSmoothness, MetaOcclusion, MetaNormal);
+        staticLightmapUV, dynamicLightMapUV, vertexSH, ProbeOcclusion,
+        MetaAlbedo, FinalLighting, MetaSpecular, MetaSmoothness, MetaOcclusion, MetaNormal
+    );
 }

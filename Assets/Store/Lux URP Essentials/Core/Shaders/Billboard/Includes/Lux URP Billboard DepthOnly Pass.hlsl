@@ -25,7 +25,7 @@ Varyings DepthOnlyVertex(Attributes input)
     #if !defined(_UPRIGHT)
         input.positionOS.xyz = 0;
         #if defined(_PIVOTTOBOTTOM)
-            input.positionOS.xy = input.texcoord.xy - float2(0.5f, 0.0f);
+            input.positionOS.xy = input.texcoord.xy - float2(0.5, 0.0);
         #else
             input.positionOS.xy = input.texcoord.xy - 0.5;
         #endif
@@ -46,17 +46,17 @@ Varyings DepthOnlyVertex(Attributes input)
         half3 billboardTangentWS = normalize(float3(-viewDirWS.z, 0, viewDirWS.x));
     //  Expand Billboard
         float2 percent = input.texcoord.xy;
-        float3 billboardPos = (percent.x - 0.5f) * _Shrink * billboardTangentWS;
+        float3 billboardPos = (percent.x - 0.5) * _Shrink * billboardTangentWS;
         #if defined(_PIVOTTOBOTTOM)
             billboardPos.y += percent.y;
         #else
-            billboardPos.y += percent.y - 0.5f;
+            billboardPos.y += percent.y - 0.5;
         #endif
         output.positionCS = TransformObjectToHClip(billboardPos);
     #endif
 
     output.uv = input.texcoord;
-    output.uv.x = (output.uv.x - 0.5f) * _Shrink + 0.5f;
+    output.uv.x = (output.uv.x - 0.5) * _Shrink + 0.5;
     
     return output;
 }

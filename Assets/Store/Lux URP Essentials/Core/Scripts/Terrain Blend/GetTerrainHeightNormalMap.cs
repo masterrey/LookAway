@@ -11,6 +11,8 @@ namespace LuxURPEssentials
 		public TerrainData targetTerrainData;
 		public string savePathTerrainHeightNormalMap;
 
+		public bool useTextureFormatHalf = true;
+
 	    public void GetTerData() {
 	    	Terrain targetTerrain = (Terrain)GetComponent(typeof(Terrain));
 			targetTerrainData = targetTerrain.terrainData;

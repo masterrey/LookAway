@@ -24,7 +24,7 @@ struct Varyings
     #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
         float3 positionWS               : TEXCOORD1;
     #endif
-    half3 normalWS                      : TEXCOORD2;
+    float3 normalWS                     : TEXCOORD2; // float3 to avoid bending artifacts on TBDRs
     #ifdef _NORMALMAP
         half4 tangentWS                 : TEXCOORD3;
     #endif
@@ -45,6 +45,10 @@ struct Varyings
     
     #if defined(_DISTANCEFADE)
         nointerpolation half fade       : TEXCOORD8;
+    #endif
+
+    #ifdef USE_APV_PROBE_OCCLUSION
+        float4 probeOcclusion           : TEXCOORD10;
     #endif
 
     UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -92,8 +96,9 @@ Varyings LitPassVertex(Attributes input)
     #ifdef DYNAMICLIGHTMAP_ON
         output.dynamicLightmapUV = input.dynamicLightmapUV.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
     #endif
-    OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
     
+    OUTPUT_SH4(vertexInput.positionWS, output.normalWS.xyz, GetWorldSpaceNormalizeViewDir(vertexInput.positionWS), output.vertexSH, output.probeOcclusion);
+
     #ifdef _ADDITIONAL_LIGHTS_VERTEX
         output.fogFactorAndVertexLight = half4(fogFactor, vertexLight);
     #else
@@ -179,16 +184,25 @@ void InitializeInputData(Varyings input, half3 normalTS, half3 diffuseNormalTS, 
         inputData.positionWS = input.positionWS;
     #endif
 
+    #if defined(DEBUG_DISPLAY)
+        inputData.positionCS = input.positionCS;
+    #endif
+
     half3 viewDirWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
     
     #ifdef _NORMALMAP
         float sgn = input.tangentWS.w;      // should be either +1 or -1
         bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
-        half3x3 ToW = half3x3(input.tangentWS.xyz, bitangent, input.normalWS.xyz);
-        inputData.normalWS = TransformTangentToWorld(normalTS, ToW);
+        half3x3 tangentToWorld = half3x3(input.tangentWS.xyz, bitangent, input.normalWS.xyz);
+
+        #if defined(_NORMALMAP)
+            inputData.tangentToWorld = tangentToWorld;
+        #endif
+
+        inputData.normalWS = TransformTangentToWorld(normalTS, tangentToWorld);
         inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
         #ifdef _NORMALMAPDIFFUSE
-            diffuseNormalWS = TransformTangentToWorld(diffuseNormalTS, ToW);
+            diffuseNormalWS = TransformTangentToWorld(diffuseNormalTS, tangentToWorld);
             diffuseNormalWS = NormalizeNormalPerPixel(diffuseNormalWS);
         #else
         //  Here we let the user decide to use the per vertex or the specular normal.
@@ -217,15 +231,22 @@ void InitializeInputData(Varyings input, half3 normalTS, half3 diffuseNormalTS, 
     #endif
 
     #if defined(DYNAMICLIGHTMAP_ON)
-        //inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.dynamicLightmapUV, input.vertexSH, inputData.normalWS);
         inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.dynamicLightmapUV, input.vertexSH, diffuseNormalWS);
+        inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
+    #elif !defined(LIGHTMAP_ON) && (defined(PROBE_VOLUMES_L1) || defined(PROBE_VOLUMES_L2))
+        inputData.bakedGI = SAMPLE_GI(input.vertexSH,
+            GetAbsolutePositionWS(inputData.positionWS),
+            inputData.normalWS,
+            inputData.viewDirectionWS,
+            input.positionCS.xy,
+            input.probeOcclusion,
+            inputData.shadowMask);
     #else
-        //inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.vertexSH, inputData.normalWS);
         inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.vertexSH, diffuseNormalWS);
+        inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
     #endif
 
     inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
-    inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
 
     #if defined(DEBUG_DISPLAY)
     #if defined(DYNAMICLIGHTMAP_ON)
@@ -287,14 +308,14 @@ void LitPassFragment(
         ApplyDecalToSurfaceData(input.positionCS, surfaceData, inputData);
         half suppression = 1.0 - saturate( abs( dot(albedo, albedo) - dot(surfaceData.albedo, surfaceData.albedo) ) * 256.0 );
         additionalSurfaceData.skinMask *= suppression;
-        additionalSurfaceData.translucency *= lerp(suppression, 1.0, _DecalTransmission);
+        additionalSurfaceData.translucency *= lerp(suppression, 1, _DecalTransmission);
     #endif
 #endif
 
     #if defined(_RIMLIGHTING)
         half rim = saturate(1.0 - saturate( dot(inputData.normalWS, inputData.viewDirectionWS) ) );
         half power = _RimPower;
-        if(_RimFrequency > 0.0 ) {
+        if(_RimFrequency > 0 ) {
             half perPosition = lerp(0.0, 1.0, dot(1.0, frac(UNITY_MATRIX_M._m03_m13_m23) * 2.0 - 1.0 ) * _RimPerPositionFrequency ) * half(PI);
             power = lerp(power, _RimMinPower, (1.0 + sin(_Time.y * _RimFrequency + perPosition) ) * 0.5 );
         }
@@ -317,12 +338,12 @@ void LitPassFragment(
         // #endif
         diffuseNormalWS,
         _SubsurfaceColor.rgb,
-        (_SampleCurvature) ? additionalSurfaceData.curvature * _Curvature : lerp(additionalSurfaceData.translucency, 1.0, _Curvature),
+        (_SampleCurvature) ? additionalSurfaceData.curvature * _Curvature : lerp(additionalSurfaceData.translucency, 1, _Curvature),
     //  Lerp lighting towards standard according the distance fade
         additionalSurfaceData.skinMask * distanceFade,
         _MaskByShadowStrength,
         _Backscatter
-        );    
+    );    
 
 //  Add fog
     color.rgb = MixFog(color.rgb, inputData.fogCoord);

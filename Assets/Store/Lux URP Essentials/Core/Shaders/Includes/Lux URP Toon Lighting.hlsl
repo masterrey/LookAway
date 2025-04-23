@@ -11,11 +11,16 @@
 
 
 //  Toon
-    TEXTURE2D(_GradientMap);
-    // float4 _GradientMap_TexelSize;
-    SAMPLER(s_point_clamp_sampler);
-    SAMPLER(s_linear_clamp_sampler);
+    // TEXTURE2D(_GradientMap); float4 _GradientMap_TexelSize; // Moved to inputs
+    // Already defined since URP 16? Only in the Beta!
+    
 
+//  During the different Unity 6 betas it was or was not defined... so we can't use it.
+    // SAMPLER(s_point_clamp_sampler);
+    // SAMPLER(s_linear_clamp_sampler);
+
+    SAMPLER(lux_point_clamp_sampler);
+    SAMPLER(lux_linear_clamp_sampler);
 
 //  ///////////////////////////////////////////////////////////
 //
@@ -90,7 +95,9 @@ half aaStep(half compValue, half gradient, half softness){
     half lowerEdge = compValue - change;
     half upperEdge = compValue + change;
 //  Do the inverse interpolation
-    half stepped = (gradient - lowerEdge) / (upperEdge - lowerEdge);
+    //half stepped = (gradient - lowerEdge) / (upperEdge - lowerEdge); // pixelated
+//  Custom "inverse lerp"
+    half stepped = (gradient - lowerEdge * 0.5) / (upperEdge - lowerEdge);
     stepped = saturate(stepped);
     return stepped;
 }
@@ -117,7 +124,7 @@ half4 LuxURPToonFragmentPBR(InputData inputData,
 
     BRDFData brdfData;
 //  We can't use our specular here as it can be anything. So we simply use the default dielectric value here.
-    InitializeBRDFData(albedo, metallic, kDieletricSpec.rgb, smoothness, alpha, brdfData);
+    InitializeBRDFData(albedo, metallic, kDielectricSpec.rgb, smoothness, alpha, brdfData);
 
 //  Decals Part 1
 //  Here we get the decals' albedo and combine it with brdfData.diffuse as this is used by GI
@@ -157,6 +164,7 @@ half4 LuxURPToonFragmentPBR(InputData inputData,
         #if defined(_TOONRIM)
             surfaceData.emission += rimLighting;
         #endif
+
 
         if (CanDebugOverrideOutputColor(inputData, surfaceData, brdfData, debugColor))
         {
@@ -247,10 +255,10 @@ half4 LuxURPToonFragmentPBR(InputData inputData,
             NdotL = (quantizedNdotL + aaStep(saturate(quantizedNdotL * oneOverSteps), NdotL - 0.01h, diffuseFalloff )) * oneOverSteps;
         #else
             #if defined(_RAMP_SMOOTHSAMPLING)
-                NdotL = SAMPLE_TEXTURE2D(_GradientMap, s_linear_clamp_sampler, float2 (NdotL, 0.5f)).r;
+                NdotL = SAMPLE_TEXTURE2D(_GradientMap, lux_linear_clamp_sampler, float2 (NdotL, 0.5f)).r;
             #else
-                half NdotL0 = SAMPLE_TEXTURE2D(_GradientMap, s_point_clamp_sampler, float2 (NdotL, 0.5f)).r;
-                half NdotL1 = SAMPLE_TEXTURE2D(_GradientMap, s_point_clamp_sampler, float2 (NdotL + fwidth(NdotL) * _GradientMap_TexelSize.x, 0.5f)).r;
+                half NdotL0 = SAMPLE_TEXTURE2D(_GradientMap, lux_point_clamp_sampler, float2 (NdotL, 0.5f)).r;
+                half NdotL1 = SAMPLE_TEXTURE2D(_GradientMap, lux_point_clamp_sampler, float2 (NdotL + fwidth(NdotL) * _GradientMap_TexelSize.x, 0.5f)).r;
                 NdotL = (NdotL0 + NdotL1) * 0.5h;
             #endif
         #endif
@@ -301,10 +309,10 @@ half4 LuxURPToonFragmentPBR(InputData inputData,
                         NdotL = (quantizedNdotL + aaStep(saturate(quantizedNdotL * oneOverSteps), NdotL - 0.01h, diffuseFalloff )) * oneOverSteps;
                     #else
                         #if defined(_RAMP_SMOOTHSAMPLING)
-                            NdotL = SAMPLE_TEXTURE2D(_GradientMap, s_linear_clamp_sampler, float2 (NdotL, 0.5f)).r;
+                            NdotL = SAMPLE_TEXTURE2D(_GradientMap, lux_linear_clamp_sampler, float2 (NdotL, 0.5f)).r;
                         #else
-                            half NdotL0 = SAMPLE_TEXTURE2D(_GradientMap, s_point_clamp_sampler, float2 (NdotL, 0.5f)).r;
-                            half NdotL1 = SAMPLE_TEXTURE2D(_GradientMap, s_point_clamp_sampler, float2 (NdotL + fwidth(NdotL) * _GradientMap_TexelSize.x, 0.5f)).r;
+                            half NdotL0 = SAMPLE_TEXTURE2D(_GradientMap, lux_point_clamp_sampler, float2 (NdotL, 0.5f)).r;
+                            half NdotL1 = SAMPLE_TEXTURE2D(_GradientMap, lux_point_clamp_sampler, float2 (NdotL + fwidth(NdotL) * _GradientMap_TexelSize.x, 0.5f)).r;
                             NdotL = (NdotL0 + NdotL1) * 0.5h;
                         #endif
                     #endif
@@ -348,10 +356,10 @@ half4 LuxURPToonFragmentPBR(InputData inputData,
                     NdotL = (quantizedNdotL + aaStep(saturate(quantizedNdotL * oneOverSteps), NdotL - 0.01h, diffuseFalloff )) * oneOverSteps;
                 #else
                     #if defined(_RAMP_SMOOTHSAMPLING)
-                        NdotL = SAMPLE_TEXTURE2D(_GradientMap, s_linear_clamp_sampler, float2 (NdotL, 0.5f)).r;
+                        NdotL = SAMPLE_TEXTURE2D(_GradientMap, lux_linear_clamp_sampler, float2 (NdotL, 0.5f)).r;
                     #else
-                        half NdotL0 = SAMPLE_TEXTURE2D(_GradientMap, s_point_clamp_sampler, float2 (NdotL, 0.5f)).r;
-                        half NdotL1 = SAMPLE_TEXTURE2D(_GradientMap, s_point_clamp_sampler, float2 (NdotL + fwidth(NdotL) * _GradientMap_TexelSize.x, 0.5f)).r;
+                        half NdotL0 = SAMPLE_TEXTURE2D(_GradientMap, lux_point_clamp_sampler, float2 (NdotL, 0.5f)).r;
+                        half NdotL1 = SAMPLE_TEXTURE2D(_GradientMap, lux_point_clamp_sampler, float2 (NdotL + fwidth(NdotL) * _GradientMap_TexelSize.x, 0.5f)).r;
                         NdotL = (NdotL0 + NdotL1) * 0.5h;
                     #endif
                 #endif

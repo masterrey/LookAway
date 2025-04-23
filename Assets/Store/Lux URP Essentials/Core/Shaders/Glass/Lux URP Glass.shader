@@ -116,12 +116,15 @@ Shader "Lux URP/Glass"
             "RenderType" = "Transparent"
             "Queue" = "Transparent"
         }
-        LOD 100
+        LOD 300
 
         Pass
         {
             Name "ForwardLit"
-            Tags{"LightMode" = "UniversalForward"}
+            Tags
+            {
+                "LightMode" = "UniversalForward"
+            }
 
             Stencil {
                 Ref   [_Stencil]
@@ -174,12 +177,13 @@ Shader "Lux URP/Glass"
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
-            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
             #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
             #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
-            #pragma multi_compile_fragment _ _LIGHT_LAYERS
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
+            #pragma multi_compile _ _LIGHT_LAYERS
             #pragma multi_compile _ _FORWARD_PLUS
+            #include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
 
             // -------------------------------------
@@ -192,13 +196,13 @@ Shader "Lux URP/Glass"
             #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fog
             #pragma multi_compile_fragment _ DEBUG_DISPLAY
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ProbeVolumeVariants.hlsl"
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-            
 
 
         //  Include base inputs and all other needed "base" includes
@@ -244,8 +248,9 @@ Shader "Lux URP/Glass"
                 #ifdef DYNAMICLIGHTMAP_ON
                     output.dynamicLightmapUV = input.dynamicLightmapUV.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
                 #endif
-                OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
-                
+
+                OUTPUT_SH4(vertexInput.positionWS, output.normalWS.xyz, GetWorldSpaceNormalizeViewDir(vertexInput.positionWS), output.vertexSH, output.probeOcclusion);
+
                 output.fogFactorAndVertexLight = half4(fogFactor, vertexLight);
 
                 //#ifdef _ADDITIONAL_LIGHTS
@@ -403,7 +408,7 @@ Shader "Lux URP/Glass"
             
             //  Tint glass
                 half3 glassTint = outSurfaceData.albedo;
-                outSurfaceData.emission = RefractionSample * glassTint * max(0.5, 1.0 - F_Schlick(_SpecColor.rgb, NdotV)) * (1.0 - outSurfaceData.alpha);
+                outSurfaceData.emission = RefractionSample * glassTint * max(0.5h, 1.0h - F_Schlick(_SpecColor.rgb, NdotV)) * (1.0h - outSurfaceData.alpha);
 refractionDepth = 0;
 #if defined(_EXCLUDEFOREGROUND)
 refractionDepth = refractedSceneDepth; // max(0.5h, 1.0h - F_Schlick(_SpecColor.rgb, NdotV)) * (1.0h - outSurfaceData.alpha);
@@ -462,13 +467,21 @@ refractionDepth = refractedSceneDepth; // max(0.5h, 1.0h - F_Schlick(_SpecColor.
 
                 #if defined(DYNAMICLIGHTMAP_ON)
                     inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.dynamicLightmapUV, input.vertexSH, inputData.normalWS);
+                    inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
+                #elif !defined(LIGHTMAP_ON) && (defined(PROBE_VOLUMES_L1) || defined(PROBE_VOLUMES_L2))
+                    inputData.bakedGI = SAMPLE_GI(input.vertexSH,
+                        GetAbsolutePositionWS(inputData.positionWS),
+                        inputData.normalWS,
+                        inputData.viewDirectionWS,
+                        input.positionCS.xy,
+                        input.probeOcclusion,
+                        inputData.shadowMask);
                 #else
                     inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.vertexSH, inputData.normalWS);
+                    inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
                 #endif
             
-            //  New:
                 inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
-                inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
             }
 
             void LitPassFragment(
@@ -501,11 +514,11 @@ refractionDepth = refractedSceneDepth; // max(0.5h, 1.0h - F_Schlick(_SpecColor.
                 InitializeInputData(input, surfaceData.normalTS, viewDirWS, facing, inputData);
 
                 #if defined(_RIMLIGHTING)
-                    half rim = saturate(1.0 - saturate( dot(inputData.normalWS, inputData.viewDirectionWS) ) );
+                    half rim = saturate(1.0h - saturate( dot(inputData.normalWS, inputData.viewDirectionWS) ) );
                     half power = _RimPower;
                     if(_RimFrequency > 0 ) {
-                        half perPosition = lerp(0.0, 1.0, dot(1.0, frac(UNITY_MATRIX_M._m03_m13_m23) * 2.0 - 1.0 ) * _RimPerPositionFrequency ) * 3.1416;
-                        power = lerp(power, _RimMinPower, (1.0 + sin(_Time.y * _RimFrequency + perPosition) ) * 0.5 );
+                        half perPosition = lerp(0.0h, 1.0h, dot(1.0h, frac(UNITY_MATRIX_M._m03_m13_m23) * 2.0h - 1.0h ) * _RimPerPositionFrequency ) * 3.1416h;
+                        power = lerp(power, _RimMinPower, (1.0h + sin(_Time.y * _RimFrequency + perPosition) ) * 0.5h );
                     }
                     surfaceData.emission += pow(rim, power) * _RimColor.rgb * _RimColor.a;
                 #endif
@@ -549,13 +562,15 @@ refractionDepth = refractedSceneDepth; // max(0.5h, 1.0h - F_Schlick(_SpecColor.
         Pass
         {
             Name "Meta"
-            Tags{"LightMode" = "Meta"}
+            Tags
+            {
+                "LightMode" = "Meta"
+            }
 
             Cull Off
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
+            #pragma target 2.0
 
             #pragma vertex UniversalVertexMeta
             #pragma fragment UniversalFragmentMetaLit
@@ -589,6 +604,22 @@ refractionDepth = refractedSceneDepth; // max(0.5h, 1.0h - F_Schlick(_SpecColor.
 
             ENDHLSL
         }
+
+        // Pass
+        // {
+        //     Name "MotionVectors"
+        //     Tags { "LightMode" = "MotionVectors" }
+        //     ColorMask RG
+
+        //     HLSLPROGRAM
+        //     #pragma shader_feature_local _ALPHATEST_ON
+        //     #pragma multi_compile _ LOD_FADE_CROSSFADE
+        //     #pragma shader_feature_local_vertex _ADD_PRECOMPUTED_VELOCITY
+
+        //     #include "Includes/Lux URP Glass Inputs.hlsl"
+        //     #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ObjectMotionVectors.hlsl"
+        //     ENDHLSL
+        // }
 
     //  End Passes -----------------------------------------------------
     

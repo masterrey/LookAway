@@ -1,4 +1,7 @@
-﻿Shader "Lux URP/Fast Outline Double Pass"
+﻿// NOTE: Does not work with the GPU Resident Drawer, so DOTS instancing is disabled
+// Last checked with Unity 6000.0.9f1
+
+Shader "Lux URP/Fast Outline Double Pass"
 {
     Properties
     {
@@ -29,12 +32,14 @@
         [Space(5)]
         [Toggle(_APPLYFOG)] _ApplyFog("Enable Fog", Float) = 0.0
     }
+    
+
     SubShader
     {
         Tags
         {
             "RenderPipeline" = "UniversalPipeline"
-            "RenderType"="Opaque"
+            "RenderType" = "Transparent"  // "Opaque"
             "IgnoreProjector" = "True"
             "Queue"= "Transparent+60" // +59 smalltest to get drawn on top of transparents
         }
@@ -44,11 +49,7 @@
 
         Pass
         {
-            Tags
-            {
-                //"Queue"= "Transparent+59"
-            }
-            
+
             Name "Unlit"
             Stencil {
                 Ref      [_StencilRef]
@@ -71,13 +72,13 @@
 
             // -------------------------------------
             // Unity defined keywords
-            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
 
             //--------------------------------------
             // GPU Instancing
-            #pragma multi_compile_instancing
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-            
+            //#pragma multi_compile_instancing
+            //#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+
             
             #pragma vertex vert
             #pragma fragment frag
@@ -143,9 +144,9 @@
         {
 
             Name "ForwardLit"
-            Tags{ 
+            Tags
+            { 
                 "LightMode" = "UniversalForwardOnly"
-                //"Queue"= "Transparent+60"
             }
 
             Stencil {
@@ -172,13 +173,14 @@
             // -------------------------------------
             // Unity defined keywords
             #pragma multi_compile_fog
-            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
 
             //--------------------------------------
             // GPU Instancing
-            #pragma multi_compile_instancing
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-            
+            //#pragma multi_compile_instancing
+            //#pragma instancing_options renderinglayer
+            //#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+
             
             #pragma vertex vert
             #pragma fragment frag
@@ -269,4 +271,3 @@
     }
     FallBack "Hidden/InternalErrorShader"
 }
-

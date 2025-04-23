@@ -93,7 +93,10 @@ namespace LuxURPEssentials
 		public float Foliage = 1.0f;
 		public float Trees = 1.0f;
 
-		private RenderTexture WindRenderTexture;
+		private RenderTexture WindRenderTextureA;
+		private RenderTexture WindRenderTextureB;
+		private bool renderIntoA = true;
+		
 		private Material m_material;
 
 		private Vector2 uvs = new Vector2(0,0);
@@ -107,10 +110,16 @@ namespace LuxURPEssentials
 		//private float turbulence;
 
 		private static readonly int WindRTPID = Shader.PropertyToID("_LuxURPWindRT");
+		private static readonly int WindRTLastPID = Shader.PropertyToID("_LuxURPWindRTLast");
 
 		private static readonly int LuxURPWindDirSizePID = Shader.PropertyToID("_LuxURPWindDirSize");
+		private static readonly int LuxURPWindDirSizePreviousPID = Shader.PropertyToID("_LuxURPWindDirSizePrevious");
+
 		private static readonly int LuxURPWindStrengthMultipliersPID = Shader.PropertyToID("_LuxURPWindStrengthMultipliers");
-		private static readonly int LuxURPSinTimePID = Shader.PropertyToID("_LuxURPSinTime");
+		
+		// private static readonly int LuxURPSinTimePID = Shader.PropertyToID("_LuxURPSinTime");
+		// private static readonly int LuxURPSinTimePreviousPID = Shader.PropertyToID("_LuxURPSinTimePrevious");
+
 		private static readonly int LuxURPGustPID = Shader.PropertyToID("_LuxURPGust");
 		private static readonly int LuxURPGustMixLayerPID = Shader.PropertyToID("_LuxURPGustMixLayer");
 
@@ -167,10 +176,15 @@ namespace LuxURPEssentials
 		}
 
 		void OnDisable () {
-			if (WindRenderTexture != null) {
-				WindRenderTexture.Release();
-				UnityEngine.Object.DestroyImmediate(WindRenderTexture);
-				WindRenderTexture = null;
+			if (WindRenderTextureA != null) {
+				WindRenderTextureA.Release();
+				UnityEngine.Object.DestroyImmediate(WindRenderTextureA);
+				WindRenderTextureA = null;
+			}
+			if (WindRenderTextureB != null) {
+				WindRenderTextureB.Release();
+				UnityEngine.Object.DestroyImmediate(WindRenderTextureB);
+				WindRenderTextureB = null;
 			}
 			if (m_material != null) {
 				UnityEngine.Object.DestroyImmediate(m_material);
@@ -196,16 +210,29 @@ namespace LuxURPEssentials
 		#endif
 
 		void SetupRT () {
-			if (WindRenderTexture == null || m_material == null)
+			if (WindRenderTextureA == null || WindRenderTextureB == null)
 	        {
 	        	var rtf = ((int)Format == 0) ? RenderTextureFormat.ARGB32 : RenderTextureFormat.ARGBHalf;
-	            WindRenderTexture = new RenderTexture((int)Resolution, (int)Resolution, 0, rtf, RenderTextureReadWrite.Linear );
-	            WindRenderTexture.useMipMap = true;
-	            WindRenderTexture.wrapMode = TextureWrapMode.Repeat;
-	            m_material = new Material(WindCompositeShader);
+	            
+	            WindRenderTextureA = new RenderTexture((int)Resolution, (int)Resolution, 0, rtf, RenderTextureReadWrite.Linear );
+	            WindRenderTextureA.useMipMap = true;
+	            WindRenderTextureA.wrapMode = TextureWrapMode.Repeat;
+	            WindRenderTextureA.name = "_LuxURP_WindRT";
+
+	            WindRenderTextureB = new RenderTexture((int)Resolution, (int)Resolution, 0, rtf, RenderTextureReadWrite.Linear );
+	            WindRenderTextureB.useMipMap = true;
+	            WindRenderTextureB.wrapMode = TextureWrapMode.Repeat;
+	            WindRenderTextureB.name = "_LuxURP_WindRT_Last";
+	            
+	        }
+
+	        if (m_material == null)
+	        {
+	        	m_material = new Material(WindCompositeShader);
 	        }
 		}
 
+#if UNITY_EDITOR
 		void OnValidate () {
 			if(WindCompositeShader == null) {
 				WindCompositeShader = Shader.Find("Hidden/Lux URP WindComposite");
@@ -215,13 +242,23 @@ namespace LuxURPEssentials
 			}
 			if ( (previousRTSize != (int)Resolution ) || ( previousRTFormat != (int)Format ) ) {
 				var rtf = ((int)Format == 0) ? RenderTextureFormat.ARGB32 : RenderTextureFormat.ARGBHalf;
-				WindRenderTexture = new RenderTexture((int)Resolution, (int)Resolution, 0, rtf, RenderTextureReadWrite.Linear );
-	            WindRenderTexture.useMipMap = true;
-	            WindRenderTexture.wrapMode = TextureWrapMode.Repeat;
+				
+				WindRenderTextureA = new RenderTexture((int)Resolution, (int)Resolution, 0, rtf, RenderTextureReadWrite.Linear );
+	            WindRenderTextureA.useMipMap = true;
+	            WindRenderTextureA.wrapMode = TextureWrapMode.Repeat;
+
+	            WindRenderTextureB = new RenderTexture((int)Resolution, (int)Resolution, 0, rtf, RenderTextureReadWrite.Linear );
+	            WindRenderTextureB.useMipMap = true;
+	            WindRenderTextureB.wrapMode = TextureWrapMode.Repeat;
 			}
 		}
+#endif
 		
 		void Update () {
+
+
+		//	Set old values before they get updated
+			// Shader.SetGlobalVector(LuxURPWindDirSizePreviousPID, WindDirectionSize); // a bit over the top...
 
 		//	Get wind settings from WindZone
 			mainWind = windZone.windMain;
@@ -316,10 +353,23 @@ namespace LuxURPEssentials
 			Shader.SetGlobalVector(LuxURPGustMixLayerPID, MixLayers[(int)LayerToMixWith]);
 
 		#if UNITY_EDITOR
-			if (m_material != null && WindRenderTexture != null ) {
+			if (m_material != null && WindRenderTextureA != null && WindRenderTextureB != null) {
 		#endif
-				Graphics.Blit(WindBaseTex, WindRenderTexture, m_material);
-				WindRenderTexture.SetGlobalShaderProperty("_LuxURPWindRT"); // only accepts strings...
+				
+				if(renderIntoA)
+				{
+					Graphics.Blit(WindBaseTex, WindRenderTextureA, m_material);
+					WindRenderTextureA.SetGlobalShaderProperty("_LuxURPWindRT"); // only accepts strings...	
+					WindRenderTextureB.SetGlobalShaderProperty("_LuxURPWindRTPrevious");
+				}
+				else
+				{
+					Graphics.Blit(WindBaseTex, WindRenderTextureB, m_material);
+					WindRenderTextureB.SetGlobalShaderProperty("_LuxURPWindRT"); // only accepts strings...
+					WindRenderTextureA.SetGlobalShaderProperty("_LuxURPWindRTPrevious");
+				}
+				renderIntoA = !renderIntoA;
+
 		#if UNITY_EDITOR
 			}
 		#endif

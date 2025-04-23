@@ -20,6 +20,8 @@ struct Varyings
         float2 uv                   : TEXCOORD0;
         half fade                   : TEXCOORD1;
     #endif
+
+    UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
@@ -32,6 +34,7 @@ Varyings ShadowPassVertex(Attributes input)
 {
     Varyings output = (Varyings)0;
     UNITY_SETUP_INSTANCE_ID(input);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
 
 //  Set distance fade value
     float3 worldInstancePos = UNITY_MATRIX_M._m03_m13_m23;
@@ -73,6 +76,8 @@ Varyings ShadowPassVertex(Attributes input)
 
 half4 ShadowPassFragment(Varyings input) : SV_TARGET
 {
+    UNITY_SETUP_INSTANCE_ID(input);
+
     #ifdef LOD_FADE_CROSSFADE
         LODFadeCrossFade(input.positionCS);
     #endif

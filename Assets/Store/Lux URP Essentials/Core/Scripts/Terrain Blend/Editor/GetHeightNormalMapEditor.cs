@@ -17,9 +17,14 @@ namespace LuxURPEssentials
 		public override void OnInspectorGUI () {
 
 			GetTerrainHeightNormalMap = new SerializedObject(target);
+			
+			var useTextureFormatHalf = GetTerrainHeightNormalMap.FindProperty("useTextureFormatHalf");
+
 			GetTerrainHeightNormalMap script = (GetTerrainHeightNormalMap)target;
 			script.GetTerData();
 			savePathTerrainHeightNormalMap = GetTerrainHeightNormalMap.FindProperty("savePathTerrainHeightNormalMap");
+
+			useTextureFormatHalf.boolValue = GUILayout.Toggle(useTextureFormatHalf.boolValue, "Use TextureFormat Half");
 
 			if (GUILayout.Button("Get Height Normal Map")) {
 				CreateTerrainHeightNormal();
@@ -30,6 +35,7 @@ namespace LuxURPEssentials
 		void CreateTerrainHeightNormal() {
 			GetTerrainHeightNormalMap script = (GetTerrainHeightNormalMap)target;
 			TerrainData targetTerrainData = script.targetTerrainData;
+
 			Texture2D tempTex = new Texture2D(targetTerrainData.heightmapResolution, targetTerrainData.heightmapResolution, TextureFormat.RGBA32, false, true);
 
 			Color32[] cols = new Color32[tempTex.width * tempTex.height];
@@ -71,9 +77,14 @@ namespace LuxURPEssentials
 				byte[] bytes = tempTex.EncodeToPNG();
 				System.IO.File.WriteAllBytes(filePath, bytes);
 				AssetDatabase.Refresh();
-				TextureImporter ti = AssetImporter.GetAtPath(filePath) as TextureImporter;
-				
-				ti.textureCompression = TextureImporterCompression.Uncompressed;
+
+                TextureImporterPlatformSettings settings = new TextureImporterPlatformSettings();
+                settings.format = script.useTextureFormatHalf ? TextureImporterFormat.RGBAHalf : TextureImporterFormat.RGBA32;
+
+                TextureImporter ti = AssetImporter.GetAtPath(filePath) as TextureImporter;
+                ti.SetPlatformTextureSettings(settings);
+
+                ti.textureCompression = TextureImporterCompression.Uncompressed;
 				ti.sRGBTexture = false;
 
 				ti.wrapMode = TextureWrapMode.Clamp;

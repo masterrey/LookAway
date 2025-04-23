@@ -5,7 +5,7 @@ using UnityEngine;
 namespace LuxURPEssentials.Demo {
     public class ToggleOutlineSelection : MonoBehaviour
     {
-        public Material SelectionMaterial;
+        public Material SelectionMaterial; // not needed anymore
         public Material OutlineMaterial;
 
     	Renderer rend;
