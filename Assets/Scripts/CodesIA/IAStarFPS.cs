@@ -195,5 +195,8 @@ public class IAStarFPS : MonoBehaviour
         yield return new WaitForSeconds(0.05f);
     }
 
-   
+
+   //keep the ik foot on the ground
+  
+
 }

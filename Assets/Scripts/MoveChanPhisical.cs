@@ -243,6 +243,18 @@ public class MoveChanPhisical : MonoBehaviour
                     return;
                 }
             }
+
+            //verifica se o personagem parou e posiciona os pes no chao
+            if (grounded && weight > 0)
+            {
+                Vector3 footDirection = closeThing.transform.position - transform.position;
+                float lookTo = Vector3.Dot(footDirection.normalized, transform.forward);
+                weight = Mathf.Lerp(weight, (lookTo * 3 / (Mathf.Pow(footDirection.magnitude, 3))), Time.fixedDeltaTime * 2);
+                anim.SetIKPositionWeight(AvatarIKGoal.LeftFoot, weight);
+                anim.SetIKRotationWeight(AvatarIKGoal.LeftFoot, weight);
+                anim.SetIKPosition(AvatarIKGoal.LeftFoot, closeThing.transform.position - transform.right * 0.1f);
+                anim.SetIKRotation(AvatarIKGoal.LeftFoot, Quaternion.identity);
+            }
         }
     }
 
