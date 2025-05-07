@@ -4,7 +4,7 @@ public class WeaponInteract : MonoBehaviour
 {
     public Transform rightHand;
     public Transform leftHand;
-    public GameObject weaponPrefab;
+    public GameObject itemReference;
     GameObject weaponInstance;
     public MenuGame menuGame;
 
@@ -32,7 +32,7 @@ public class WeaponInteract : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (weaponPrefab != null) {
+        if (itemReference != null) {
             if (Input.GetKeyDown(KeyCode.Tab))
             {
                 UnequipWeapon();
@@ -44,18 +44,17 @@ public class WeaponInteract : MonoBehaviour
     public void EquipWeapon(bool fromInventory = false)
     {
         // Check if the weaponPrefab is not null and if the weaponInstance is null
-        if (weaponPrefab == null)
+        if (itemReference == null)
         {
             Debug.LogError("Weapon prefab is not assigned.");
             return;
         }
         if (!fromInventory)
-        menuGame.AddItemToInventory(weaponPrefab.GetComponent<ItemRef>().item, 1);
-
+        menuGame.AddItemToInventory(itemReference.GetComponent<ItemRef>().item, 1);
 
         if (weaponInstance == null)
         {
-            weaponInstance = weaponPrefab;
+            weaponInstance = itemReference;
             weaponInstance.transform.SetParent(rightHand);
             weaponInstance.transform.localPosition = Vector3.zero;
             weaponInstance.transform.localRotation = Quaternion.identity;
@@ -76,7 +75,7 @@ public class WeaponInteract : MonoBehaviour
         }
         if (weaponInstance == null)
         {
-            weaponPrefab = Instantiate(item.prefab);
+            itemReference = Instantiate(item.prefab);
             EquipWeapon(true);
         }
     }
@@ -107,11 +106,23 @@ public class WeaponInteract : MonoBehaviour
         }
     }
 
+    public void StoreItem(Item item)
+    {
+        if (item == null)
+        {
+            Debug.LogError("Item is not assigned.");
+            return;
+        }
+        menuGame.AddItemToInventory(itemReference.GetComponent<ItemRef>().item, 1);
+        Destroy(itemReference);
+
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Weapon"))
         {
-            weaponPrefab = other.gameObject;
+            itemReference = other.gameObject;
             EquipWeapon();
         }
     }
@@ -120,8 +131,14 @@ public class WeaponInteract : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Weapon"))
         {
-            weaponPrefab = collision.gameObject;
+            itemReference = collision.gameObject;
             EquipWeapon();
+        }
+    
+        if (collision.gameObject.CompareTag("Item"))
+        {
+            itemReference = collision.gameObject;
+            StoreItem(itemReference.GetComponent<ItemRef>().item);
         }
     }
 }
