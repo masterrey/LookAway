@@ -13,15 +13,21 @@ public class MenuGame : MonoBehaviour
     private GameObject menuGameInventory;
     [SerializeField]
     private GameObject menuGameSettings;
+    // invantario em scriptable object
     public Inventory inventory;
+    // Referência ao TextMeshProUGUI para exibir o debug do inventário
     public TextMeshProUGUI inventoryText;
+    // Variável para controlar o estado de pausa do jogo
     bool paused = false;
-
+    // Prefab do slot de inventário
     public GameObject inventorySlotPrefab;
+    // Referência ao painel do inventário
     public Transform inventoryPanel;
 
+    // Lista para armazenar os slots de inventário
     private List<GameObject> slots = new List<GameObject>();
 
+    // Referência ao WeaponInteract do jogador
     [SerializeField]
     WeaponInteract weaponInteract;
 
@@ -31,13 +37,13 @@ public class MenuGame : MonoBehaviour
     {
         menuGame.SetActive(true);
         menuGamePause.SetActive(false);
-        //menuGameInventory.SetActive(false);
-        //menuGameSettings.SetActive(false);
+        
         inventoryText.text = "Inventário:\n";
         foreach (var slot in inventory.items)
         {
             inventoryText.text += $"{slot.item.itemName} x{slot.quantity}\n";
         }
+        // Verifica se o WeaponInteract já foi atribuído
         if (weaponInteract == null)
         {
             //busca o player e pega o weaponInteract
