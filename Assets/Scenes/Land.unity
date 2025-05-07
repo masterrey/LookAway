@@ -9467,7 +9467,12 @@ MonoBehaviour:
   rightHand: {fileID: 1787684794}
   leftHand: {fileID: 1369681852}
   weaponPrefab: {fileID: 0}
-  animator: {fileID: 0}
+  animator: {fileID: 1938686111}
+--- !u!95 &1938686111 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 2012696493318597386, guid: 4ccb3266c6a8f734588dc5d920baef9d, type: 3}
+  m_PrefabInstance: {fileID: 7178004968186966790}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2013954761
 GameObject:
   m_ObjectHideFlags: 0
@@ -9785,6 +9790,10 @@ PrefabInstance:
     - target: {fileID: 1853896491138593303, guid: 15421ecb2f836ee4abd0116009b2a78c, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1853896491138593303, guid: 15421ecb2f836ee4abd0116009b2a78c, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 127
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

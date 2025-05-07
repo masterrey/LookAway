@@ -38,6 +38,7 @@ public class Weapon : MonoBehaviour
             weaponInstance.GetComponent<Rigidbody>().isKinematic = true; // Make the weapon kinematic
             weaponInstance.GetComponent<Collider>().enabled = false; // Disable the collider
             animator.SetLayerWeight(animator.GetLayerIndex("Sword"), 1); // Set the weapon layer to be active
+            animator.SetBool("Weapon", true); // Set the equipped state to true
         }
     }
     // This method is called when the player presses the "Unequip" button
@@ -50,6 +51,7 @@ public class Weapon : MonoBehaviour
             weaponInstance.GetComponent<Rigidbody>().isKinematic = false;
             weaponInstance.GetComponent<Collider>().enabled = true; // Enable the collider
             animator.SetLayerWeight(animator.GetLayerIndex("Sword"), 0); // Set the weapon layer to be inactive
+            animator.SetBool("Weapon", false); // Set the equipped state to false
         }
     }
 
