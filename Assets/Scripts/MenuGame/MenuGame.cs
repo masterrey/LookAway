@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,6 +25,11 @@ public class MenuGame : MonoBehaviour
     // Referência ao painel do inventário
     public Transform inventoryPanel;
 
+    public GameObject lifePanel;
+    public Transform[] lifeContaines;
+
+    public Health health;
+
     // Lista para armazenar os slots de inventário
     private List<GameObject> slots = new List<GameObject>();
 
@@ -37,7 +43,7 @@ public class MenuGame : MonoBehaviour
     {
         menuGame.SetActive(true);
         menuGamePause.SetActive(false);
-        
+
         inventoryText.text = "Inventário:\n";
         foreach (var slot in inventory.items)
         {
@@ -50,10 +56,16 @@ public class MenuGame : MonoBehaviour
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             if (player != null)
             {
+                health = player.GetComponent<Health>();
                 weaponInteract = player.GetComponent<WeaponInteract>();
                 if (weaponInteract == null)
                 {
                     Debug.LogError("WeaponInteract component not found on the player.");
+                }
+                // Verifica se o Health já foi atribuído
+                if (health == null)
+                {
+                    Debug.LogError("Health component not found on the player.");
                 }
             }
             else
@@ -62,6 +74,21 @@ public class MenuGame : MonoBehaviour
             }
         }
 
+        // Verifica se o life já foi atribuído
+        // Atualiza a barra de vida
+        if (lifePanel != null )
+        {
+            lifePanel.SetActive(true);
+            lifeContaines = lifePanel.GetComponentsInChildren<Transform>(true).Skip(1).ToArray();
+
+            for (int i = 0; i < lifeContaines.Length; i++)
+            {
+                lifeContaines[i].gameObject.SetActive(false);
+            }
+        }
+
+        // Atualiza a barra de vida
+        Invoke("LiveUpdate", 2f);
     }
 
     // Update is called once per frame
@@ -108,6 +135,37 @@ public class MenuGame : MonoBehaviour
                 inventoryText.text += $"{slot.item.itemName} x{slot.quantity}\n";
             }
         }
+    }
+
+    public void LiveUpdate()
+    {
+        // Atualiza a barra de vida
+        if (lifePanel != null)
+        {
+            // Verifica se o Health já foi atribuído
+            if (health == null)
+            {
+                Debug.LogError("Health component not found on the player.");
+                return;
+            }
+            lifePanel.SetActive(true);
+            Debug.Log($"Vida Atual: {health.currentHealth}");
+            for (int i = 0; i < lifeContaines.Length; i++)
+            {
+
+                if (i < health.currentHealth)
+                {
+                    lifeContaines[i].gameObject.SetActive(true);
+                }
+                else
+                {
+                    lifeContaines[i].gameObject.SetActive(false);
+                }
+            }
+        }
+
+
+
     }
 
 

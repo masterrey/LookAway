@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Health : MonoBehaviour
 {
-    public int maxHealth = 100;
+    public int maxHealth = 3;
     public int currentHealth;
     public bool isDead = false;
     public GameObject deathEffect;
@@ -12,6 +12,7 @@ public class Health : MonoBehaviour
     public float respawnTime = 5f;
     public Animator animator;
     public MoveChanPhisical moveChanPhisical;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
