@@ -8,6 +8,7 @@ public class WeaponInteract : MonoBehaviour
     GameObject weaponInstance;
     public MenuGame menuGame;
 
+    public MoveChanPhisical moveChanPhisical;
 
     public Animator animator;
 
@@ -16,6 +17,7 @@ public class WeaponInteract : MonoBehaviour
     {
         // Find the MenuGame script in the scene
         menuGame = FindObjectOfType<MenuGame>();
+        moveChanPhisical = GetComponent<MoveChanPhisical>();
         if (menuGame == null)
         {
             Debug.LogError("MenuGame script not found in the scene.");
@@ -39,6 +41,8 @@ public class WeaponInteract : MonoBehaviour
             }
         }
 
+        
+
     }
     // This method is called when the player presses the "Equip" button
     public void EquipWeapon(bool fromInventory = false)
@@ -58,10 +62,17 @@ public class WeaponInteract : MonoBehaviour
             weaponInstance.transform.SetParent(rightHand);
             weaponInstance.transform.localPosition = Vector3.zero;
             weaponInstance.transform.localRotation = Quaternion.identity;
-            weaponInstance.GetComponent<Rigidbody>().isKinematic = true; // Make the weapon kinematic
-            weaponInstance.GetComponent<Collider>().enabled = false; // Disable the collider
+            weaponInstance.layer = LayerMask.NameToLayer("Player"); // Set the layer to "Weapon"
+            //weaponInstance.GetComponent<Rigidbody>().isKinematic = true; // Make the weapon kinematic
+            //weaponInstance.GetComponent<Collider>().enabled = false; // Disable the collider
+            //attach the weapon to the right hand rigbody using fixed joint
+            FixedJoint fixedJoint = weaponInstance.AddComponent<FixedJoint>();
+            fixedJoint.connectedBody = rightHand.GetComponent<Rigidbody>();
+            fixedJoint.connectedBody.collisionDetectionMode = CollisionDetectionMode.Continuous;
+            // Set the weapon to be a child of the right hand
             animator.SetLayerWeight(animator.GetLayerIndex("Sword"), 1); // Set the weapon layer to be active
             animator.SetBool("Weapon", true); // Set the equipped state to true
+            moveChanPhisical.haveWeapons = true; // Set the haveWeapons state to true
         }
     }
 
@@ -89,9 +100,17 @@ public class WeaponInteract : MonoBehaviour
             weaponInstance.transform.SetParent(null);
             weaponInstance.GetComponent<Rigidbody>().isKinematic = false;
             weaponInstance.GetComponent<Collider>().enabled = true; // Enable the collider
+            //remove the fixed joint if it exists
+            FixedJoint fixedJoint = weaponInstance.GetComponent<FixedJoint>();
+            fixedJoint.connectedBody = weaponInstance.GetComponent<Rigidbody>();
+            if (fixedJoint != null)
+            {
+                Destroy(fixedJoint);
+            }
             animator.SetLayerWeight(animator.GetLayerIndex("Sword"), 0); // Set the weapon layer to be inactive
             animator.SetBool("Weapon", false); // Set the equipped state to false
             menuGame.RemoveItemFromInventory(weaponInstance.GetComponent<ItemRef>().item, 1);
+            moveChanPhisical.haveWeapons = false; // Set the haveWeapons state to false
         }
     }
     public void UnequipWeapon()
@@ -103,6 +122,7 @@ public class WeaponInteract : MonoBehaviour
             animator.SetLayerWeight(animator.GetLayerIndex("Sword"), 0); // Set the weapon layer to be inactive
             animator.SetBool("Weapon", false); // Set the equipped state to false
             weaponInstance = null;
+            moveChanPhisical.haveWeapons = false; // Set the haveWeapons state to false
         }
     }
 

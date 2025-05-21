@@ -17,6 +17,7 @@ public class MoveChanPhisical : MonoBehaviour
     public GameObject currentCamera;
     public float jumpspeed = 8;
     public float gravity = 20;
+    public bool haveWeapons = false;
 
     // Variáveis privadas
     float jumptime;
@@ -206,7 +207,7 @@ public class MoveChanPhisical : MonoBehaviour
         }
 
         // Lida com a interação do personagem com objetos próximos
-        if (closeThing)
+        if (closeThing && !haveWeapons)
         {
             // Código para calcular a direção e peso das mãos do personagem ao interagir com objetos próximos
 
@@ -247,7 +248,7 @@ public class MoveChanPhisical : MonoBehaviour
             //verifica se o personagem parou e posiciona os pes no chao
             if (grounded && weight > 0)
             {
-                Vector3 footDirection = closeThing.transform.position - transform.position;
+                Vector3 footDirection = Vector3.down;
                 float lookTo = Vector3.Dot(footDirection.normalized, transform.forward);
                 weight = Mathf.Lerp(weight, (lookTo * 3 / (Mathf.Pow(footDirection.magnitude, 3))), Time.fixedDeltaTime * 2);
                 anim.SetIKPositionWeight(AvatarIKGoal.LeftFoot, weight);
